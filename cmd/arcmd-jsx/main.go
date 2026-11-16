@@ -66,7 +66,12 @@ func readManifest(r io.Reader) (manifest, error) {
 type reader struct {
 	editor       *editor.Editor
 	blocks       map[string]editor.EmbeddedBlock
+	win          *mygo.Window
+	views        []*mygo.WebView
 	source, menu bool
+	themeKey     string
+	themeApplied bool
+	theme        islandTheme
 }
 
 func (r *reader) view(c *ui.Context) {
@@ -92,7 +97,35 @@ func (r *reader) view(c *ui.Context) {
 			blocks = nil
 		}
 		editor.View(c, r.editor, editor.Options{Width: width, Theme: c.Theme(), EmbeddedBlocks: blocks})
+		r.syncIslandTheme(c.Theme())
 	})
+}
+
+func (r *reader) syncIslandTheme(t *ui.Theme) {
+	if t == nil {
+		return
+	}
+	theme := newIslandTheme(t)
+	key := theme.Key()
+	if key != r.themeKey {
+		r.themeKey = key
+		r.theme = theme
+		r.themeApplied = false
+		for _, view := range r.views {
+			_ = view.SetBackgroundColor(theme.Background())
+		}
+	}
+	if r.themeApplied || len(r.views) == 0 {
+		return
+	}
+	script := theme.Script()
+	ok := true
+	for _, view := range r.views {
+		if _, err := view.Page().Eval(script); err != nil {
+			ok = false
+		}
+	}
+	r.themeApplied = ok
 }
 
 func run() error {
@@ -114,6 +147,7 @@ func run() error {
 	r.editor.ReadOnly = true
 	mygo.App.WhenReady(func() {
 		win := mygo.NewWindow(mygo.WindowOptions{Title: "ArcMD JSX islands (experiment)", Width: 1060, Height: 800, Content: ui.View(r.view)})
+		r.win = win
 		for _, block := range m.Blocks {
 			if block.Error != "" || block.HTML == "" {
 				continue
@@ -124,7 +158,7 @@ func run() error {
 				}
 				// No bound methods, window controls, downloads or permissions.
 				// Scroll events belong to the native document, not the page.
-				view, err := win.NewWebView(mygo.WebViewOptions{Page: mygo.PageOptions{Untrusted: true}, ScrollToContainer: true})
+				view, err := win.NewWebView(mygo.WebViewOptions{Page: mygo.PageOptions{Untrusted: true}, ScrollToContainer: true, BackgroundColor: "transparent"})
 				if err != nil {
 					log.Printf("%s: %v (showing source)", block.Language, err)
 					continue
@@ -134,7 +168,19 @@ func run() error {
 						event.PreventDefault()
 					}
 				})
+				// Apply tokens after load without reloading the page later.
+				view.Page().OnDidFinishLoad(func() {
+					r.themeApplied = false
+					if r.themeKey != "" {
+						_, _ = view.Page().Eval(r.theme.Script())
+						_ = view.SetBackgroundColor(r.theme.Background())
+					}
+					if r.win != nil {
+						r.win.Invalidate()
+					}
+				})
 				view.Page().LoadHTML(block.HTML, "about:blank")
+				r.views = append(r.views, view)
 				r.blocks[native.ID] = editor.EmbeddedBlock{View: view, Height: block.Height}
 			}
 		}

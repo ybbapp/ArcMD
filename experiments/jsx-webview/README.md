@@ -208,3 +208,17 @@ macOS runtime test is claimed. This Go 1.27.3 artifact requires macOS 13+
 supporting macOS 12+. macOS supplies AppKit, WKWebView and Metal;
 Linux's missing WebKitGTK does not become a macOS dependency. See
 `preview-release.zh-CN.md` for end-user startup, Gatekeeper and compatibility notes.
+
+
+## Theme
+
+Island pages no longer hardcode a light card (`color:#222;background:#fff`).
+The compiled CSS uses custom properties (`--bg`, `--text`, `--text-muted`,
+`--surface`, `--border`, `--accent`, `--accent-text`, `--danger`, `--font`,
+`--font-size`) and `color-scheme`. Defaults are transparent/`CanvasText` so a
+dark document is not flashed white. The preview host derives tokens from the
+live `ui.Theme` (paper and body text from `Background`/`Text`, plus control
+colors) and applies them with `Page.Eval`, which is not subject to the page
+CSP. Appearance changes update the same documents in place; React state is
+not remounted and the HTML is not recompiled. The page CSP is unchanged:
+hash-only `script-src`/`style-src`, no `unsafe-inline`, no network.

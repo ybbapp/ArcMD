@@ -10,6 +10,24 @@ const here = dirname(fileURLToPath(import.meta.url))
 const hash = text => createHash('sha256').update(text).digest('base64')
 const literal = value => JSON.stringify(value).replaceAll('<', '\\u003c').replaceAll('\u2028', '\\u2028').replaceAll('\u2029', '\\u2029')
 
+// Theme tokens are applied at runtime by the native host (Page.Eval is not
+// subject to the page CSP). Defaults stay transparent so a dark document is
+// not flashed with a white card before the first update.
+export const islandStyle = ':root{color-scheme:light;--bg:transparent;--text:CanvasText;--text-muted:GrayText;--surface:Canvas;--border:ButtonBorder;--accent:Highlight;--accent-text:HighlightText;--danger:Maroon;--font:system-ui,sans-serif;--font-size:16px}html,body{margin:0;background:var(--bg);color:var(--text);font:var(--font-size)/1.5 var(--font)}body{padding:16px}button{font:inherit;padding:8px 16px;cursor:pointer;color:var(--accent-text);background:var(--accent);border:1px solid var(--border);border-radius:6px}aside{border-left:4px solid var(--accent);padding:12px;background:var(--surface);color:var(--text)}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--danger)}h3{margin-top:0;color:var(--text)}output{color:var(--text-muted)}'
+
+// Same property writes the Go host performs via Eval. Used by tests to prove
+// a compiled island can change theme without being rebuilt or remounted.
+export function applyTheme(document, theme) {
+  const root = document.documentElement
+  if (!root) return false
+  root.style.setProperty('color-scheme', theme.dark ? 'dark' : 'light')
+  for (const [name, value] of Object.entries(theme.vars || {})) {
+    root.style.setProperty(name, value)
+  }
+  return true
+}
+
+
 export function fence(source, language) {
   const ticks = '`'.repeat(Math.max(3, ...[...source.matchAll(/`+/g)].map(m => m[0].length + 1)))
   return `${ticks}${language}\n${source}\n${ticks}`
@@ -68,7 +86,7 @@ export async function islandHTML(source) {
   })
   // Escaping a script end tag preserves JS strings while preventing an HTML escape.
   const script = result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script')
-  const style = 'body{margin:0;padding:16px;font:16px system-ui;color:#222;background:#fff}button{font:inherit;padding:8px 16px;cursor:pointer}aside{border-left:4px solid #8d80ce;padding:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}h3{margin-top:0}'
+  const style = islandStyle
   const csp = `default-src 'none'; script-src 'sha256-${hash(script)}'; style-src 'sha256-${hash(style)}'; base-uri 'none'; form-action 'none'; frame-src 'none'; connect-src 'none'; object-src 'none'`
   return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><style>${style}</style></head><body><div id="root"></div><script>${script}</script></body></html>`
 }

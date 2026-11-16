@@ -69,6 +69,19 @@ def macho_details(data):
     return result
 
 
+def sign_app(app):
+    tool = shutil.which("rcodesign") or str(Path.home() / ".cargo" / "bin" / "rcodesign")
+    if not Path(tool).is_file():
+        raise FileNotFoundError("rcodesign (apple-codesign) is required to ad-hoc sign the preview bundle")
+    # Ad-hoc (no certificate). Do not enable the hardened runtime: this preview
+    # has no Apple entitlements and must still load WKWebView JavaScript.
+    run(tool, "sign", str(app))
+    resources = app / "Contents" / "_CodeSignature" / "CodeResources"
+    if not resources.is_file() or resources.stat().st_size == 0:
+        raise ValueError("bundle ad-hoc signature did not produce CodeResources")
+    return tool, resources
+
+
 def dependency_licenses(destination):
     # Enumerate the actual target's imported modules, not unrelated lazy/test
     # module-graph entries which may have no downloaded source directory.
@@ -124,6 +137,8 @@ def verify_zip(archive, prefix, digest):
             raise ValueError("invalid bundle metadata")
         if hashlib.sha256(z.read(base + "Resources/demo.manifest.json")).hexdigest() != digest:
             raise ValueError("missing or changed bundled demo")
+        if not z.read(base + "_CodeSignature/CodeResources"):
+            raise ValueError("ZIP is missing the bundle ad-hoc code resources")
         for name in ("Resources/icon.icns", "Resources/LICENSE", "Resources/demo.mdx", "Resources/BUILD-INFO.json"):
             if not z.read(base + name):
                 raise ValueError("empty resource: " + name)
@@ -163,7 +178,6 @@ def main():
         run("go", "build", "-trimpath", "-ldflags", "-s -w -X=main.bundledDemoSHA256=" + digest,
             "-o", str(binary), "./cmd/arcmd-jsx", env=env)
         binary.chmod(0o755)
-        analysis = macho_details(binary.read_bytes())
         plist = {
             "CFBundleName": "ArcMD JSX Preview", "CFBundleDisplayName": "ArcMD JSX Preview",
             "CFBundleIdentifier": "org.ybbapp.arcmd.jsx-preview", "CFBundleExecutable": EXECUTABLE,
@@ -189,14 +203,24 @@ def main():
         source_url = "https://github.com/ybbapp/ArcMD/commit/" + commit
         notes += "\n源码提交：`" + commit + "`\n\n" + source_url + "\n"
         (release / "README.zh-CN.md").write_text(notes)
-        (resources / "README.zh-CN.md").write_text(notes)
         info = {"sourceCommit": commit, "sourceURL": source_url, "platform": "darwin/arm64",
                 "goVersion": run("go", "version", capture_output=True, text=True).stdout.strip(),
                 "demoManifestSHA256": digest, "demoSourceSHA256": source_hash,
-                "binarySHA256": sha(binary), "binaryAnalysis": analysis,
                 "developerIDSigned": False, "notarized": False, "macOSRuntimeTested": False,
-                "bundleResourceSignature": False, "minimumMacOSVersion": MINIMUM_MACOS}
+                "bundleAdHocSignature": True, "bundleAdHocSigner": "rcodesign/apple-codesign",
+                "hardenedRuntime": False, "minimumMacOSVersion": MINIMUM_MACOS}
         (resources / "BUILD-INFO.json").write_text(json.dumps(info, indent=2) + "\n")
+        (resources / "README.zh-CN.md").write_text(notes)
+        app = release / APP_NAME
+        signer, code_resources = sign_app(app)
+        analysis = macho_details(binary.read_bytes())
+        if not analysis.get("adHocCodeSignature"):
+            raise ValueError("signed binary is missing an ad-hoc code signature")
+        info["bundleAdHocSigner"] = signer
+        info["bundleCodeResourcesSHA256"] = sha(code_resources)
+        info["binarySHA256"] = sha(binary)
+        info["binaryAnalysis"] = analysis
+        # Written outside the signed bundle so post-sign hashes do not invalidate it.
         (release / "BUILD-INFO.json").write_text(json.dumps(info, indent=2) + "\n")
         checksums = "".join(sha(p) + "  " + p.relative_to(release).as_posix() + "\n"
                             for p in sorted(release.rglob("*")) if p.is_file())

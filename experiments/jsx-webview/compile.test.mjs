@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {execFileSync} from 'node:child_process'
 import {JSDOM, VirtualConsole} from 'jsdom'
-import {compileDocument, islandHTML} from './compile.mjs'
+import {applyTheme, compileDocument, islandHTML, islandStyle} from './compile.mjs'
 
 function untilDOM(window, predicate) {
   return new Promise((resolve, reject) => {
@@ -93,6 +93,10 @@ test('compiler hashes scripts and styles for CSP; no CDN, eval permission or net
   const script = html.match(/<script>([\s\S]*)<\/script>/)[1]
   const digest = createHash('sha256').update(script).digest('base64')
   assert.ok(html.includes(`script-src 'sha256-${digest}'`))
+  const style = html.match(/<style>([\s\S]*)<\/style>/)[1]
+  const styleDigest = createHash('sha256').update(style).digest('base64')
+  assert.ok(html.includes(`style-src 'sha256-${styleDigest}'`))
+  assert.ok(!html.includes("'unsafe-inline'"))
   assert.ok(html.includes("connect-src 'none'"))
   assert.ok(!html.includes("'unsafe-eval'"))
   assert.ok(!html.includes('src="https://'))
@@ -118,4 +122,43 @@ test('existing native code cannot spoof an executable placeholder', async () => 
   assert.ok(!source.includes(m.namespace))
   assert.equal(m.blocks[0].language, `arcmd-jsx-${m.namespace}-0`)
   assert.ok(m.markdown.startsWith('```arcmd-jsx-0\n<Counter />\n```'))
+})
+
+
+test('built-in island styles use CSS variables, not a hardcoded light card', () => {
+  for (const token of ['--bg', '--text', '--text-muted', '--surface', '--border', '--accent', '--accent-text', '--danger', '--font', '--font-size']) {
+    assert.ok(islandStyle.includes('var(' + token + ')') || islandStyle.includes(token + ':'), token)
+  }
+  assert.match(islandStyle, /background:var\(--bg\)/)
+  assert.match(islandStyle, /color:var\(--text\)/)
+  assert.ok(!islandStyle.includes('#222'))
+  assert.ok(!islandStyle.includes('#fff'))
+})
+
+test('theme tokens can be updated on a compiled island without rebuilding or remounting', async () => {
+  const html = await islandHTML('<Counter initial={4} label="Themed" />')
+  const d = dom(html)
+  try {
+    await untilDOM(d.window, () => d.window.document.querySelector('output'))
+    const original = html
+    applyTheme(d.window.document, {dark: true, vars: {'--bg': '#18181b', '--text': '#f4f4f5', '--accent': '#3b82f6', '--accent-text': '#ffffff'}})
+    const root = d.window.document.documentElement
+    assert.equal(root.style.getPropertyValue('color-scheme'), 'dark')
+    assert.equal(root.style.getPropertyValue('--bg'), '#18181b')
+    assert.equal(root.style.getPropertyValue('--text'), '#f4f4f5')
+    // jsdom does not reliably resolve var() in getComputedStyle; the host
+    // writes the same properties the compiled stylesheet consumes.
+    assert.equal(d.window.getComputedStyle(root).getPropertyValue('--bg').trim() || root.style.getPropertyValue('--bg'), '#18181b')
+    assert.equal(d.window.getComputedStyle(root).getPropertyValue('--text').trim() || root.style.getPropertyValue('--text'), '#f4f4f5')
+    assert.equal(d.window.document.querySelector('output').textContent, ' 4')
+    d.window.document.querySelector('button').click()
+    await untilDOM(d.window, () => d.window.document.querySelector('output').textContent === ' 5')
+    applyTheme(d.window.document, {dark: false, vars: {'--bg': '#ffffff', '--text': '#18181b'}})
+    assert.equal(root.style.getPropertyValue('color-scheme'), 'light')
+    assert.equal(root.style.getPropertyValue('--bg'), '#ffffff')
+    assert.equal(root.style.getPropertyValue('--text'), '#18181b')
+    assert.equal(d.window.getComputedStyle(root).getPropertyValue('--bg').trim() || root.style.getPropertyValue('--bg'), '#ffffff')
+    assert.equal(d.window.document.querySelector('output').textContent, ' 5')
+    assert.equal(html, original)
+  } finally { d.window.close() }
 })
