@@ -181,3 +181,28 @@ copies are also included under `third_party/jsx-experiment/` for redistribution.
   linker cache. No GUI/browser was driven or claimed as validated. The native
   host wheel-forwarding, focus, compositing and actual CSP enforcement remain
   GUI acceptance work even though the binaries compile successfully.
+
+## macOS Apple Silicon preview packaging
+
+The separate preview bundle defaults only to its reviewed, checksum-pinned demo.
+It locates `Contents/Resources/demo.manifest.json` relative to its executable,
+independent of Finder's working directory or spaces in the `.app` path. The
+packager pins the exact artifact digest into the binary with Go link flags; a
+modified/missing resource fails closed. Development builds without that digest
+still require `-trust reviewed.manifest.json`. `-demo` explicitly selects the
+bundled demo; it cannot be combined with an external path or `-trust`.
+
+From clean, committed sources with the npm dependencies installed:
+
+```sh
+python3 experiments/jsx-webview/package_macos.py --out /workspace/releases
+```
+
+This directly cross-builds `GOOS=darwin GOARCH=arm64 CGO_ENABLED=0`, assembles
+the standard bundle layout and metadata following MyGo 0.7.4's `bundle.go`, and
+checks Mach-O architecture, system dylib references, the Go linker's ad-hoc code
+signature, ZIP execution bits and included resources. No Apple Developer ID or
+notarization is used, no complete bundle resource signature is created, and no
+macOS runtime test is claimed. macOS 12+ supplies AppKit, WKWebView and Metal;
+Linux's missing WebKitGTK does not become a macOS dependency. See
+`preview-release.zh-CN.md` for end-user startup, Gatekeeper and compatibility notes.

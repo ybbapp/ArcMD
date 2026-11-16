@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -97,17 +96,14 @@ func (r *reader) view(c *ui.Context) {
 }
 
 func run() error {
-	trust := flag.Bool("trust", false, "execute only a locally compiled, reviewed manifest")
-	flag.Parse()
-	if !*trust || flag.NArg() != 1 {
-		return errors.New("usage: arcmd-jsx -trust path/to/demo.manifest.json; execute only reviewed local code")
-	}
-	file, err := os.Open(flag.Arg(0))
+	executable, err := os.Executable()
 	if err != nil {
 		return err
 	}
-	m, err := readManifest(file)
-	file.Close()
+	m, err := startupManifest(os.Args[1:], executable, bundledDemoSHA256, os.Stdout)
+	if errors.Is(err, errShowHelp) {
+		return nil
+	}
 	if err != nil {
 		return err
 	}
