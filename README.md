@@ -1,3 +1,5 @@
+> 本分支包含 **原生正文 + 局部 JSX WebView** 的只读实验入口，尚非完整 MDX 支持，普通 ArcMD 启动方式不变。参见 [实验说明、启动命令与兼容边界](experiments/jsx-webview/README.md)。
+
 <div align="center">
 
 <img src="docs/images/readme/logo-horizontal.png" width="400" alt="ArcMD logo">
