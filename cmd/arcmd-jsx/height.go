@@ -1,26 +1,16 @@
 package main
 
 import (
-	_ "embed"
-	"encoding/json"
-	"math"
-	"strconv"
-	"strings"
 	"time"
 
+	"github.com/Ciao1019/ArcMD/internal/jsx"
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 )
 
-//go:embed island_measure.js
-var islandMeasureScript string
+const islandHeightPollFor = 500 * time.Millisecond
 
-const (
-	islandHeightMin     = 80
-	islandHeightMax     = 2000
-	islandHeightSlop    = 2
-	islandHeightPollFor = 500 * time.Millisecond
-)
+var islandMeasureScript = jsx.MeasureScript
 
 var islandHeightSettle = []time.Duration{
 	0,
@@ -31,57 +21,9 @@ var islandHeightSettle = []time.Duration{
 	500 * time.Millisecond,
 }
 
-func parseIslandMeasure(v any) (height float32, ready bool, ok bool) {
-	switch n := v.(type) {
-	case nil:
-		return 0, false, false
-	case float64:
-		return finiteHeight(n)
-	case float32:
-		return finiteHeight(float64(n))
-	case int:
-		return finiteHeight(float64(n))
-	case int32:
-		return finiteHeight(float64(n))
-	case int64:
-		return finiteHeight(float64(n))
-	case json.Number:
-		f, err := n.Float64()
-		if err != nil {
-			return 0, false, false
-		}
-		return finiteHeight(f)
-	case string:
-		f, err := strconv.ParseFloat(strings.TrimSpace(n), 64)
-		if err != nil {
-			return 0, false, false
-		}
-		return finiteHeight(f)
-	case map[string]any:
-		h, _, parsed := parseIslandMeasure(n["height"])
-		if !parsed {
-			return 0, false, false
-		}
-		ready, _ = n["ready"].(bool)
-		return h, ready, true
-	default:
-		return 0, false, false
-	}
-}
+func parseIslandMeasure(v any) (float32, bool, bool) { return jsx.ParseMeasure(v) }
 
-func finiteHeight(n float64) (float32, bool, bool) {
-	if math.IsNaN(n) || math.IsInf(n, 0) {
-		return 0, false, false
-	}
-	return float32(math.Round(n)), true, true
-}
-
-func clampIslandHeight(h float32) float32 {
-	if math.IsNaN(float64(h)) || math.IsInf(float64(h), 0) {
-		return islandHeightMin
-	}
-	return min(islandHeightMax, max(islandHeightMin, h))
-}
+func clampIslandHeight(h float32) float32 { return jsx.ClampHeight(h) }
 
 func (r *reader) setIslandHeight(view ui.NativeWebView, height float32) bool {
 	if view == nil {
@@ -92,7 +34,7 @@ func (r *reader) setIslandHeight(view ui.NativeWebView, height float32) bool {
 		if block.View != view {
 			continue
 		}
-		if absHeight(block.Height-height) <= islandHeightSlop {
+		if !jsx.HeightChanged(block.Height, height) {
 			return false
 		}
 		block.Height = height

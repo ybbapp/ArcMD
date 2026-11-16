@@ -6,10 +6,11 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// EmbeddedBlock places a host-owned native web view in a read-only code block.
+// EmbeddedBlock places a host-owned native web view on a code block.
 // Height is the host-measured page height in DIPs, clamped to a safe range.
 // The page cannot call native code. Hosts must create views once, not once
-// per frame, and destroy them on close.
+// per frame, and destroy them on close. Embeddings work in the live editor
+// as well as in read-only mode.
 type EmbeddedBlock struct {
 	View   ui.NativeWebView
 	Height float32
@@ -17,11 +18,11 @@ type EmbeddedBlock struct {
 
 func (e *Editor) syncEmbeddedBlocks(blocks map[string]EmbeddedBlock) {
 	// Keep the ordinary native editor's per-frame path allocation-free.
-	if (!e.ReadOnly || len(blocks) == 0) && len(e.embeddedBlocks) == 0 {
+	if len(blocks) == 0 && len(e.embeddedBlocks) == 0 {
 		return
 	}
 	next := make(map[string]EmbeddedBlock)
-	if e.ReadOnly {
+	if len(blocks) > 0 {
 		for id, block := range blocks {
 			leaf, ok := e.Engine.LeafByID(id)
 			if !ok || leaf.Block.Kind != "code" || block.View == nil {

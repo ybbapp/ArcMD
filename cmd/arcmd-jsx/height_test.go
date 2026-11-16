@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Ciao1019/ArcMD/internal/editor"
+	"github.com/Ciao1019/ArcMD/internal/jsx"
 )
 
 func TestParseIslandMeasureAcceptsJSONNumbersAndObjects(t *testing.T) {
@@ -38,13 +39,13 @@ func TestParseIslandMeasureAcceptsJSONNumbersAndObjects(t *testing.T) {
 }
 
 func TestClampIslandHeight(t *testing.T) {
-	if clampIslandHeight(50) != islandHeightMin || clampIslandHeight(3000) != islandHeightMax {
+	if clampIslandHeight(50) != jsx.HeightMin || clampIslandHeight(3000) != jsx.HeightMax {
 		t.Fatalf("clamp bounds: %v %v", clampIslandHeight(50), clampIslandHeight(3000))
 	}
 	if clampIslandHeight(120) != 120 {
 		t.Fatal("in-range height should be unchanged")
 	}
-	if clampIslandHeight(float32(math.NaN())) != islandHeightMin {
+	if clampIslandHeight(float32(math.NaN())) != jsx.HeightMin {
 		t.Fatal("NaN should fall back to the minimum")
 	}
 }

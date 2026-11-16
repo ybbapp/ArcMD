@@ -411,6 +411,7 @@ func (a *App) documentContent(c *ui.Context, d *document, cardWidth float32) {
 	}
 	page.Children(func() {
 		a.conflictBarFor(c, d)
+		a.syncJSX(c, d)
 		editor.View(c.Key(d.viewKey()), d.ed, a.editorOptionsFor(c, cardWidth, false, d))
 	})
 }

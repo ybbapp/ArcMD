@@ -1,10 +1,12 @@
 # Native ArcMD + JSX islands: experimental spike
 
-This is **not full JSX/MDX compatibility** and is **not enabled in the ordinary
-ArcMD application**. The separate `arcmd-jsx` executable reuses the real
-`internal/editor` native canvas, paragraph shaping, semantic HTML columns and
-scroll container. Only selected top-level MDX component blocks become system
-WebViews. It is not a whole-document HTML renderer or a substitute native UI.
+中文调研与实验记录、第一期接入范围见 [RESEARCH.zh-CN.md](RESEARCH.zh-CN.md)。验收基线是用户确认的预览 [`59c688b` / jsx-preview-59c688b](https://github.com/ybbapp/ArcMD/releases/tag/jsx-preview-59c688b)。
+
+This is **not full JSX/MDX compatibility**. The first integration, based on the
+accepted preview `59c688b`, lets the ordinary ArcMD app open local `.mdx` files
+in the native editor and embed block-level JSX in system WebViews. The separate
+`arcmd-jsx` executable remains as the isolated experiment harness. It is not a
+whole-document HTML renderer or a substitute native UI.
 
 The upstream no-WebView policy is intentionally relaxed only for this explicitly
 requested fork experiment. No upstream PR or workflow changes are needed.
@@ -100,7 +102,7 @@ storage format for `.mdx`.
 | Shared file scope, context/state across islands | Not implemented |
 | Dynamic height | Host measures `#root` (not viewport `scrollHeight`) after load and follows later growth; no Go bridge |
 | File watching / agent edits live refresh | Not implemented; recompile + restart |
-| Existing Space/sidebar/file-open integration | Not implemented; separate harness |
+| Existing Space/sidebar/file-open integration | First cut: opening a local `.mdx` in the main app compiles islands and embeds WebViews |
 | JSX editing, round-trip save, PDF or print of JSX | Not implemented; read-only |
 | Vue/Svelte or arbitrary lower-case HTML as an island | Not implemented |
 

@@ -441,7 +441,7 @@ type cachedShape struct {
 }
 
 type Options struct {
-	// EmbeddedBlocks is an experimental read-only overlay, keyed by block ID.
+	// EmbeddedBlocks overlays host-owned web views on code blocks, keyed by block ID.
 	// The host owns the views; nil views leave the original source visible.
 	EmbeddedBlocks map[string]EmbeddedBlock
 

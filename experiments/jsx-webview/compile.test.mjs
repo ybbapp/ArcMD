@@ -168,7 +168,7 @@ test('theme tokens can be updated on a compiled island without rebuilding or rem
 
 test('host measure script is a single expression and uses the content box, not viewport scrollHeight', () => {
   assert.ok(!islandStyle.includes('height:100%') && !islandStyle.includes('height: 100%'))
-  const script = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../cmd/arcmd-jsx/island_measure.js'), 'utf8')
+  const script = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../internal/jsx/measure.js'), 'utf8')
   // MyGo Page.Eval first does await(\n<script>\n); this must parse as an expression.
   const asExpression = new Function('return (' + script + ')')
   const d = new JSDOM('<!doctype html><html><body style="padding:16px"><div id="root"><section>counter</section></div></body></html>')

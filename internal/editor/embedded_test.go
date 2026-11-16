@@ -71,16 +71,11 @@ func TestEmbeddedBlockNativeLayoutAndSourceFallback(t *testing.T) {
 	}
 }
 
-func TestEmbeddedBlocksRequireReadOnlyCodeAndFiniteHeight(t *testing.T) {
+func TestEmbeddedBlocksRequireCodeAndFiniteHeight(t *testing.T) {
 	e := New("Text\n\n```jsx\n<Counter />\n```\n")
 	view := &placementOnlyWebView{}
 	id := e.Doc.Blocks[1].ID
 	blocks := map[string]EmbeddedBlock{id: {View: view, Height: float32(math.NaN())}, e.Doc.Blocks[0].ID: {View: view}, "missing": {View: view}}
-	e.syncEmbeddedBlocks(blocks)
-	if len(e.embeddedBlocks) != 0 {
-		t.Fatal("editable documents must not embed code")
-	}
-	e.ReadOnly = true
 	e.syncEmbeddedBlocks(blocks)
 	if len(e.embeddedBlocks) != 1 || e.embeddedBlocks[id].Height != 240 {
 		t.Fatal("invalid block or NaN height accepted")

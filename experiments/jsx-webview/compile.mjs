@@ -127,7 +127,7 @@ export async function compileDocument(source) {
     markdown += source.slice(cursor, start)
     if (unsupported) {
       diagnostics.push(`Line ${node.position.start.line}: document imports/exports and shared expressions are source-only`)
-      markdown += fence(raw, 'mdx-source-only')
+      markdown += fence(raw, 'mdx-source-only-' + namespace)
     } else {
       const language = `arcmd-jsx-${namespace}-${blocks.length}`
       // 240 is only the pre-measure placeholder; the host sizes to content.
