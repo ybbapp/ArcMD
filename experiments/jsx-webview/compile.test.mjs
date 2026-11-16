@@ -166,9 +166,11 @@ test('theme tokens can be updated on a compiled island without rebuilding or rem
 })
 
 
-test('host measure script uses the content box, not viewport scrollHeight', () => {
+test('host measure script is a single expression and uses the content box, not viewport scrollHeight', () => {
   assert.ok(!islandStyle.includes('height:100%') && !islandStyle.includes('height: 100%'))
   const script = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../cmd/arcmd-jsx/island_measure.js'), 'utf8')
+  // MyGo Page.Eval first does await(\n<script>\n); this must parse as an expression.
+  const asExpression = new Function('return (' + script + ')')
   const d = new JSDOM('<!doctype html><html><body style="padding:16px"><div id="root"><section>counter</section></div></body></html>')
   const {document} = d.window
   Object.defineProperty(document.documentElement, 'scrollHeight', {configurable: true, value: 240})
@@ -181,9 +183,27 @@ test('host measure script uses the content box, not viewport scrollHeight', () =
   Object.defineProperty(section, 'offsetTop', {configurable: true, value: 0})
   Object.defineProperty(section, 'offsetHeight', {configurable: true, value: 80})
   d.window.getComputedStyle = () => ({paddingTop: '16px', paddingBottom: '16px'})
-  const result = new Function('document', 'window', 'getComputedStyle', script)(document, d.window, d.window.getComputedStyle)
+  const result = new Function('document', 'window', 'getComputedStyle', 'return (' + script + ')')(document, d.window, d.window.getComputedStyle)
+  assert.equal(typeof asExpression, 'function')
   assert.equal(result.height, 112)
   assert.equal(result.ready, true)
   assert.equal(document.documentElement.dataset.islandHeight, '112')
   d.window.close()
+})
+
+test('sanitized Script error events do not unmount a rendered island', async () => {
+  const html = await islandHTML('<Counter initial={4} label="Kept" />')
+  const d = dom(html)
+  try {
+    await untilDOM(d.window, () => d.window.document.querySelector('output'))
+    const ev = new d.window.ErrorEvent('error', {message: 'Script error.', filename: '', error: null})
+    assert.equal(ev.error, null)
+    d.window.dispatchEvent(ev)
+    assert.equal(d.window.document.querySelector('output').textContent, ' 4')
+    assert.equal(d.window.document.querySelectorAll('pre').length, 0)
+    const real = new d.window.Error('boom from component')
+    d.window.dispatchEvent(new d.window.ErrorEvent('error', {message: real.message, filename: 'island.js', error: real}))
+    assert.match(d.window.document.querySelector('pre').textContent, /JSX rendering failed: boom from component/)
+    assert.match(d.window.document.querySelector('pre').textContent, /<Counter initial=\{4\}/)
+  } finally { d.window.close() }
 })

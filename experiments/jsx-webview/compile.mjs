@@ -45,7 +45,17 @@ function fallback(error) {
   pre.textContent = 'JSX rendering failed: ' + String(error?.message || error) + '\\n\\n' + source;
   document.getElementById('root').replaceChildren(pre);
 }
-window.addEventListener('error', e => fallback(e.error || e.message));
+// Host Page.Eval first runs code as an expression. A SyntaxError there, on an
+// about:blank page, is often sanitized to message "Script error." with no
+// Error object and an empty filename. That must not unmount a working tree.
+// Real component failures still have an Error, or go through the boundary.
+function isSanitizedScriptError(event) {
+  return event && !event.error && (event.message === 'Script error.' || !event.filename);
+}
+window.addEventListener('error', e => {
+  if (isSanitizedScriptError(e)) return;
+  fallback(e.error || e.message);
+});
 window.addEventListener('unhandledrejection', e => fallback(e.reason));
 class Boundary extends React.Component {
   state = {error: null};

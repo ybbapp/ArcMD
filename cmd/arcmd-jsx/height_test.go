@@ -49,10 +49,28 @@ func TestClampIslandHeight(t *testing.T) {
 	}
 }
 
+func TestIslandMeasureScriptIsASingleExpression(t *testing.T) {
+	script := strings.TrimSpace(islandMeasureScript)
+	if !strings.Contains(script, "(function") || !strings.HasSuffix(strings.TrimSpace(script), ")()") {
+		t.Fatal("measure script must be a single IIFE expression for MyGo evalExpr")
+	}
+	// A top-level return is a SyntaxError inside await(\ncode\n).
+	for _, line := range strings.Split(script, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "//") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "return ") || trimmed == "return" || strings.HasPrefix(trimmed, "var ") {
+			t.Fatalf("top-level statement would fail evalExpr: %s", trimmed)
+		}
+		break
+	}
+}
+
 func TestIslandMeasureScriptUsesContentBoxNotViewport(t *testing.T) {
 	script := islandMeasureScript
 	if !strings.Contains(script, "return") {
-		t.Fatal("Eval statements must return a value")
+		t.Fatal("measure IIFE must return a value")
 	}
 	for _, needle := range []string{"getElementById(\"root\")", "getBoundingClientRect", "paddingTop", "paddingBottom", "offsetHeight"} {
 		if !strings.Contains(script, needle) {
