@@ -6,7 +6,9 @@
 
 ## 环境与启动
 
-- Apple Silicon（M1/M2/M3/M4 等 arm64）Mac，macOS 12 或更高版本。
+- Apple Silicon（M1/M2/M3/M4 等 arm64）Mac，macOS 13 或更高版本。
+- 此次 Go 1.27.3 交叉构建的 Mach-O 声明最低 macOS 13.0；即使 MyGo 本身支持
+  更早的系统，也不能把此包标为 macOS 12 可用。
 - 使用系统自带的 WKWebView、AppKit 和 Metal；无需安装 Go、Node、React、
   WebKitGTK 或额外服务，也不需要联网下载组件。
 - 解压 ZIP 后，双击 **ArcMD JSX Preview.app**。也可以将这个 .app 单独移到

@@ -19,6 +19,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 EXECUTABLE = "ArcMD-JSX-Preview"
 APP_NAME = "ArcMD JSX Preview.app"
+MINIMUM_MACOS = "13.0"
 
 
 def run(*args, **kwargs):
@@ -45,6 +46,11 @@ def macho_details(data):
             if not name.startswith(("/usr/lib/", "/System/Library/")):
                 raise ValueError("unexpected non-system dylib: " + name)
             result["dylibs"].append(name)
+        if command in (0x32, 0x24):
+            version = struct.unpack_from("<I", data, offset + (12 if command == 0x32 else 8))[0]
+            result["minimumMacOSVersion"] = f"{version >> 16}.{(version >> 8) & 255}.{version & 255}"
+            if version > 0x000D0000:
+                raise ValueError("binary requires newer macOS than the preview's declared 13.0 minimum")
         if command == 0x1D:
             start, signature_size = struct.unpack_from("<II", data, offset + 8)
             sig_magic, sig_length, slots = struct.unpack_from(">III", data, start)
@@ -112,6 +118,8 @@ def verify_zip(archive, prefix, digest):
             raise ValueError("ZIP lost executable permission")
         macho_details(z.read(binary))
         plist = plistlib.loads(z.read(base + "Info.plist"))
+        if plist["LSMinimumSystemVersion"] != MINIMUM_MACOS:
+            raise ValueError("incorrect minimum macOS version")
         if plist["CFBundleExecutable"] != EXECUTABLE or plist["CFBundlePackageType"] != "APPL":
             raise ValueError("invalid bundle metadata")
         if hashlib.sha256(z.read(base + "Resources/demo.manifest.json")).hexdigest() != digest:
@@ -161,7 +169,7 @@ def main():
             "CFBundleIdentifier": "org.ybbapp.arcmd.jsx-preview", "CFBundleExecutable": EXECUTABLE,
             "CFBundlePackageType": "APPL", "CFBundleInfoDictionaryVersion": "6.0",
             "CFBundleVersion": "1", "CFBundleShortVersionString": "0.1.0",
-            "CFBundleIconFile": "icon.icns", "LSMinimumSystemVersion": "12.0",
+            "CFBundleIconFile": "icon.icns", "LSMinimumSystemVersion": MINIMUM_MACOS,
             "NSPrincipalClass": "NSApplication", "NSHighResolutionCapable": True,
             "NSSupportsAutomaticGraphicsSwitching": True,
             "CFBundleSupportedPlatforms": ["MacOSX"], "LSArchitecturePriority": ["arm64"],
@@ -187,7 +195,7 @@ def main():
                 "demoManifestSHA256": digest, "demoSourceSHA256": source_hash,
                 "binarySHA256": sha(binary), "binaryAnalysis": analysis,
                 "developerIDSigned": False, "notarized": False, "macOSRuntimeTested": False,
-                "bundleResourceSignature": False, "minimumMacOSVersion": "12.0"}
+                "bundleResourceSignature": False, "minimumMacOSVersion": MINIMUM_MACOS}
         (resources / "BUILD-INFO.json").write_text(json.dumps(info, indent=2) + "\n")
         (release / "BUILD-INFO.json").write_text(json.dumps(info, indent=2) + "\n")
         checksums = "".join(sha(p) + "  " + p.relative_to(release).as_posix() + "\n"

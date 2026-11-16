@@ -203,6 +203,8 @@ the standard bundle layout and metadata following MyGo 0.7.4's `bundle.go`, and
 checks Mach-O architecture, system dylib references, the Go linker's ad-hoc code
 signature, ZIP execution bits and included resources. No Apple Developer ID or
 notarization is used, no complete bundle resource signature is created, and no
-macOS runtime test is claimed. macOS 12+ supplies AppKit, WKWebView and Metal;
+macOS runtime test is claimed. This Go 1.27.3 artifact requires macOS 13+
+(as confirmed from its Mach-O minimum-version command), despite MyGo itself
+supporting macOS 12+. macOS supplies AppKit, WKWebView and Metal;
 Linux's missing WebKitGTK does not become a macOS dependency. See
 `preview-release.zh-CN.md` for end-user startup, Gatekeeper and compatibility notes.
