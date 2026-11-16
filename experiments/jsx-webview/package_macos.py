@@ -64,15 +64,27 @@ def macho_details(data):
 
 
 def dependency_licenses(destination):
-    # Go's module list is concatenated JSON objects, not a JSON array.
-    text = run("go", "list", "-m", "-json", "all", capture_output=True, text=True).stdout
+    # Enumerate the actual target's imported modules, not unrelated lazy/test
+    # module-graph entries which may have no downloaded source directory.
+    env = dict(os.environ, GOOS="darwin", GOARCH="arm64", CGO_ENABLED="0", GOPROXY="off")
+    text = run("go", "list", "-deps", "-json", "./cmd/arcmd-jsx", env=env,
+               capture_output=True, text=True).stdout
     decoder = json.JSONDecoder()
     modules = []
+    used = {}
     while text.strip():
-        module, length = decoder.raw_decode(text.lstrip())
+        package, length = decoder.raw_decode(text.lstrip())
         text = text.lstrip()[length:]
-        if module.get("Main"):
-            continue
+        module = package.get("Module")
+        if module and not module.get("Main"):
+            used[module["Path"]] = module
+    goroot = Path(run("go", "env", "GOROOT", capture_output=True, text=True).stdout.strip())
+    standard = destination / "go-standard-library"
+    standard.mkdir(parents=True)
+    for name in ("LICENSE", "PATENTS"):
+        if (goroot / name).is_file():
+            shutil.copy2(goroot / name, standard / name)
+    for module in sorted(used.values(), key=lambda m: m["Path"]):
         directory = Path(module["Dir"])
         target = destination / "go-modules" / (module["Path"] + "@" + module["Version"])
         copied = []
