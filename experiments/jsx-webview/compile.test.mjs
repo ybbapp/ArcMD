@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
+import {readFileSync} from 'node:fs'
 import {mkdtemp, readFile, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import {dirname, join} from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {execFileSync} from 'node:child_process'
 import {JSDOM, VirtualConsole} from 'jsdom'
 import {applyTheme, compileDocument, islandHTML, islandStyle} from './compile.mjs'
@@ -161,4 +163,27 @@ test('theme tokens can be updated on a compiled island without rebuilding or rem
     assert.equal(d.window.document.querySelector('output').textContent, ' 5')
     assert.equal(html, original)
   } finally { d.window.close() }
+})
+
+
+test('host measure script uses the content box, not viewport scrollHeight', () => {
+  assert.ok(!islandStyle.includes('height:100%') && !islandStyle.includes('height: 100%'))
+  const script = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../cmd/arcmd-jsx/island_measure.js'), 'utf8')
+  const d = new JSDOM('<!doctype html><html><body style="padding:16px"><div id="root"><section>counter</section></div></body></html>')
+  const {document} = d.window
+  Object.defineProperty(document.documentElement, 'scrollHeight', {configurable: true, value: 240})
+  Object.defineProperty(document.body, 'scrollHeight', {configurable: true, value: 240})
+  const root = document.getElementById('root')
+  const section = root.firstElementChild
+  root.getBoundingClientRect = () => ({top: 16, height: 80, bottom: 96, left: 0, right: 0, width: 300, x: 0, y: 16, toJSON() {}})
+  Object.defineProperty(root, 'offsetHeight', {configurable: true, value: 80})
+  section.getBoundingClientRect = () => ({top: 16, height: 80, bottom: 96, left: 0, right: 0, width: 300, x: 0, y: 16, toJSON() {}})
+  Object.defineProperty(section, 'offsetTop', {configurable: true, value: 0})
+  Object.defineProperty(section, 'offsetHeight', {configurable: true, value: 80})
+  d.window.getComputedStyle = () => ({paddingTop: '16px', paddingBottom: '16px'})
+  const result = new Function('document', 'window', 'getComputedStyle', script)(document, d.window, d.window.getComputedStyle)
+  assert.equal(result.height, 112)
+  assert.equal(result.ready, true)
+  assert.equal(document.documentElement.dataset.islandHeight, '112')
+  d.window.close()
 })

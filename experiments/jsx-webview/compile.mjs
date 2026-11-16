@@ -120,6 +120,7 @@ export async function compileDocument(source) {
       markdown += fence(raw, 'mdx-source-only')
     } else {
       const language = `arcmd-jsx-${namespace}-${blocks.length}`
+      // 240 is only the pre-measure placeholder; the host sizes to content.
       const block = {language, source: raw, height: 240, html: '', error: ''}
       try { block.html = await islandHTML(raw) }
       catch (error) { block.error = String(error.message); diagnostics.push(`Line ${node.position.start.line}: ${block.error}`) }

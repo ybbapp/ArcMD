@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	"github.com/Ciao1019/ArcMD/internal/editor"
 	"github.com/Ciao1019/ArcMD/internal/i18n"
@@ -72,13 +73,14 @@ type reader struct {
 	themeKey     string
 	themeApplied bool
 	theme        islandTheme
+	lastPoll     time.Time
 }
 
 func (r *reader) view(c *ui.Context) {
 	width, _ := c.Size()
 	ui.Column(c).Fill().Children(func() {
 		ui.Row(c).Padding(8).Gap(12).Children(func() {
-			ui.Text(c, i18n.T("ArcMD JSX 实验 — 只读 / 固定高度"))
+			ui.Text(c, i18n.T("ArcMD JSX 实验 — 只读"))
 			if ui.Button(c, i18n.T("切换源码")).Clicked() {
 				r.source = !r.source
 			}
@@ -98,6 +100,7 @@ func (r *reader) view(c *ui.Context) {
 		}
 		editor.View(c, r.editor, editor.Options{Width: width, Theme: c.Theme(), EmbeddedBlocks: blocks})
 		r.syncIslandTheme(c.Theme())
+		r.pollIslandHeights()
 	})
 }
 
@@ -169,12 +172,14 @@ func run() error {
 					}
 				})
 				// Apply tokens after load without reloading the page later.
+				// Measure content height after React paints; do not reset it on theme changes.
 				view.Page().OnDidFinishLoad(func() {
 					r.themeApplied = false
 					if r.themeKey != "" {
 						_, _ = view.Page().Eval(r.theme.Script())
 						_ = view.SetBackgroundColor(r.theme.Background())
 					}
+					r.settleIslandHeight(view, 0)
 					if r.win != nil {
 						r.win.Invalidate()
 					}

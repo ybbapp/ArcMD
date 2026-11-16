@@ -98,7 +98,7 @@ storage format for `.mdx`.
 | Inline JSX, islands inside lists/HTML wrappers | Explicit compiler error |
 | Arbitrary local/npm component imports | Not implemented |
 | Shared file scope, context/state across islands | Not implemented |
-| Dynamic height / ResizeObserver / host bridge | Not implemented; 240 DIPs |
+| Dynamic height | Host measures `#root` (not viewport `scrollHeight`) after load and follows later growth; no Go bridge |
 | File watching / agent edits live refresh | Not implemented; recompile + restart |
 | Existing Space/sidebar/file-open integration | Not implemented; separate harness |
 | JSX editing, round-trip save, PDF or print of JSX | Not implemented; read-only |

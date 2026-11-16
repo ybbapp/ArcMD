@@ -7,8 +7,9 @@ import (
 )
 
 // EmbeddedBlock places a host-owned native web view in a read-only code block.
-// Height is fixed in DIPs in this prototype; the page cannot call native code.
-// Hosts must create views once, not once per frame, and destroy them on close.
+// Height is the host-measured page height in DIPs, clamped to a safe range.
+// The page cannot call native code. Hosts must create views once, not once
+// per frame, and destroy them on close.
 type EmbeddedBlock struct {
 	View   ui.NativeWebView
 	Height float32

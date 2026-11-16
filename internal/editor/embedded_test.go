@@ -91,3 +91,35 @@ func TestEmbeddedBlocksRequireReadOnlyCodeAndFiniteHeight(t *testing.T) {
 		t.Fatal("nil view should leave source visible")
 	}
 }
+
+func TestEmbeddedBlockShrinksToMeasuredContentHeight(t *testing.T) {
+	source := "# Native heading\n\n```arcmd-jsx-0\n<Counter initial={5} />\n```\n\nAfter island.\n"
+	e := New(source)
+	e.ReadOnly = true
+	b := e.Doc.Blocks[1]
+	view := &placementOnlyWebView{}
+	blocks := map[string]EmbeddedBlock{b.ID: {View: view, Height: 240}}
+	tt := ui.NewTester(func(c *ui.Context) {
+		w, _ := c.Size()
+		View(c, e, Options{Width: w, Theme: c.Theme(), EmbeddedBlocks: blocks})
+	}, 900, 650)
+	tt.Frame()
+	row := e.rows[e.rowIDs[b.ID]]
+	if row.rect.H != 256 {
+		t.Fatalf("initial reserved height: %v", row.rect.H)
+	}
+	afterY := e.rows[e.rowIDs[e.Doc.Blocks[2].ID]].rect.Y
+	blocks[b.ID] = EmbeddedBlock{View: view, Height: 112}
+	tt.Frame()
+	row = e.rows[e.rowIDs[b.ID]]
+	if row.rect.H != 128 {
+		t.Fatalf("layout did not follow measured height: %v", row.rect.H)
+	}
+	next := e.rows[e.rowIDs[e.Doc.Blocks[2].ID]]
+	if next.rect.Y < row.rect.Y+128 {
+		t.Fatal("following paragraph overlaps the resized island")
+	}
+	if next.rect.Y >= afterY {
+		t.Fatal("following paragraph should move up when the island shrinks")
+	}
+}
