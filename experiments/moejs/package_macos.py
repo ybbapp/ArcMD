@@ -46,7 +46,8 @@ def main():
    assert z.testzip() is None
    exe=z.getinfo(prefix+'/'+APP+'/Contents/MacOS/ArcMD');assert (exe.external_attr>>16)&stat.S_IXUSR;c.macho_details(z.read(exe))
    assert z.read(prefix+'/'+APP+'/Contents/_CodeSignature/CodeResources')
-   assert not any('/node_modules/' in i.filename or i.filename.endswith('/node') for i in z.infolist())
+   # License snapshots retain original nested package names; they are not runtime modules.
+   assert not any(('/node_modules/' in i.filename and '/third_party/' not in i.filename) or i.filename.endswith('/node') for i in z.infolist())
   for name in ['README.zh-CN.md','BUILD-INFO.json']:shutil.copy2(release/name,out/(prefix+'-'+name))
   archive.with_suffix('.zip.sha256').write_text(c.sha(archive)+'  '+archive.name+'\n')
   print(json.dumps({'archive':str(archive),'sha256':c.sha(archive),'bytes':archive.stat().st_size,'sourceCommit':commit},indent=2))
