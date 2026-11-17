@@ -88,12 +88,18 @@ MIT notice is in `kokonutui/LICENSE`.
 
 [Kokonut UI source](https://github.com/kokonut-labs/kokonutui)
 
-## Optional JSX-island experiment
+## Versioned MDX islands
 
-`experiments/jsx-webview/` compiles MDX with `@mdx-js/mdx` and bundles
-React/ReactDOM using esbuild (all MIT). npm retains their license files;
-`jsx-experiment/react-LICENSE`, `jsx-experiment/react-dom-LICENSE` and
-`jsx-experiment/scheduler-LICENSE` retain
-the notices for the runtime bundled into generated page artifacts. esbuild
-preserves inline legal comments. jsdom is an MIT-licensed test-only dependency.
-This runtime is used only by the separate `cmd/arcmd-jsx` experiment.
+The production `cmd/arcmd` uses embedded `@mdx-js/mdx` 3.1.1 and React/ReactDOM
+19.2.0 assets. Canonical source/build/test tooling is in `tools/mdx`, with exact
+npm direct pins and a transitive lockfile; Node/esbuild are not runtime dependencies.
+`internal/jsx/assets/build-info.json` records versions, profile and asset/input
+SHA256s. No dependency versions were upgraded for phase 1. Existing npm license
+snapshots and inventory remain in `moejs-mdx/` and its `DEPENDENCIES.json`; inline
+legal comments are preserved in generated JS. JSDOM is test-only.
+
+moejs v0.1.1 is Apache-2.0; its license and required third-party notices are
+retained in `moejs/`. Its moego v0.1.0-alpha.3 dependency is MIT (`moego/LICENSE`).
+The existing standalone experiment runtime notices in `jsx-experiment/` are
+retained for that historical entry point. New Tabs/TabItem/Accordion source was
+implemented in this repository, not copied from a terminal-reader repository.

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "profile": "arcmd-mdx3-phase1",
+  "compiler": {
+    "name": "@mdx-js/mdx",
+    "version": "3.1.1"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "3.1.1",
+    "esbuild": "0.25.12",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "jsdom": "27.2.0"
+  },
+  "inputs": {
+    "tools/mdx/compiler-entry.mjs": "42d0ddc0686c2771f3d466d71d0d5b590ea2e5834b1bfb71d6efb2f1223dd785",
+    "tools/mdx/build.mjs": "2eed48b6b373abfba196118f86c796345194be1e6af5f0edfc94a8a440d07b53",
+    "tools/mdx/package.json": "afb5e4b1566de428c681021756ab35b42f94de1f31fc6fba5b5cdd9995a7c1b2",
+    "tools/mdx/package-lock.json": "1e13876175dc872847b9cabd332c27944bdf8ae5f9a2a497b8776bfe117ebdfa",
+    "tools/mdx/compatibility.json": "e632423717c6b8079cef7bb6966929984bf05f91a0fd3eb16c23dca030a9f648"
+  },
+  "assets": {
+    "mdx-compiler.js": "3b915eb0a48c57166b18246556fe748a1c10a98e26141c7460604416b9a6f50b",
+    "react-runtime.js": "48826f385b1fcb31e536e7527953b072c6b1c187a99c24a8d88e6d8db39059c1",
+    "island-wrapper.js": "42eb43c9f698982c244e9194d0998efd79eb4c8e2f21b31dcb72070340989655",
+    "style.css": "56c95414741b1563e1e87d2b5451c395de2fd1063c91d9cb37e80c4c9fbf7fa4",
+    "measure.js": "590d99359484f3c422ce472185ba6347e354a8d3f7ff961e1c3c9be2e2a348d8"
+  }
+}

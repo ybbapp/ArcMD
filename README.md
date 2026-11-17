@@ -1,4 +1,4 @@
-> 本分支包含 **原生正文 + 局部 JSX WebView** 的只读实验入口，尚非完整 MDX 支持，普通 ArcMD 启动方式不变。参见 [实验说明、启动命令与兼容边界](experiments/jsx-webview/README.md)。
+> 本 fork 正在推进 **MDX 3.1.1 分阶段兼容**：原生正文 + 隔离 JSX/表达式岛屿，运行时无需 Node，仍非完整 MDX。见 [版本与使用边界](#mdx-support)。
 
 <div align="center">
 
@@ -38,9 +38,9 @@
 <br>
 
 ArcMD 将熟悉的 Markdown 写作流带入细腻跟手的原生富文本画布。
-完全使用 **Go** 与 **[MyGo](https://github.com/egoist/mygo) Native UI** 自研开发——由 Go 直接驱动窗口绘制、字形排版与系统输入，**零 HTML、JavaScript、WebView、Electron 或 cgo**。
+普通 Markdown 编辑器完全使用 **Go** 与 **[MyGo](https://github.com/egoist/mygo) Native UI** 自研开发，由 Go 驱动窗口、字形排版与系统输入，不依赖 Electron 或 cgo。**本 fork 的 `.mdx` 增强是明确例外**：需要执行的 JSX/表达式区块使用隔离 WebView，编译器内嵌于 moejs，正文并非整页网页。
 
-| ⚡ 纯粹原生，120 Hz 满帧 | 📄 原生 `.md`，来去自由 | 🎨 Arc 式空间与微交互 |
+| ⚡ 原生正文，120 Hz 满帧 | 📄 原生 `.md`，来去自由 | 🎨 Arc 式空间与微交互 |
 | --- | --- | --- |
 | 自研结构化文档引擎与增量排版，百万字混合长文输入 P50 仅 **0.273 ms**，后台落盘主线程零卡顿。 | 直接原地读写标准 `.md` 文件，不制造私有副本，随时与 Obsidian、VS Code、Typora 和 Git 共用同一文件夹。 | 多彩 Space 轻扫切换、全局收藏、置顶常驻标签页，配合光标滑行、即时语法编译与弹簧微动效。 |
 
@@ -108,6 +108,48 @@ ArcMD 直接以标准 **`.md` Markdown** 作为主格式，编辑时在后台原
 - **平滑向下兼容**：已有的旧版 `.arcmd` 文档与历史快照仍可直接打开、编辑与迁移。
 
 ---
+
+<a id="mdx-support"></a>
+## 本 fork 的 MDX 3.1.1 增强（第一阶段）
+
+目标精确锁定 **`@mdx-js/mdx` 3.1.1**，兼容配置为 `arcmd-mdx3-phase1`，不是“已完整兼容 MDX 3”。本阶段仍在功能分支验证，现有 0.2.2 Release 不含以下新增能力；保留 [上游 ArcMD](https://github.com/Ciao1019/ArcMD) 的归属与原生编辑器设计。
+
+| 能力 | 当前状态 |
+| --- | --- |
+| 普通 Markdown、代码示例；块级 JSX/fragment、Counter/Callout | 支持；普通正文仍原生，代码围栏不执行 |
+| 独立 `{expression}`、IIFE 局部变量、数组/map JSX、JSX 表达式/展开属性与含组件的小写标签 | 本轮新增；仅岛屿内作用域 |
+| 顶层段落中的行内 JSX / `{expression}` | **部分支持**：整个受影响段落成为 WebView，不是原生行内控件；其他段落不受影响 |
+| Tabs / TabItem / Accordion | 本轮新增内置组件；组件数量不代表 MDX 版本完整兼容 |
+| 标题/列表/引用里的嵌套 JSX、文档级 export/共享作用域、import/组件文件、await/import.meta、跨岛屿状态 | 未支持，会拒绝或显示诊断；不读取任意文件/网络模块 |
+| MDX 插件/资源与完整 CommonMark 上下文 | 部分/未支持；原生数学等功能不自动成为岛屿编译插件，外部资源仍被 CSP 限制 |
+
+在空间、侧栏或系统打开本地 `.mdx` 即可；**运行时无需 Node**，可直接从 Finder 启动。含 MDX 的段落由嵌入式编译器处理，普通 Markdown 仍在原生编辑器中。示例：
+
+```mdx
+# 原生标题
+
+这段正文仍是原生的。
+
+计算结果是 <strong>{6 * 7}</strong>（这一整段成为岛屿）。
+
+{[1, 2, 3].map(n => <span key={n}>{n} </span>)}
+
+<Counter initial={2 + 3} />
+```
+
+完整 Tabs/Accordion 示例见 [`tools/mdx/example.mdx`](tools/mdx/example.mdx)。让 agent 或外部编辑器修改 JSX，再在 ArcMD 重新载入；当前源码视图是**只读导出预览**。原始岛屿内容在保存时还原，渲染不会重写文件；普通 Markdown 序列化仍可能规范化格式。主题切换不重载，按内容测高；重载/切换标签页不承诺保留交互状态。成功无技术横幅，失败保留错误与干净文档的重载/重试。
+
+开发者才需要 Node 22.12+ / 24 来生成固定资源和运行浏览器测试：
+
+```sh
+npm ci --prefix tools/mdx
+npm run build --prefix tools/mdx
+npm test --prefix tools/mdx
+# 无窗口诊断；输出实际 compiler.version / profile / buildSha256
+go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
+```
+
+运行时不提供 Go/文件/网络桥；moejs 只执行可信编译器，文档表达式仅在 Untrusted WebView 执行，继续 hash CSP/禁网络及导航限制。编译预算为 5 秒求值、256 MiB JS 分配、512 KiB 源、32 岛屿；不是任意浏览器代码的 CPU/内存隔离。详见[版本矩阵、保存/布局取舍与安全限制](docs/mdx-compatibility.md)及[可执行矩阵](tools/mdx/compatibility.json)。矩阵区分官方语法、宿主加载和浏览器执行；预期拒绝项测试通过不等于那些功能已支持。JSDOM 不是 Mac WKWebView 实机验收，原有六项 Linux app 基线失败仍保留。
 
 ## 功能全景
 

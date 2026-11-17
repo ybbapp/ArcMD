@@ -21,3 +21,6 @@ mygo-update.key
 # Local JSX experiment build artifacts
 /experiments/jsx-webview/node_modules/
 /experiments/jsx-webview/*.manifest.json
+
+# Canonical MDX compiler build/test dependencies.
+/tools/mdx/node_modules/

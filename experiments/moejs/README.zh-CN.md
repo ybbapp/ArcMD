@@ -1,5 +1,7 @@
 # ArcMD MoeJS 主程序验证版
 
+> 历史实验记录：下文描述早期独立测试包，不是当前主线界面或兼容性承诺。当前 MDX 3.1.1 阶段实现、构建与限制见 [compatibility 文档](../../docs/mdx-compatibility.md) 和根 README；此处构建脚本已转交 `tools/mdx`，避免生成旧编译器。
+
 这是独立实验 PR 的 `cmd/arcmd` 主程序，macOS 13+ Apple Silicon。**运行时无需安装 Node，也不依赖终端 PATH，从 Finder 直接打开。** 应用内嵌 moejs、可信 MDX 编译器及 React 浏览器运行时代码，没有暗藏 Node、npm、esbuild 可执行文件或本地服务。
 
 ## 安装与验收

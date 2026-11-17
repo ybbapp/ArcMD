@@ -176,3 +176,48 @@ func TestJSXPerIslandErrorRemainsVisible(t *testing.T) {
 		t.Fatal("per-island failure hidden")
 	}
 }
+
+func TestMDX3ParagraphExpressionsPreserveSaveAndReload(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	a, tt := newTestApp(t)
+	created := 0
+	a.testIslandView = func() ui.NativeWebView { created++; return &jsxTestView{} }
+	source := "# Native\n\n中文 😀 inline <span>{6*7}</span>.\n\n{[1,2].map(n => <span key={n}>{n}</span>)}\n\nAfter.\n"
+	if err := vault.Write(root(a), "Phase1.mdx", source); err != nil {
+		t.Fatal(err)
+	}
+	a.refreshTree()
+	a.open("Phase1.mdx")
+	tt.Frame()
+	tt.Frame()
+	if a.doc.jsxErr != nil || len(a.doc.jsxBlocks) != 2 || created != 2 {
+		t.Fatalf("islands/lifecycle: %v %d %d", a.doc.jsxErr, len(a.doc.jsxBlocks), created)
+	}
+	if a.doc.jsx.Compiler.Version != "3.1.1" {
+		t.Fatalf("compiler: %+v", a.doc.jsx.Compiler)
+	}
+	a.doc.toggleMode()
+	if a.doc.preview != source {
+		t.Fatalf("source preview changed JSX: %q", a.doc.preview)
+	}
+	a.doc.toggleMode()
+	if err := a.doc.write(true); err != nil {
+		t.Fatal(err)
+	}
+	disk, err := vault.Read(root(a), "Phase1.mdx")
+	if err != nil || disk != source {
+		t.Fatalf("saved projection instead of source: %q %v", disk, err)
+	}
+	changed := strings.Replace(source, "6*7", "8*8", 1)
+	if err = vault.Write(root(a), "Phase1.mdx", changed); err != nil {
+		t.Fatal(err)
+	}
+	a.reload()
+	tt.Frame()
+	if a.doc.jsxErr != nil || a.doc.jsx.SourceSHA256 != jsx.SourceSHA256(changed) || a.doc.text() != changed {
+		t.Fatalf("stale/source-loss on reload: %v", a.doc.jsxErr)
+	}
+	if created != 4 {
+		t.Fatalf("views should be created once again only on reload: %d", created)
+	}
+}

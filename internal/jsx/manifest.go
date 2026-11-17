@@ -15,12 +15,13 @@ import (
 
 // Manifest is the compiler's JSON output (version 1).
 type Manifest struct {
-	Namespace    string   `json:"namespace"`
-	Version      int      `json:"version"`
-	SourceSHA256 string   `json:"sourceSha256"`
-	Markdown     string   `json:"markdown"`
-	Blocks       []Block  `json:"blocks"`
-	Diagnostics  []string `json:"diagnostics"`
+	Compiler     CompilerInfo `json:"compiler"`
+	Namespace    string       `json:"namespace"`
+	Version      int          `json:"version"`
+	SourceSHA256 string       `json:"sourceSha256"`
+	Markdown     string       `json:"markdown"`
+	Blocks       []Block      `json:"blocks"`
+	Diagnostics  []string     `json:"diagnostics"`
 }
 
 // Block is one compiled JSX island. Height is only a pre-measure placeholder.

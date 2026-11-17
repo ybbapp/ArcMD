@@ -28,9 +28,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// experiments/jsx-webview/node_modules/acorn-jsx/xhtml.js
+// tools/mdx/node_modules/acorn-jsx/xhtml.js
 var require_xhtml = __commonJS({
-  "experiments/jsx-webview/node_modules/acorn-jsx/xhtml.js"(exports, module) {
+  "tools/mdx/node_modules/acorn-jsx/xhtml.js"(exports, module) {
     module.exports = {
       quot: '"',
       amp: "&",
@@ -289,9 +289,9 @@ var require_xhtml = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/acorn/dist/acorn.js
+// tools/mdx/node_modules/acorn/dist/acorn.js
 var require_acorn = __commonJS({
-  "experiments/jsx-webview/node_modules/acorn/dist/acorn.js"(exports, module) {
+  "tools/mdx/node_modules/acorn/dist/acorn.js"(exports, module) {
     (function(global, factory) {
       typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.acorn = {}));
     })(exports, (function(exports2) {
@@ -6030,9 +6030,9 @@ var require_acorn = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/acorn-jsx/index.js
+// tools/mdx/node_modules/acorn-jsx/index.js
 var require_acorn_jsx = __commonJS({
-  "experiments/jsx-webview/node_modules/acorn-jsx/index.js"(exports, module) {
+  "tools/mdx/node_modules/acorn-jsx/index.js"(exports, module) {
     "use strict";
     var XHTMLEntities = require_xhtml();
     var hexNumber = /^[\da-fA-F]+$/;
@@ -6453,9 +6453,9 @@ var require_acorn_jsx = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/style-to-js/node_modules/inline-style-parser/cjs/index.js
+// tools/mdx/node_modules/style-to-js/node_modules/inline-style-parser/cjs/index.js
 var require_cjs = __commonJS({
-  "experiments/jsx-webview/node_modules/style-to-js/node_modules/inline-style-parser/cjs/index.js"(exports, module) {
+  "tools/mdx/node_modules/style-to-js/node_modules/inline-style-parser/cjs/index.js"(exports, module) {
     "use strict";
     var COMMENT_REGEX = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
     var NEWLINE_REGEX = /\n/g;
@@ -6592,9 +6592,9 @@ var require_cjs = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/style-to-js/node_modules/style-to-object/cjs/index.js
+// tools/mdx/node_modules/style-to-js/node_modules/style-to-object/cjs/index.js
 var require_cjs2 = __commonJS({
-  "experiments/jsx-webview/node_modules/style-to-js/node_modules/style-to-object/cjs/index.js"(exports) {
+  "tools/mdx/node_modules/style-to-js/node_modules/style-to-object/cjs/index.js"(exports) {
     "use strict";
     var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
@@ -6626,9 +6626,9 @@ var require_cjs2 = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/style-to-js/cjs/utilities.js
+// tools/mdx/node_modules/style-to-js/cjs/utilities.js
 var require_utilities = __commonJS({
-  "experiments/jsx-webview/node_modules/style-to-js/cjs/utilities.js"(exports) {
+  "tools/mdx/node_modules/style-to-js/cjs/utilities.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.camelCase = void 0;
@@ -6665,9 +6665,9 @@ var require_utilities = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/style-to-js/cjs/index.js
+// tools/mdx/node_modules/style-to-js/cjs/index.js
 var require_cjs3 = __commonJS({
-  "experiments/jsx-webview/node_modules/style-to-js/cjs/index.js"(exports, module) {
+  "tools/mdx/node_modules/style-to-js/cjs/index.js"(exports, module) {
     "use strict";
     var __importDefault = exports && exports.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
@@ -6691,9 +6691,9 @@ var require_cjs3 = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/extend/index.js
+// tools/mdx/node_modules/extend/index.js
 var require_extend = __commonJS({
-  "experiments/jsx-webview/node_modules/extend/index.js"(exports, module) {
+  "tools/mdx/node_modules/extend/index.js"(exports, module) {
     "use strict";
     var hasOwn2 = Object.prototype.hasOwnProperty;
     var toStr = Object.prototype.toString;
@@ -6782,7 +6782,7 @@ var require_extend = __commonJS({
   }
 });
 
-// experiments/jsx-webview/node_modules/unist-util-stringify-position/lib/index.js
+// tools/mdx/node_modules/unist-util-stringify-position/lib/index.js
 function stringifyPosition(value) {
   if (!value || typeof value !== "object") {
     return "";
@@ -6808,7 +6808,7 @@ function index(value) {
   return value && typeof value === "number" ? value : 1;
 }
 
-// experiments/jsx-webview/node_modules/vfile-message/lib/index.js
+// tools/mdx/node_modules/vfile-message/lib/index.js
 var VFileMessage = class extends Error {
   /**
    * Create a message for `reason`.
@@ -6971,7 +6971,7 @@ Object.defineProperties(VFileMessage.prototype, {
   source: { configurable: true, enumerable: true, writable: true }
 });
 
-// experiments/jsx-webview/node_modules/vfile/lib/minpath.browser.js
+// tools/mdx/node_modules/vfile/lib/minpath.browser.js
 var minpath = { basename, dirname, extname, join, sep: "/" };
 function basename(path, extname2) {
   if (extname2 !== void 0 && typeof extname2 !== "string") {
@@ -7184,13 +7184,13 @@ function assertPath(path) {
   }
 }
 
-// experiments/jsx-webview/node_modules/vfile/lib/minproc.browser.js
+// tools/mdx/node_modules/vfile/lib/minproc.browser.js
 var minproc = { cwd };
 function cwd() {
   return "/";
 }
 
-// experiments/jsx-webview/node_modules/vfile/lib/minurl.shared.js
+// tools/mdx/node_modules/vfile/lib/minurl.shared.js
 function isUrl(fileUrlOrPath) {
   return Boolean(
     fileUrlOrPath !== null && typeof fileUrlOrPath === "object" && "href" in fileUrlOrPath && fileUrlOrPath.href && "protocol" in fileUrlOrPath && fileUrlOrPath.protocol && // @ts-expect-error: indexing is fine.
@@ -7198,7 +7198,7 @@ function isUrl(fileUrlOrPath) {
   );
 }
 
-// experiments/jsx-webview/node_modules/vfile/lib/minurl.browser.js
+// tools/mdx/node_modules/vfile/lib/minurl.browser.js
 function urlToPath(path) {
   if (typeof path === "string") {
     path = new URL(path);
@@ -7241,7 +7241,7 @@ function getPathFromURLPosix(url) {
   return decodeURIComponent(pathname);
 }
 
-// experiments/jsx-webview/node_modules/vfile/lib/index.js
+// tools/mdx/node_modules/vfile/lib/index.js
 var order = (
   /** @type {const} */
   [
@@ -7697,7 +7697,7 @@ function isUint8Array(value) {
   );
 }
 
-// experiments/jsx-webview/node_modules/markdown-extensions/index.js
+// tools/mdx/node_modules/markdown-extensions/index.js
 var markdownExtension = [
   "md",
   "markdown",
@@ -7710,12 +7710,12 @@ var markdownExtension = [
 ];
 var markdown_extensions_default = markdownExtension;
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/extnames.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/extnames.js
 var md = markdown_extensions_default.map(function(d) {
   return "." + d;
 });
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/resolve-file-and-options.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/resolve-file-and-options.js
 function resolveFileAndOptions(vfileCompatible, options) {
   const file = looksLikeAVFile(vfileCompatible) ? vfileCompatible : new VFile(vfileCompatible);
   const { format, ...rest } = options || {};
@@ -7733,13 +7733,13 @@ function looksLikeAVFile(value) {
   );
 }
 
-// experiments/jsx-webview/node_modules/devlop/lib/default.js
+// tools/mdx/node_modules/devlop/lib/default.js
 function ok() {
 }
 function unreachable() {
 }
 
-// experiments/jsx-webview/node_modules/estree-util-is-identifier-name/lib/index.js
+// tools/mdx/node_modules/estree-util-is-identifier-name/lib/index.js
 var startRe = /[$_\p{ID_Start}]/u;
 var contRe = /[$_\u{200C}\u{200D}\p{ID_Continue}]/u;
 var contReJsx = /[-$_\u{200C}\u{200D}\p{ID_Continue}]/u;
@@ -7760,7 +7760,7 @@ function name(name2, options) {
   return re2.test(name2);
 }
 
-// experiments/jsx-webview/node_modules/estree-walker/src/walker.js
+// tools/mdx/node_modules/estree-walker/src/walker.js
 var WalkerBase = class {
   constructor() {
     this.should_skip = false;
@@ -7805,7 +7805,7 @@ var WalkerBase = class {
   }
 };
 
-// experiments/jsx-webview/node_modules/estree-walker/src/sync.js
+// tools/mdx/node_modules/estree-walker/src/sync.js
 var SyncWalker = class extends WalkerBase {
   /**
    *
@@ -7906,19 +7906,19 @@ function isNode(value) {
   return value !== null && typeof value === "object" && "type" in value && typeof value.type === "string";
 }
 
-// experiments/jsx-webview/node_modules/estree-walker/src/index.js
+// tools/mdx/node_modules/estree-walker/src/index.js
 function walk(ast, { enter, leave }) {
   const instance = new SyncWalker(enter, leave);
   return instance.visit(ast, null);
 }
 
-// experiments/jsx-webview/node_modules/estree-util-build-jsx/lib/index.js
+// tools/mdx/node_modules/estree-util-build-jsx/lib/index.js
 var regex = /@(jsx|jsxFrag|jsxImportSource|jsxRuntime)\s+(\S+)/g;
 function buildJsx(tree, options) {
   const config = options || {};
   let automatic = config.runtime === "automatic";
   const annotations = {};
-  const imports2 = {};
+  const imports = {};
   walk(tree, {
     enter(node2) {
       if (node2.type === "Program") {
@@ -7962,28 +7962,28 @@ function buildJsx(tree, options) {
     leave(node2) {
       if (node2.type === "Program") {
         const specifiers = [];
-        if (imports2.fragment) {
+        if (imports.fragment) {
           specifiers.push({
             type: "ImportSpecifier",
             imported: { type: "Identifier", name: "Fragment" },
             local: { type: "Identifier", name: "_Fragment" }
           });
         }
-        if (imports2.jsx) {
+        if (imports.jsx) {
           specifiers.push({
             type: "ImportSpecifier",
             imported: { type: "Identifier", name: "jsx" },
             local: { type: "Identifier", name: "_jsx" }
           });
         }
-        if (imports2.jsxs) {
+        if (imports.jsxs) {
           specifiers.push({
             type: "ImportSpecifier",
             imported: { type: "Identifier", name: "jsxs" },
             local: { type: "Identifier", name: "_jsxs" }
           });
         }
-        if (imports2.jsxDEV) {
+        if (imports.jsxDEV) {
           specifiers.push({
             type: "ImportSpecifier",
             imported: { type: "Identifier", name: "jsxDEV" },
@@ -8077,7 +8077,7 @@ function buildJsx(tree, options) {
           }
         }
       } else if (automatic) {
-        imports2.fragment = true;
+        imports.fragment = true;
         name2 = { type: "Identifier", name: "_Fragment" };
       } else {
         name2 = toMemberExpression(
@@ -8109,7 +8109,7 @@ function buildJsx(tree, options) {
         }
         const isStaticChildren = children.length > 1;
         if (config.development) {
-          imports2.jsxDEV = true;
+          imports.jsxDEV = true;
           callee = {
             type: "Identifier",
             name: "_jsxDEV"
@@ -8156,10 +8156,10 @@ function buildJsx(tree, options) {
           }
           parameters.push(source, { type: "ThisExpression" });
         } else if (isStaticChildren) {
-          imports2.jsxs = true;
+          imports.jsxs = true;
           callee = { type: "Identifier", name: "_jsxs" };
         } else {
-          imports2.jsx = true;
+          imports.jsx = true;
           callee = { type: "Identifier", name: "_jsx" };
         }
       } else {
@@ -8268,17 +8268,17 @@ function create(from, to) {
   }
 }
 
-// experiments/jsx-webview/node_modules/recma-build-jsx/lib/index.js
+// tools/mdx/node_modules/recma-build-jsx/lib/index.js
 function recmaJsx(options) {
   return function(tree, file) {
     buildJsx(tree, { filePath: file.history[0], ...options });
   };
 }
 
-// experiments/jsx-webview/node_modules/recma-jsx/lib/index.js
+// tools/mdx/node_modules/recma-jsx/lib/index.js
 var import_acorn_jsx = __toESM(require_acorn_jsx(), 1);
 
-// experiments/jsx-webview/node_modules/astring/dist/astring.mjs
+// tools/mdx/node_modules/astring/dist/astring.mjs
 var { stringify } = JSON;
 if (!String.prototype.repeat) {
   throw new Error(
@@ -9322,7 +9322,7 @@ function generate(node2, options) {
   return state.output;
 }
 
-// experiments/jsx-webview/node_modules/estree-util-to-js/lib/index.js
+// tools/mdx/node_modules/estree-util-to-js/lib/index.js
 var emptyOptions2 = {};
 function toJs(tree, options) {
   const { SourceMapGenerator, filePath, handlers: handlers3 } = options || emptyOptions2;
@@ -9340,7 +9340,7 @@ function toJs(tree, options) {
   return { value, map };
 }
 
-// experiments/jsx-webview/node_modules/estree-util-to-js/lib/jsx.js
+// tools/mdx/node_modules/estree-util-to-js/lib/jsx.js
 var jsx = {
   JSXAttribute: jsxAttribute,
   JSXClosingElement: jsxClosingElement,
@@ -9459,7 +9459,7 @@ function replaceJsxChar($0) {
   return $0 === "<" ? "&lt;" : $0 === ">" ? "&gt;" : $0 === "{" ? "&#123;" : "&#125;";
 }
 
-// experiments/jsx-webview/node_modules/recma-jsx/lib/index.js
+// tools/mdx/node_modules/recma-jsx/lib/index.js
 function recmaJsx2() {
   const data2 = this.data();
   const settings = data2.settings || (data2.settings = {});
@@ -9469,7 +9469,7 @@ function recmaJsx2() {
   Object.assign(handlers3, jsx);
 }
 
-// experiments/jsx-webview/node_modules/recma-stringify/lib/index.js
+// tools/mdx/node_modules/recma-stringify/lib/index.js
 function recmaStringify(options) {
   const self2 = this;
   this.compiler = compiler2;
@@ -9485,7 +9485,7 @@ function recmaStringify(options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/comment.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/comment.js
 function comment(node2, state) {
   const result = { type: "Block", value: node2.value };
   state.inherit(node2, result);
@@ -9501,7 +9501,7 @@ function comment(node2, state) {
   return container;
 }
 
-// experiments/jsx-webview/node_modules/comma-separated-tokens/index.js
+// tools/mdx/node_modules/comma-separated-tokens/index.js
 function stringify2(values, options) {
   const settings = options || {};
   const input = values[values.length - 1] === "" ? [...values, ""] : values;
@@ -9510,7 +9510,7 @@ function stringify2(values, options) {
   ).trim();
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/schema.js
+// tools/mdx/node_modules/property-information/lib/util/schema.js
 var Schema = class {
   /**
    * @param {SchemaType['property']} property
@@ -9534,7 +9534,7 @@ Schema.prototype.normal = {};
 Schema.prototype.property = {};
 Schema.prototype.space = void 0;
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/merge.js
+// tools/mdx/node_modules/property-information/lib/util/merge.js
 function merge(definitions, space2) {
   const property = {};
   const normal = {};
@@ -9545,12 +9545,12 @@ function merge(definitions, space2) {
   return new Schema(property, normal, space2);
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/normalize.js
+// tools/mdx/node_modules/property-information/lib/normalize.js
 function normalize2(value) {
   return value.toLowerCase();
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/info.js
+// tools/mdx/node_modules/property-information/lib/util/info.js
 var Info = class {
   /**
    * @param {string} property
@@ -9578,7 +9578,7 @@ Info.prototype.property = "";
 Info.prototype.spaceSeparated = false;
 Info.prototype.space = void 0;
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/types.js
+// tools/mdx/node_modules/property-information/lib/util/types.js
 var types_exports = {};
 __export(types_exports, {
   boolean: () => boolean,
@@ -9601,7 +9601,7 @@ function increment() {
   return 2 ** ++powers;
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/defined-info.js
+// tools/mdx/node_modules/property-information/lib/util/defined-info.js
 var checks = (
   /** @type {ReadonlyArray<keyof typeof types>} */
   Object.keys(types_exports)
@@ -9639,7 +9639,7 @@ function mark(values, key, value) {
   }
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/create.js
+// tools/mdx/node_modules/property-information/lib/util/create.js
 function create2(definition2) {
   const properties = {};
   const normals = {};
@@ -9660,7 +9660,7 @@ function create2(definition2) {
   return new Schema(properties, normals, definition2.space);
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/aria.js
+// tools/mdx/node_modules/property-information/lib/aria.js
 var aria = create2({
   properties: {
     ariaActiveDescendant: null,
@@ -9718,17 +9718,17 @@ var aria = create2({
   }
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/case-sensitive-transform.js
+// tools/mdx/node_modules/property-information/lib/util/case-sensitive-transform.js
 function caseSensitiveTransform(attributes, attribute) {
   return attribute in attributes ? attributes[attribute] : attribute;
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/util/case-insensitive-transform.js
+// tools/mdx/node_modules/property-information/lib/util/case-insensitive-transform.js
 function caseInsensitiveTransform(attributes, property) {
   return caseSensitiveTransform(attributes, property.toLowerCase());
 }
 
-// experiments/jsx-webview/node_modules/property-information/lib/html.js
+// tools/mdx/node_modules/property-information/lib/html.js
 var html = create2({
   attributes: {
     acceptcharset: "accept-charset",
@@ -10102,7 +10102,7 @@ var html = create2({
   transform: caseInsensitiveTransform
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/svg.js
+// tools/mdx/node_modules/property-information/lib/svg.js
 var svg = create2({
   attributes: {
     accentHeight: "accent-height",
@@ -10666,7 +10666,7 @@ var svg = create2({
   transform: caseSensitiveTransform
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/xlink.js
+// tools/mdx/node_modules/property-information/lib/xlink.js
 var xlink = create2({
   properties: {
     xLinkActuate: null,
@@ -10683,7 +10683,7 @@ var xlink = create2({
   }
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/xmlns.js
+// tools/mdx/node_modules/property-information/lib/xmlns.js
 var xmlns = create2({
   attributes: { xmlnsxlink: "xmlns:xlink" },
   properties: { xmlnsXLink: null, xmlns: null },
@@ -10691,7 +10691,7 @@ var xmlns = create2({
   transform: caseInsensitiveTransform
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/xml.js
+// tools/mdx/node_modules/property-information/lib/xml.js
 var xml = create2({
   properties: { xmlBase: null, xmlLang: null, xmlSpace: null },
   space: "xml",
@@ -10700,7 +10700,7 @@ var xml = create2({
   }
 });
 
-// experiments/jsx-webview/node_modules/property-information/lib/hast-to-react.js
+// tools/mdx/node_modules/property-information/lib/hast-to-react.js
 var hastToReact = {
   classId: "classID",
   dataType: "datatype",
@@ -10721,7 +10721,7 @@ var hastToReact = {
   xmlnsXLink: "xmlnsXlink"
 };
 
-// experiments/jsx-webview/node_modules/property-information/lib/find.js
+// tools/mdx/node_modules/property-information/lib/find.js
 var cap = /[A-Z]/g;
 var dash = /-[a-z]/g;
 var valid = /^data[-\w.:]+$/i;
@@ -10757,16 +10757,16 @@ function camelcase($0) {
   return $0.charAt(1).toUpperCase();
 }
 
-// experiments/jsx-webview/node_modules/property-information/index.js
+// tools/mdx/node_modules/property-information/index.js
 var html2 = merge([aria, html, xlink, xmlns, xml], "html");
 var svg2 = merge([aria, svg, xlink, xmlns, xml], "svg");
 
-// experiments/jsx-webview/node_modules/space-separated-tokens/index.js
+// tools/mdx/node_modules/space-separated-tokens/index.js
 function stringify3(values) {
   return values.join(" ").trim();
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/element.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/element.js
 var import_style_to_js = __toESM(require_cjs3(), 1);
 var own = {}.hasOwnProperty;
 var cap2 = /[A-Z]/g;
@@ -10933,7 +10933,7 @@ function toDash($0) {
   return "-" + $0.toLowerCase();
 }
 
-// experiments/jsx-webview/node_modules/estree-util-attach-comments/lib/index.js
+// tools/mdx/node_modules/estree-util-attach-comments/lib/index.js
 var own2 = {}.hasOwnProperty;
 var emptyComments = [];
 function attachComments(tree, comments) {
@@ -11001,7 +11001,7 @@ function compare(left, right, compareEnd) {
   return Number.NaN;
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/mdx-expression.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/mdx-expression.js
 function mdxExpression(node2, state) {
   const estree = node2.data && node2.data.estree;
   const comments = estree && estree.comments || [];
@@ -11020,7 +11020,7 @@ function mdxExpression(node2, state) {
   return result;
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/mdx-jsx-element.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/mdx-jsx-element.js
 function mdxJsxElement(node2, state) {
   const parentSchema = state.schema;
   let schema = parentSchema;
@@ -11104,7 +11104,7 @@ function mdxJsxElement(node2, state) {
   return result;
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/mdxjs-esm.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/mdxjs-esm.js
 function mdxjsEsm(node2, state) {
   const estree = node2.data && node2.data.estree;
   const comments = estree && estree.comments || [];
@@ -11115,7 +11115,7 @@ function mdxjsEsm(node2, state) {
   }
 }
 
-// experiments/jsx-webview/node_modules/hast-util-whitespace/lib/index.js
+// tools/mdx/node_modules/hast-util-whitespace/lib/index.js
 var re = /[ \t\n\f\r]/g;
 function whitespace(thing) {
   return typeof thing === "object" ? thing.type === "text" ? empty(thing.value) : false : empty(thing);
@@ -11124,7 +11124,7 @@ function empty(value) {
   return value.replace(re, "") === "";
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/root.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/root.js
 function root(node2, state) {
   const children = state.all(node2);
   const cleanChildren = [];
@@ -11150,7 +11150,7 @@ function root(node2, state) {
   return result;
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/text.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/text.js
 function text(node2, state) {
   const value = String(node2.value || "");
   if (value) {
@@ -11162,7 +11162,7 @@ function text(node2, state) {
   }
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/handlers/index.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/handlers/index.js
 var handlers = {
   comment,
   doctype: ignore,
@@ -11178,7 +11178,7 @@ var handlers = {
 function ignore() {
 }
 
-// experiments/jsx-webview/node_modules/unist-util-position/lib/index.js
+// tools/mdx/node_modules/unist-util-position/lib/index.js
 var pointEnd = point2("end");
 var pointStart = point2("start");
 function point2(type) {
@@ -11202,7 +11202,7 @@ function position2(node2) {
   }
 }
 
-// experiments/jsx-webview/node_modules/zwitch/index.js
+// tools/mdx/node_modules/zwitch/index.js
 var own3 = {}.hasOwnProperty;
 function zwitch(key, options) {
   const settings = options || {};
@@ -11223,7 +11223,7 @@ function zwitch(key, options) {
   return one2;
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/state.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/state.js
 var own4 = {}.hasOwnProperty;
 var tableElements = /* @__PURE__ */ new Set(["table", "tbody", "thead", "tfoot", "tr"]);
 function createState(options) {
@@ -11348,7 +11348,7 @@ function createJsxNameFromString(name2) {
   return { type: "JSXIdentifier", name: name2 };
 }
 
-// experiments/jsx-webview/node_modules/hast-util-to-estree/lib/index.js
+// tools/mdx/node_modules/hast-util-to-estree/lib/index.js
 function toEstree(tree, options) {
   const state = createState(options || {});
   let result = state.handle(tree);
@@ -11377,14 +11377,14 @@ function toEstree(tree, options) {
   return program;
 }
 
-// experiments/jsx-webview/node_modules/rehype-recma/lib/index.js
+// tools/mdx/node_modules/rehype-recma/lib/index.js
 function rehypeRecma(options) {
   return function(tree) {
     return toEstree(tree, options);
   };
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-mdx-expression/lib/index.js
+// tools/mdx/node_modules/mdast-util-mdx-expression/lib/index.js
 function mdxExpressionFromMarkdown() {
   return {
     enter: {
@@ -11442,7 +11442,7 @@ function handleMdxExpression(node2, parent, state) {
   return "{" + result + "}";
 }
 
-// experiments/jsx-webview/node_modules/ccount/index.js
+// tools/mdx/node_modules/ccount/index.js
 function ccount(value, character) {
   const source = String(value);
   if (typeof character !== "string") {
@@ -11457,7 +11457,7 @@ function ccount(value, character) {
   return count;
 }
 
-// experiments/jsx-webview/node_modules/character-entities-legacy/index.js
+// tools/mdx/node_modules/character-entities-legacy/index.js
 var characterEntitiesLegacy = [
   "AElig",
   "AMP",
@@ -11567,7 +11567,7 @@ var characterEntitiesLegacy = [
   "yuml"
 ];
 
-// experiments/jsx-webview/node_modules/character-reference-invalid/index.js
+// tools/mdx/node_modules/character-reference-invalid/index.js
 var characterReferenceInvalid = {
   0: "\uFFFD",
   128: "\u20AC",
@@ -11599,30 +11599,30 @@ var characterReferenceInvalid = {
   159: "\u0178"
 };
 
-// experiments/jsx-webview/node_modules/is-decimal/index.js
+// tools/mdx/node_modules/is-decimal/index.js
 function isDecimal(character) {
   const code2 = typeof character === "string" ? character.charCodeAt(0) : character;
   return code2 >= 48 && code2 <= 57;
 }
 
-// experiments/jsx-webview/node_modules/is-hexadecimal/index.js
+// tools/mdx/node_modules/is-hexadecimal/index.js
 function isHexadecimal(character) {
   const code2 = typeof character === "string" ? character.charCodeAt(0) : character;
   return code2 >= 97 && code2 <= 102 || code2 >= 65 && code2 <= 70 || code2 >= 48 && code2 <= 57;
 }
 
-// experiments/jsx-webview/node_modules/is-alphabetical/index.js
+// tools/mdx/node_modules/is-alphabetical/index.js
 function isAlphabetical(character) {
   const code2 = typeof character === "string" ? character.charCodeAt(0) : character;
   return code2 >= 97 && code2 <= 122 || code2 >= 65 && code2 <= 90;
 }
 
-// experiments/jsx-webview/node_modules/is-alphanumerical/index.js
+// tools/mdx/node_modules/is-alphanumerical/index.js
 function isAlphanumerical(character) {
   return isAlphabetical(character) || isDecimal(character);
 }
 
-// experiments/jsx-webview/node_modules/character-entities/index.js
+// tools/mdx/node_modules/character-entities/index.js
 var characterEntities = {
   AElig: "\xC6",
   AMP: "&",
@@ -13751,13 +13751,13 @@ var characterEntities = {
   zwnj: "\u200C"
 };
 
-// experiments/jsx-webview/node_modules/decode-named-character-reference/index.js
+// tools/mdx/node_modules/decode-named-character-reference/index.js
 var own5 = {}.hasOwnProperty;
 function decodeNamedCharacterReference(value) {
   return own5.call(characterEntities, value) ? characterEntities[value] : false;
 }
 
-// experiments/jsx-webview/node_modules/parse-entities/lib/index.js
+// tools/mdx/node_modules/parse-entities/lib/index.js
 var messages = [
   "",
   /* 1: Non terminated (named) */
@@ -13995,7 +13995,7 @@ function disallowed(code2) {
   return code2 >= 1 && code2 <= 8 || code2 === 11 || code2 >= 13 && code2 <= 31 || code2 >= 127 && code2 <= 159 || code2 >= 64976 && code2 <= 65007 || (code2 & 65535) === 65535 || (code2 & 65535) === 65534;
 }
 
-// experiments/jsx-webview/node_modules/stringify-entities/lib/core.js
+// tools/mdx/node_modules/stringify-entities/lib/core.js
 var defaultSubsetRegex = /["&'<>`]/g;
 var surrogatePairsRegex = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 var controlCharactersRegex = (
@@ -14045,17 +14045,17 @@ function charactersToExpression(subset) {
   return new RegExp("(?:" + groups.join("|") + ")", "g");
 }
 
-// experiments/jsx-webview/node_modules/stringify-entities/lib/util/format-basic.js
+// tools/mdx/node_modules/stringify-entities/lib/util/format-basic.js
 function formatBasic(code2) {
   return "&#x" + code2.toString(16).toUpperCase() + ";";
 }
 
-// experiments/jsx-webview/node_modules/stringify-entities/lib/index.js
+// tools/mdx/node_modules/stringify-entities/lib/index.js
 function stringifyEntitiesLight(value, options) {
   return core(value, Object.assign({ format: formatBasic }, options));
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-mdx-jsx/lib/index.js
+// tools/mdx/node_modules/mdast-util-mdx-jsx/lib/index.js
 var indent = "  ";
 function mdxJsxFromMarkdown() {
   return {
@@ -14519,7 +14519,7 @@ function serializeExpression(state, value, indent2) {
   return "{" + result + "}";
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-mdxjs-esm/lib/index.js
+// tools/mdx/node_modules/mdast-util-mdxjs-esm/lib/index.js
 function mdxjsEsmFromMarkdown() {
   return {
     enter: { mdxjsEsm: enterMdxjsEsm },
@@ -14552,7 +14552,7 @@ function handleMdxjsEsm(node2) {
   return node2.value || "";
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-mdx/lib/index.js
+// tools/mdx/node_modules/mdast-util-mdx/lib/index.js
 function mdxFromMarkdown() {
   return [
     mdxExpressionFromMarkdown(),
@@ -14570,7 +14570,7 @@ function mdxToMarkdown(options) {
   };
 }
 
-// experiments/jsx-webview/node_modules/acorn/dist/acorn.mjs
+// tools/mdx/node_modules/acorn/dist/acorn.mjs
 var astralIdentifierCodes = [509, 0, 227, 0, 150, 4, 294, 9, 1368, 2, 2, 1, 6, 3, 41, 2, 5, 0, 166, 1, 574, 3, 9, 9, 7, 9, 32, 4, 318, 1, 31, 4, 33, 15, 71, 10, 50, 3, 123, 2, 54, 14, 32, 10, 3, 1, 11, 3, 46, 10, 8, 0, 46, 9, 7, 2, 37, 13, 2, 9, 6, 1, 45, 0, 13, 2, 49, 13, 9, 3, 2, 11, 83, 11, 7, 0, 3, 0, 158, 11, 6, 9, 7, 3, 56, 1, 2, 6, 3, 1, 3, 2, 10, 0, 11, 1, 3, 6, 4, 4, 68, 8, 2, 0, 3, 0, 2, 3, 2, 4, 2, 0, 15, 1, 83, 17, 10, 9, 5, 0, 82, 19, 13, 9, 214, 6, 3, 8, 28, 1, 83, 16, 16, 9, 82, 12, 9, 9, 7, 19, 58, 14, 5, 9, 243, 14, 166, 9, 71, 5, 2, 1, 3, 3, 2, 0, 2, 1, 13, 9, 120, 6, 3, 6, 4, 0, 29, 9, 41, 6, 2, 3, 9, 0, 10, 10, 47, 15, 199, 7, 137, 9, 54, 7, 2, 7, 17, 9, 57, 21, 2, 13, 123, 5, 4, 0, 2, 1, 2, 6, 2, 0, 9, 9, 49, 4, 2, 1, 2, 4, 9, 9, 55, 9, 7, 0, 259, 3, 10, 1, 2, 0, 49, 6, 4, 4, 14, 10, 5350, 0, 7, 14, 11465, 27, 2343, 9, 87, 9, 39, 4, 60, 6, 26, 9, 535, 9, 470, 0, 2, 54, 8, 3, 82, 0, 12, 1, 19628, 1, 4178, 9, 519, 45, 3, 22, 481, 1, 61, 4, 4, 5, 9, 7, 3, 6, 31, 3, 149, 2, 12, 2, 9, 1, 3, 0, 33, 1, 1357, 49, 513, 54, 5, 49, 9, 0, 15, 0, 23, 4, 2, 14, 1361, 6, 2, 16, 3, 6, 2, 1, 2, 4, 101, 0, 161, 6, 10, 9, 357, 0, 62, 13, 499, 13, 245, 1, 2, 9, 233, 0, 3, 0, 8, 1, 6, 0, 475, 6, 110, 6, 6, 9, 4759, 9, 787719, 239];
 var astralIdentifierStartCodes = [0, 11, 2, 25, 2, 18, 2, 1, 2, 14, 3, 13, 35, 122, 70, 52, 268, 28, 4, 48, 48, 31, 14, 29, 6, 37, 11, 29, 3, 35, 5, 7, 2, 4, 43, 157, 19, 35, 5, 35, 5, 39, 9, 51, 13, 10, 2, 14, 2, 6, 2, 1, 2, 10, 2, 14, 2, 6, 2, 1, 4, 51, 13, 310, 10, 21, 11, 7, 25, 5, 2, 41, 2, 13, 65, 5, 3, 0, 2, 43, 2, 1, 4, 0, 3, 22, 11, 22, 10, 30, 66, 18, 2, 1, 11, 21, 11, 25, 7, 25, 39, 55, 7, 1, 65, 0, 16, 3, 2, 2, 2, 28, 43, 28, 4, 28, 36, 7, 2, 27, 28, 53, 11, 21, 11, 18, 14, 17, 111, 72, 56, 50, 14, 50, 14, 35, 39, 27, 10, 22, 251, 41, 7, 1, 17, 5, 18, 21, 18, 28, 11, 0, 9, 21, 43, 17, 47, 20, 28, 22, 13, 52, 58, 1, 3, 0, 14, 44, 33, 24, 27, 35, 30, 0, 3, 0, 9, 34, 4, 0, 13, 47, 15, 3, 22, 0, 2, 0, 36, 17, 2, 24, 20, 1, 64, 6, 2, 0, 2, 3, 2, 14, 2, 9, 8, 46, 39, 7, 3, 1, 3, 21, 2, 6, 2, 1, 2, 4, 4, 0, 19, 0, 13, 4, 31, 9, 2, 0, 3, 0, 2, 37, 2, 0, 26, 0, 2, 0, 45, 52, 19, 3, 21, 2, 31, 47, 21, 1, 2, 0, 185, 46, 42, 3, 37, 47, 21, 0, 60, 42, 14, 0, 72, 26, 38, 6, 186, 43, 117, 63, 32, 7, 3, 0, 3, 7, 2, 1, 2, 23, 16, 0, 2, 0, 95, 7, 3, 38, 17, 0, 2, 0, 29, 0, 11, 39, 8, 0, 22, 0, 12, 45, 20, 0, 19, 72, 18, 0, 182, 32, 32, 8, 2, 36, 18, 0, 50, 29, 113, 6, 2, 1, 2, 37, 22, 0, 26, 5, 2, 1, 2, 31, 15, 0, 24, 43, 22, 0, 239, 18, 16, 0, 2, 12, 2, 33, 125, 0, 80, 921, 103, 111, 6, 206, 13, 310, 2314, 96, 16, 1071, 18, 5, 26, 3994, 6, 582, 6842, 29, 1763, 568, 8, 30, 18, 78, 18, 29, 19, 47, 17, 3, 32, 20, 6, 18, 433, 44, 212, 63, 33, 24, 3, 24, 45, 74, 6, 0, 67, 12, 65, 1, 2, 0, 15, 4, 10, 7386, 37, 33, 96, 114, 14, 913, 15, 50, 7710, 3, 2, 6, 2, 1, 2, 296, 10, 0, 30, 2, 3, 0, 15, 4, 8, 395, 2309, 106, 6, 12, 4, 8, 8, 9, 5991, 84, 2, 70, 2, 1, 3, 0, 3, 1, 3, 3, 2, 11, 2, 0, 2, 6, 2, 64, 2, 3, 3, 7, 2, 6, 2, 27, 2, 3, 2, 4, 2, 0, 4, 6, 2, 340, 2, 24, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 7, 1845, 129, 15, 6, 55, 50, 49, 61, 147, 44, 11, 6, 17, 0, 322, 29, 19, 43, 485, 27, 229, 29, 3, 0, 208, 30, 2, 2, 2, 1, 2, 6, 3, 4, 10, 1, 225, 6, 2, 3, 2, 1, 2, 14, 2, 196, 60, 67, 8, 0, 1205, 3, 2, 26, 2, 1, 2, 0, 3, 0, 2, 9, 2, 3, 2, 0, 2, 0, 7, 0, 5, 0, 2, 0, 2, 0, 2, 2, 2, 1, 2, 0, 3, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 2, 0, 3, 3, 2, 6, 2, 3, 2, 3, 2, 0, 2, 9, 2, 16, 6, 2, 2, 4, 2, 16, 4421, 42719, 33, 4382, 2, 5773, 3, 7472, 16, 621, 2467, 541, 1507, 4938, 6, 8489, 39815, 11327];
 var nonASCIIidentifierChars = "\u200C\u200D\xB7\u0300-\u036F\u0387\u0483-\u0487\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7-\u05C9\u0610-\u061A\u064B-\u0669\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u06F0-\u06F9\u0711\u0730-\u074A\u07A6-\u07B0\u07C0-\u07C9\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u0897-\u089F\u08CA-\u08E1\u08E3-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0966-\u096F\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u09E6-\u09EF\u09FE\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A66-\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0AE6-\u0AEF\u0AFA-\u0AFF\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B53-\u0B57\u0B62\u0B63\u0B66-\u0B6F\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0BE6-\u0BEF\u0C00-\u0C04\u0C3C\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C66-\u0C6F\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0CE6-\u0CEF\u0CF3\u0D00-\u0D03\u0D3B\u0D3C\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D66-\u0D6F\u0D81-\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0E50-\u0E59\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECE\u0ED0-\u0ED9\u0F18\u0F19\u0F20-\u0F29\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1040-\u1049\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F-\u109D\u135D-\u135F\u1369-\u1371\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u17E0-\u17E9\u180B-\u180D\u180F-\u1819\u18A9\u1920-\u192B\u1930-\u193B\u1946-\u194F\u19D0-\u19DA\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F-\u1A89\u1A90-\u1A99\u1AB0-\u1ABD\u1ABF-\u1AF0\u1B00-\u1B04\u1B34-\u1B44\u1B50-\u1B59\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BB0-\u1BB9\u1BE6-\u1BF3\u1C24-\u1C37\u1C40-\u1C49\u1C50-\u1C59\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF4\u1CF7-\u1CF9\u1DC0-\u1DFF\u200C\u200D\u203F\u2040\u2054\u20D0-\u20DC\u20E1\u20E5-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\u30FB\uA620-\uA629\uA66F\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA82C\uA880\uA881\uA8B4-\uA8C5\uA8D0-\uA8D9\uA8E0-\uA8F1\uA8FF-\uA909\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9D0-\uA9D9\uA9E5\uA9F0-\uA9F9\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA50-\uAA59\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uABF0-\uABF9\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F\uFE33\uFE34\uFE4D-\uFE4F\uFF10-\uFF19\uFF3F\uFF65";
@@ -20294,10 +20294,10 @@ Parser.acorn = {
   nonASCIIwhitespace
 };
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdxjs/index.js
+// tools/mdx/node_modules/micromark-extension-mdxjs/index.js
 var import_acorn_jsx2 = __toESM(require_acorn_jsx(), 1);
 
-// experiments/jsx-webview/node_modules/micromark-util-character/index.js
+// tools/mdx/node_modules/micromark-util-character/index.js
 var asciiAlpha = regexCheck(/[A-Za-z]/);
 var asciiAlphanumeric = regexCheck(/[\dA-Za-z]/);
 var asciiAtext = regexCheck(/[#-'*+\--9=?A-Z^-~]/);
@@ -20329,7 +20329,7 @@ function regexCheck(regex2) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-space/index.js
+// tools/mdx/node_modules/micromark-factory-space/index.js
 function factorySpace(effects, ok3, type, max) {
   const limit = max ? max - 1 : Infinity;
   let size = 0;
@@ -20374,12 +20374,12 @@ function factorySpaceMinMax(effects, ok3, nok, type, min, max) {
   }
 }
 
-// experiments/jsx-webview/node_modules/estree-util-visit/lib/color.default.js
+// tools/mdx/node_modules/estree-util-visit/lib/color.default.js
 function color(d) {
   return d;
 }
 
-// experiments/jsx-webview/node_modules/estree-util-visit/lib/index.js
+// tools/mdx/node_modules/estree-util-visit/lib/index.js
 var own6 = {}.hasOwnProperty;
 var CONTINUE = Symbol("continue");
 var EXIT = Symbol("exit");
@@ -20459,7 +20459,7 @@ function nodelike(value) {
   );
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-events-to-acorn/lib/index.js
+// tools/mdx/node_modules/micromark-util-events-to-acorn/lib/index.js
 function eventsToAcorn(events, options) {
   const prefix = options.prefix || "";
   const suffix = options.suffix || "";
@@ -20703,7 +20703,7 @@ function serializeChunks(chunks) {
   return result.join("");
 }
 
-// experiments/jsx-webview/node_modules/unist-util-position-from-estree/lib/index.js
+// tools/mdx/node_modules/unist-util-position-from-estree/lib/index.js
 function positionFromEstree(node2) {
   const nodeLike = node2 || {};
   const loc = nodeLike.loc || {};
@@ -20731,7 +20731,7 @@ function numberOrUndefined(value) {
   return typeof value === "number" && value > -1 ? value : void 0;
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-mdx-expression/index.js
+// tools/mdx/node_modules/micromark-factory-mdx-expression/index.js
 var indentSize = 2;
 var trouble = "https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression";
 var unexpectedEndOfFileHash = "#unexpected-end-of-file-in-expression-expected-a-corresponding-closing-brace-for-";
@@ -20894,7 +20894,7 @@ function mdxExpressionParse(acorn, acornOptions, chunkType, eventStart, pointSta
   };
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-expression/lib/syntax.js
+// tools/mdx/node_modules/micromark-extension-mdx-expression/lib/syntax.js
 function mdxExpression2(options) {
   const options_ = options || {};
   const addResult = options_.addResult;
@@ -20967,7 +20967,7 @@ function mdxExpression2(options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-jsx/lib/factory-tag.js
+// tools/mdx/node_modules/micromark-extension-mdx-jsx/lib/factory-tag.js
 var trouble2 = "https://github.com/micromark/micromark-extension-mdx-jsx";
 function factoryTag(effects, ok3, nok, acorn, acornOptions, addResult, allowLazy, tagType, tagMarkerType, tagClosingMarkerType, tagSelfClosingMarker, tagNameType, tagNamePrimaryType, tagNameMemberMarkerType, tagNameMemberType, tagNamePrefixMarkerType, tagNameLocalType, tagExpressionAttributeType, tagExpressionAttributeMarkerType, tagExpressionAttributeValueType, tagAttributeType, tagAttributeNameType, tagAttributeNamePrimaryType, tagAttributeNamePrefixMarkerType, tagAttributeNameLocalType, tagAttributeInitializerMarkerType, tagAttributeValueLiteralType, tagAttributeValueLiteralMarkerType, tagAttributeValueLiteralValueType, tagAttributeValueExpressionType, tagAttributeValueExpressionMarkerType, tagAttributeValueExpressionValueType) {
   const self2 = this;
@@ -21325,7 +21325,7 @@ function serializeCharCode(code2) {
   return "U+" + code2.toString(16).toUpperCase().padStart(4, "0");
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-jsx/lib/jsx-text.js
+// tools/mdx/node_modules/micromark-extension-mdx-jsx/lib/jsx-text.js
 function jsxText2(acorn, options) {
   return {
     name: "mdxJsxTextTag",
@@ -21336,7 +21336,7 @@ function jsxText2(acorn, options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-jsx/lib/jsx-flow.js
+// tools/mdx/node_modules/micromark-extension-mdx-jsx/lib/jsx-flow.js
 function jsxFlow(acorn, options) {
   return {
     concrete: true,
@@ -21373,7 +21373,7 @@ function jsxFlow(acorn, options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-jsx/lib/syntax.js
+// tools/mdx/node_modules/micromark-extension-mdx-jsx/lib/syntax.js
 function mdxJsx(options) {
   const settings = options || {};
   const acorn = settings.acorn;
@@ -21407,14 +21407,14 @@ function mdxJsx(options) {
   };
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdx-md/index.js
+// tools/mdx/node_modules/micromark-extension-mdx-md/index.js
 function mdxMd() {
   return {
     disable: { null: ["autolink", "codeIndented", "htmlFlow", "htmlText"] }
   };
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-chunked/index.js
+// tools/mdx/node_modules/micromark-util-chunked/index.js
 function splice(list3, start2, remove, items) {
   const end = list3.length;
   let chunkStart = 0;
@@ -21448,7 +21448,7 @@ function push(list3, items) {
   return items;
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-classify-character/index.js
+// tools/mdx/node_modules/micromark-util-classify-character/index.js
 function classifyCharacter(code2) {
   if (code2 === null || markdownLineEndingOrSpace(code2) || unicodeWhitespace(code2)) {
     return 1;
@@ -21458,7 +21458,7 @@ function classifyCharacter(code2) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-resolve-all/index.js
+// tools/mdx/node_modules/micromark-util-resolve-all/index.js
 function resolveAll(constructs2, events, context) {
   const called = [];
   let index2 = -1;
@@ -21472,7 +21472,7 @@ function resolveAll(constructs2, events, context) {
   return events;
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/attention.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/attention.js
 var attention = {
   name: "attention",
   resolveAll: resolveAllAttention,
@@ -21595,7 +21595,7 @@ function movePoint(point4, offset2) {
   point4._bufferIndex += offset2;
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/autolink.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/autolink.js
 var autolink = {
   name: "autolink",
   tokenize: tokenizeAutolink
@@ -21696,7 +21696,7 @@ function tokenizeAutolink(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/blank-line.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/blank-line.js
 var blankLine = {
   partial: true,
   tokenize: tokenizeBlankLine
@@ -21711,7 +21711,7 @@ function tokenizeBlankLine(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/block-quote.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/block-quote.js
 var blockQuote = {
   continuation: {
     tokenize: tokenizeBlockQuoteContinuation
@@ -21769,7 +21769,7 @@ function exit(effects) {
   effects.exit("blockQuote");
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/character-escape.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/character-escape.js
 var characterEscape = {
   name: "characterEscape",
   tokenize: tokenizeCharacterEscape
@@ -21795,7 +21795,7 @@ function tokenizeCharacterEscape(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/character-reference.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/character-reference.js
 var characterReference = {
   name: "characterReference",
   tokenize: tokenizeCharacterReference
@@ -21860,7 +21860,7 @@ function tokenizeCharacterReference(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/partial-non-lazy-continuation.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/partial-non-lazy-continuation.js
 var nonLazyContinuation = {
   partial: true,
   tokenize: tokenizeNonLazyContinuation
@@ -21882,7 +21882,7 @@ function tokenizeNonLazyContinuation(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/code-fenced.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/code-fenced.js
 var codeFenced = {
   concrete: true,
   name: "codeFenced",
@@ -22045,7 +22045,7 @@ function tokenizeCodeFenced(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/code-indented.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/code-indented.js
 var codeIndented = {
   name: "codeIndented",
   tokenize: tokenizeCodeIndented
@@ -22103,7 +22103,7 @@ function tokenizeFurtherStart(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/code-text.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/code-text.js
 var codeText = {
   name: "codeText",
   previous,
@@ -22218,7 +22218,7 @@ function tokenizeCodeText(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-subtokenize/lib/splice-buffer.js
+// tools/mdx/node_modules/micromark-util-subtokenize/lib/splice-buffer.js
 var SpliceBuffer = class {
   /**
    * @param {ReadonlyArray<T> | null | undefined} [initial]
@@ -22411,7 +22411,7 @@ function chunkedPush(list3, right) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-subtokenize/index.js
+// tools/mdx/node_modules/micromark-util-subtokenize/index.js
 function subtokenize(eventsArray) {
   const jumps = {};
   let index2 = -1;
@@ -22564,7 +22564,7 @@ function subcontent(events, eventIndex) {
   return gaps;
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/content.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/content.js
 var content = {
   resolve: resolveContent,
   tokenize: tokenizeContent
@@ -22635,7 +22635,7 @@ function tokenizeContinuation(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-destination/index.js
+// tools/mdx/node_modules/micromark-factory-destination/index.js
 function factoryDestination(effects, ok3, nok, type, literalType, literalMarkerType, rawType, stringType, max) {
   const limit = max || Number.POSITIVE_INFINITY;
   let balance = 0;
@@ -22727,7 +22727,7 @@ function factoryDestination(effects, ok3, nok, type, literalType, literalMarkerT
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-label/index.js
+// tools/mdx/node_modules/micromark-factory-label/index.js
 function factoryLabel(effects, ok3, nok, type, markerType, stringType) {
   const self2 = this;
   let size = 0;
@@ -22788,7 +22788,7 @@ function factoryLabel(effects, ok3, nok, type, markerType, stringType) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-title/index.js
+// tools/mdx/node_modules/micromark-factory-title/index.js
 function factoryTitle(effects, ok3, nok, type, markerType, stringType) {
   let marker;
   return start2;
@@ -22850,7 +22850,7 @@ function factoryTitle(effects, ok3, nok, type, markerType, stringType) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-factory-whitespace/index.js
+// tools/mdx/node_modules/micromark-factory-whitespace/index.js
 function factoryWhitespace(effects, ok3) {
   let seen;
   return start2;
@@ -22869,12 +22869,12 @@ function factoryWhitespace(effects, ok3) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-normalize-identifier/index.js
+// tools/mdx/node_modules/micromark-util-normalize-identifier/index.js
 function normalizeIdentifier(value) {
   return value.replace(/[\t\n\r ]+/g, " ").replace(/^ | $/g, "").toLowerCase().toUpperCase();
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/definition.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/definition.js
 var definition = {
   name: "definition",
   tokenize: tokenizeDefinition
@@ -22960,7 +22960,7 @@ function tokenizeTitleBefore(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/hard-break-escape.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/hard-break-escape.js
 var hardBreakEscape = {
   name: "hardBreakEscape",
   tokenize: tokenizeHardBreakEscape
@@ -22981,7 +22981,7 @@ function tokenizeHardBreakEscape(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/heading-atx.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/heading-atx.js
 var headingAtx = {
   name: "headingAtx",
   resolve: resolveHeadingAtx,
@@ -23070,7 +23070,7 @@ function tokenizeHeadingAtx(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-html-tag-name/index.js
+// tools/mdx/node_modules/micromark-util-html-tag-name/index.js
 var htmlBlockNames = [
   "address",
   "article",
@@ -23137,7 +23137,7 @@ var htmlBlockNames = [
 ];
 var htmlRawNames = ["pre", "script", "style", "textarea"];
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/html-flow.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/html-flow.js
 var htmlFlow = {
   concrete: true,
   name: "htmlFlow",
@@ -23496,7 +23496,7 @@ function tokenizeBlankLineBefore(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/html-text.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/html-text.js
 var htmlText = {
   name: "htmlText",
   tokenize: tokenizeHtmlText
@@ -23802,7 +23802,7 @@ function tokenizeHtmlText(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/label-end.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/label-end.js
 var labelEnd = {
   name: "labelEnd",
   resolveAll: resolveAllLabelEnd,
@@ -24028,7 +24028,7 @@ function tokenizeReferenceCollapsed(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/label-start-image.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/label-start-image.js
 var labelStartImage = {
   name: "labelStartImage",
   resolveAll: labelEnd.resolveAll,
@@ -24065,7 +24065,7 @@ function tokenizeLabelStartImage(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/label-start-link.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/label-start-link.js
 var labelStartLink = {
   name: "labelStartLink",
   resolveAll: labelEnd.resolveAll,
@@ -24093,7 +24093,7 @@ function tokenizeLabelStartLink(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/line-ending.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/line-ending.js
 var lineEnding = {
   name: "lineEnding",
   tokenize: tokenizeLineEnding
@@ -24108,7 +24108,7 @@ function tokenizeLineEnding(effects, ok3) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/thematic-break.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/thematic-break.js
 var thematicBreak = {
   name: "thematicBreak",
   tokenize: tokenizeThematicBreak
@@ -24147,7 +24147,7 @@ function tokenizeThematicBreak(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/list.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/list.js
 var list = {
   continuation: {
     tokenize: tokenizeListContinuation
@@ -24277,7 +24277,7 @@ function tokenizeListItemPrefixWhitespace(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-edit-map/index.js
+// tools/mdx/node_modules/micromark-util-edit-map/index.js
 var EditMap = class {
   /**
    * Create a new edit map.
@@ -24375,7 +24375,7 @@ function addImplementation(editMap, at2, remove, add, before) {
   editMap.index.set(at2, change);
 }
 
-// experiments/jsx-webview/node_modules/micromark-core-commonmark/lib/setext-underline.js
+// tools/mdx/node_modules/micromark-core-commonmark/lib/setext-underline.js
 var setextUnderline = {
   name: "setextUnderline",
   resolveTo: resolveToSetextUnderline,
@@ -24469,7 +24469,7 @@ function tokenizeSetextUnderline(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdxjs-esm/lib/syntax.js
+// tools/mdx/node_modules/micromark-extension-mdxjs-esm/lib/syntax.js
 var blankLineBefore2 = {
   tokenize: tokenizeNextBlank,
   partial: true
@@ -24611,7 +24611,7 @@ function tokenizeNextBlank(effects, ok3, nok) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-combine-extensions/index.js
+// tools/mdx/node_modules/micromark-util-combine-extensions/index.js
 var hasOwnProperty2 = {}.hasOwnProperty;
 function combineExtensions(extensions) {
   const all3 = {};
@@ -24651,7 +24651,7 @@ function constructs(existing, list3) {
   splice(existing, 0, 0, before);
 }
 
-// experiments/jsx-webview/node_modules/micromark-extension-mdxjs/index.js
+// tools/mdx/node_modules/micromark-extension-mdxjs/index.js
 function mdxjs(options) {
   const settings = Object.assign(
     {
@@ -24669,7 +24669,7 @@ function mdxjs(options) {
   ]);
 }
 
-// experiments/jsx-webview/node_modules/remark-mdx/lib/index.js
+// tools/mdx/node_modules/remark-mdx/lib/index.js
 var emptyOptions3 = {};
 function remarkMdx(options) {
   const self2 = this;
@@ -24683,7 +24683,7 @@ function remarkMdx(options) {
   toMarkdownExtensions.push(mdxToMarkdown(settings));
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-string/lib/index.js
+// tools/mdx/node_modules/mdast-util-to-string/lib/index.js
 var emptyOptions4 = {};
 function toString2(value, options) {
   const settings = options || emptyOptions4;
@@ -24720,7 +24720,7 @@ function node(value) {
   return Boolean(value && typeof value === "object");
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-decode-numeric-character-reference/index.js
+// tools/mdx/node_modules/micromark-util-decode-numeric-character-reference/index.js
 function decodeNumericCharacterReference(value, base) {
   const code2 = Number.parseInt(value, base);
   if (
@@ -24738,7 +24738,7 @@ function decodeNumericCharacterReference(value, base) {
   return String.fromCodePoint(code2);
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-sanitize-uri/index.js
+// tools/mdx/node_modules/micromark-util-sanitize-uri/index.js
 function normalizeUri(value) {
   const result = [];
   let index2 = -1;
@@ -24777,7 +24777,7 @@ function normalizeUri(value) {
   return result.join("") + value.slice(start2);
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/initialize/content.js
+// tools/mdx/node_modules/micromark/lib/initialize/content.js
 var content2 = {
   tokenize: initializeContent
 };
@@ -24827,7 +24827,7 @@ function initializeContent(effects) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/initialize/document.js
+// tools/mdx/node_modules/micromark/lib/initialize/document.js
 var document = {
   tokenize: initializeDocument
 };
@@ -25021,7 +25021,7 @@ function tokenizeContainer(effects, ok3, nok) {
   return factorySpace(effects, effects.attempt(this.parser.constructs.document, ok3, nok), "linePrefix", this.parser.constructs.disable.null.includes("codeIndented") ? void 0 : 4);
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/initialize/flow.js
+// tools/mdx/node_modules/micromark/lib/initialize/flow.js
 var flow = {
   tokenize: initializeFlow
 };
@@ -25059,7 +25059,7 @@ function initializeFlow(effects) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/initialize/text.js
+// tools/mdx/node_modules/micromark/lib/initialize/text.js
 var resolver = {
   resolveAll: createResolver()
 };
@@ -25201,7 +25201,7 @@ function resolveAllLineSuffixes(events, context) {
   return events;
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/constructs.js
+// tools/mdx/node_modules/micromark/lib/constructs.js
 var constructs_exports = {};
 __export(constructs_exports, {
   attentionMarkers: () => attentionMarkers,
@@ -25276,7 +25276,7 @@ var disable = {
   null: []
 };
 
-// experiments/jsx-webview/node_modules/micromark/lib/create-tokenizer.js
+// tools/mdx/node_modules/micromark/lib/create-tokenizer.js
 function createTokenizer(parser, initialize, from) {
   let point4 = {
     _bufferIndex: -1,
@@ -25602,7 +25602,7 @@ function serializeChunks2(chunks, expandTabs) {
   return result.join("");
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/parse.js
+// tools/mdx/node_modules/micromark/lib/parse.js
 function parse3(options) {
   const settings = options || {};
   const constructs2 = (
@@ -25628,14 +25628,14 @@ function parse3(options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/postprocess.js
+// tools/mdx/node_modules/micromark/lib/postprocess.js
 function postprocess(events) {
   while (!subtokenize(events)) {
   }
   return events;
 }
 
-// experiments/jsx-webview/node_modules/micromark/lib/preprocess.js
+// tools/mdx/node_modules/micromark/lib/preprocess.js
 var search = /[\0\t\n\r]/g;
 function preprocess() {
   let column = 1;
@@ -25715,7 +25715,7 @@ function preprocess() {
   }
 }
 
-// experiments/jsx-webview/node_modules/micromark-util-decode-string/index.js
+// tools/mdx/node_modules/micromark-util-decode-string/index.js
 var characterEscapeOrReference = /\\([!-/:-@[-`{-~])|&(#(?:\d{1,7}|x[\da-f]{1,6})|[\da-z]{1,31});/gi;
 function decodeString(value) {
   return value.replace(characterEscapeOrReference, decode);
@@ -25733,7 +25733,7 @@ function decode($0, $1, $2) {
   return decodeNamedCharacterReference($2) || $0;
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-from-markdown/lib/index.js
+// tools/mdx/node_modules/mdast-util-from-markdown/lib/index.js
 var own7 = {}.hasOwnProperty;
 function fromMarkdown(value, encoding, options) {
   if (encoding && typeof encoding === "object") {
@@ -26503,7 +26503,7 @@ function defaultOnError(left, right) {
   }) + ") is still open");
 }
 
-// experiments/jsx-webview/node_modules/remark-parse/lib/index.js
+// tools/mdx/node_modules/remark-parse/lib/index.js
 function remarkParse(options) {
   const self2 = this;
   self2.parser = parser;
@@ -26520,7 +26520,7 @@ function remarkParse(options) {
   }
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/blockquote.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/blockquote.js
 function blockquote(state, node2) {
   const result = {
     type: "element",
@@ -26532,14 +26532,14 @@ function blockquote(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/break.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/break.js
 function hardBreak(state, node2) {
   const result = { type: "element", tagName: "br", properties: {}, children: [] };
   state.patch(node2, result);
   return [state.applyData(node2, result), { type: "text", value: "\n" }];
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/code.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/code.js
 function code(state, node2) {
   const value = node2.value ? node2.value + "\n" : "";
   const properties = {};
@@ -26563,7 +26563,7 @@ function code(state, node2) {
   return result;
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/delete.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/delete.js
 function strikethrough(state, node2) {
   const result = {
     type: "element",
@@ -26575,7 +26575,7 @@ function strikethrough(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/emphasis.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/emphasis.js
 function emphasis(state, node2) {
   const result = {
     type: "element",
@@ -26587,7 +26587,7 @@ function emphasis(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/footnote-reference.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/footnote-reference.js
 function footnoteReference(state, node2) {
   const clobberPrefix = typeof state.options.clobberPrefix === "string" ? state.options.clobberPrefix : "user-content-";
   const id = String(node2.identifier).toUpperCase();
@@ -26626,7 +26626,7 @@ function footnoteReference(state, node2) {
   return state.applyData(node2, sup);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/heading.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/heading.js
 function heading(state, node2) {
   const result = {
     type: "element",
@@ -26638,7 +26638,7 @@ function heading(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/html.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/html.js
 function html3(state, node2) {
   if (state.options.allowDangerousHtml) {
     const result = { type: "raw", value: node2.value };
@@ -26648,7 +26648,7 @@ function html3(state, node2) {
   return void 0;
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/revert.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/revert.js
 function revert(state, node2) {
   const subtype = node2.referenceType;
   let suffix = "]";
@@ -26676,7 +26676,7 @@ function revert(state, node2) {
   return contents;
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/image-reference.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/image-reference.js
 function imageReference(state, node2) {
   const id = String(node2.identifier).toUpperCase();
   const definition2 = state.definitionById.get(id);
@@ -26695,7 +26695,7 @@ function imageReference(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/image.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/image.js
 function image(state, node2) {
   const properties = { src: normalizeUri(node2.url) };
   if (node2.alt !== null && node2.alt !== void 0) {
@@ -26709,7 +26709,7 @@ function image(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/inline-code.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/inline-code.js
 function inlineCode(state, node2) {
   const text5 = { type: "text", value: node2.value.replace(/\r?\n|\r/g, " ") };
   state.patch(node2, text5);
@@ -26723,7 +26723,7 @@ function inlineCode(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/link-reference.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/link-reference.js
 function linkReference(state, node2) {
   const id = String(node2.identifier).toUpperCase();
   const definition2 = state.definitionById.get(id);
@@ -26744,7 +26744,7 @@ function linkReference(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/link.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/link.js
 function link(state, node2) {
   const properties = { href: normalizeUri(node2.url) };
   if (node2.title !== null && node2.title !== void 0) {
@@ -26760,7 +26760,7 @@ function link(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/list-item.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/list-item.js
 function listItem(state, node2, parent) {
   const results = state.all(node2);
   const loose = parent ? listLoose(parent) : listItemLoose(node2);
@@ -26823,7 +26823,7 @@ function listItemLoose(node2) {
   return spread === null || spread === void 0 ? node2.children.length > 1 : spread;
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/list.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/list.js
 function list2(state, node2) {
   const properties = {};
   const results = state.all(node2);
@@ -26848,7 +26848,7 @@ function list2(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/paragraph.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/paragraph.js
 function paragraph(state, node2) {
   const result = {
     type: "element",
@@ -26860,14 +26860,14 @@ function paragraph(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/root.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/root.js
 function root2(state, node2) {
   const result = { type: "root", children: state.wrap(state.all(node2)) };
   state.patch(node2, result);
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/strong.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/strong.js
 function strong(state, node2) {
   const result = {
     type: "element",
@@ -26879,7 +26879,7 @@ function strong(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/table.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/table.js
 function table(state, node2) {
   const rows = state.all(node2);
   const firstRow = rows.shift();
@@ -26916,7 +26916,7 @@ function table(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/table-row.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/table-row.js
 function tableRow(state, node2, parent) {
   const siblings = parent ? parent.children : void 0;
   const rowIndex = siblings ? siblings.indexOf(node2) : 1;
@@ -26950,7 +26950,7 @@ function tableRow(state, node2, parent) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/table-cell.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/table-cell.js
 function tableCell(state, node2) {
   const result = {
     type: "element",
@@ -26963,7 +26963,7 @@ function tableCell(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/trim-lines/index.js
+// tools/mdx/node_modules/trim-lines/index.js
 var tab = 9;
 var space = 32;
 function trimLines(value) {
@@ -27003,14 +27003,14 @@ function trimLine(value, start2, end) {
   return endIndex > startIndex ? value.slice(startIndex, endIndex) : "";
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/text.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/text.js
 function text4(state, node2) {
   const result = { type: "text", value: trimLines(String(node2.value)) };
   state.patch(node2, result);
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/thematic-break.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/thematic-break.js
 function thematicBreak2(state, node2) {
   const result = {
     type: "element",
@@ -27022,7 +27022,7 @@ function thematicBreak2(state, node2) {
   return state.applyData(node2, result);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/handlers/index.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/handlers/index.js
 var handlers2 = {
   blockquote,
   break: hardBreak,
@@ -27057,7 +27057,7 @@ function ignore2() {
   return void 0;
 }
 
-// experiments/jsx-webview/node_modules/@ungap/structured-clone/esm/types.js
+// tools/mdx/node_modules/@ungap/structured-clone/esm/types.js
 var VOID = -1;
 var PRIMITIVE = 0;
 var ARRAY = 1;
@@ -27069,7 +27069,7 @@ var SET = 6;
 var ERROR = 7;
 var BIGINT = 8;
 
-// experiments/jsx-webview/node_modules/@ungap/structured-clone/esm/deserialize.js
+// tools/mdx/node_modules/@ungap/structured-clone/esm/deserialize.js
 var { defineProperty } = Object;
 var env = typeof self === "object" ? self : globalThis;
 var guard = (name2, init) => {
@@ -27161,7 +27161,7 @@ var deserializer = ($, _) => {
 };
 var deserialize = (serialized) => deserializer(/* @__PURE__ */ new Map(), serialized)(0);
 
-// experiments/jsx-webview/node_modules/@ungap/structured-clone/esm/serialize.js
+// tools/mdx/node_modules/@ungap/structured-clone/esm/serialize.js
 var EMPTY = "";
 var { toString: toString3 } = {};
 var { keys, is } = Object;
@@ -27298,13 +27298,13 @@ var serialize = (value, { json, lossy } = {}) => {
   return serializer(!(json || lossy), !!json, /* @__PURE__ */ new Map(), _)(value), _;
 };
 
-// experiments/jsx-webview/node_modules/@ungap/structured-clone/esm/index.js
+// tools/mdx/node_modules/@ungap/structured-clone/esm/index.js
 var esm_default = typeof structuredClone === "function" ? (
   /* c8 ignore start */
   (any, options) => options && ("json" in options || "lossy" in options) ? deserialize(serialize(any, options)) : structuredClone(any)
 ) : (any, options) => deserialize(serialize(any, options));
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/footer.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/footer.js
 function defaultFootnoteBackContent(_, rereferenceIndex) {
   const result = [{ type: "text", value: "\u21A9" }];
   if (rereferenceIndex > 1) {
@@ -27424,7 +27424,7 @@ function footer(state) {
   };
 }
 
-// experiments/jsx-webview/node_modules/unist-util-is/lib/index.js
+// tools/mdx/node_modules/unist-util-is/lib/index.js
 var convert = (
   // Note: overloads in JSDoc can’t yet use different `@template`s.
   /**
@@ -27523,12 +27523,12 @@ function looksLikeANode(value) {
   return value !== null && typeof value === "object" && "type" in value;
 }
 
-// experiments/jsx-webview/node_modules/unist-util-visit-parents/lib/color.js
+// tools/mdx/node_modules/unist-util-visit-parents/lib/color.js
 function color2(d) {
   return d;
 }
 
-// experiments/jsx-webview/node_modules/unist-util-visit-parents/lib/index.js
+// tools/mdx/node_modules/unist-util-visit-parents/lib/index.js
 var empty4 = [];
 var CONTINUE2 = true;
 var EXIT2 = false;
@@ -27648,7 +27648,7 @@ function toResult2(value) {
   return value === null || value === void 0 ? empty4 : [value];
 }
 
-// experiments/jsx-webview/node_modules/unist-util-visit/lib/index.js
+// tools/mdx/node_modules/unist-util-visit/lib/index.js
 function visit2(tree, testOrEnterOrVisitors, enterOrVisitorsOrReverse, maybeReverse) {
   let check;
   let visitors;
@@ -27683,7 +27683,7 @@ function wrap(visitor) {
   }
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/state.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/state.js
 var own8 = {}.hasOwnProperty;
 var emptyOptions5 = {};
 function createState2(tree, options) {
@@ -27824,7 +27824,7 @@ function trimMarkdownSpaceStart(value) {
   return value.slice(index2);
 }
 
-// experiments/jsx-webview/node_modules/mdast-util-to-hast/lib/index.js
+// tools/mdx/node_modules/mdast-util-to-hast/lib/index.js
 function toHast(tree, options) {
   const state = createState2(tree, options);
   const node2 = state.one(tree, void 0);
@@ -27837,7 +27837,7 @@ function toHast(tree, options) {
   return result;
 }
 
-// experiments/jsx-webview/node_modules/remark-rehype/lib/index.js
+// tools/mdx/node_modules/remark-rehype/lib/index.js
 function remarkRehype(destination, options) {
   if (destination && "run" in destination) {
     return async function(tree, file) {
@@ -27856,17 +27856,17 @@ function remarkRehype(destination, options) {
   };
 }
 
-// experiments/jsx-webview/node_modules/bail/index.js
+// tools/mdx/node_modules/bail/index.js
 function bail(error) {
   if (error) {
     throw error;
   }
 }
 
-// experiments/jsx-webview/node_modules/unified/lib/index.js
+// tools/mdx/node_modules/unified/lib/index.js
 var import_extend = __toESM(require_extend(), 1);
 
-// experiments/jsx-webview/node_modules/is-plain-obj/index.js
+// tools/mdx/node_modules/is-plain-obj/index.js
 function isPlainObject(value) {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -27875,7 +27875,7 @@ function isPlainObject(value) {
   return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value) && !(Symbol.iterator in value);
 }
 
-// experiments/jsx-webview/node_modules/trough/lib/index.js
+// tools/mdx/node_modules/trough/lib/index.js
 function trough() {
   const fns = [];
   const pipeline = { run, use };
@@ -27959,7 +27959,7 @@ function wrap3(middleware, callback) {
   }
 }
 
-// experiments/jsx-webview/node_modules/unified/lib/callable-instance.js
+// tools/mdx/node_modules/unified/lib/callable-instance.js
 var CallableInstance = (
   /**
    * @type {new <Parameters extends Array<unknown>, Result>(property: string | symbol) => (...parameters: Parameters) => Result}
@@ -27988,7 +27988,7 @@ var CallableInstance = (
   })
 );
 
-// experiments/jsx-webview/node_modules/unified/lib/index.js
+// tools/mdx/node_modules/unified/lib/index.js
 var own9 = {}.hasOwnProperty;
 var Processor = class _Processor extends CallableInstance {
   /**
@@ -28624,7 +28624,7 @@ function isUint8Array2(value) {
   );
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-create.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-create.js
 function create3(from, to) {
   const fields = ["start", "end", "loc", "range"];
   let index2 = -1;
@@ -28636,7 +28636,7 @@ function create3(from, to) {
   }
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-specifiers-to-declarations.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-specifiers-to-declarations.js
 function specifiersToDeclarations(specifiers, init) {
   let index2 = -1;
   const declarations = [];
@@ -28689,7 +28689,7 @@ function specifiersToDeclarations(specifiers, init) {
   return declarations;
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-to-id-or-member-expression.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-to-id-or-member-expression.js
 function toIdOrMemberExpression(ids) {
   let index2 = -1;
   let object;
@@ -28724,7 +28724,7 @@ function toJsxIdOrMemberExpression(ids) {
   return object;
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/plugin/recma-build-jsx-transform.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/plugin/recma-build-jsx-transform.js
 function recmaBuildJsxTransform(options) {
   const { outputFormat } = options || {};
   return function(tree) {
@@ -28758,7 +28758,7 @@ function recmaBuildJsxTransform(options) {
   };
 }
 
-// experiments/jsx-webview/node_modules/estree-util-scope/lib/index.js
+// tools/mdx/node_modules/estree-util-scope/lib/index.js
 function createVisitors() {
   const scopes = [{ block: false, defined: [] }];
   return { enter, exit: exit2, scopes };
@@ -28849,7 +28849,7 @@ function createVisitors() {
   }
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-declaration-to-expression.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-declaration-to-expression.js
 function declarationToExpression(declaration) {
   if (declaration.type === "FunctionDeclaration") {
     return { ...declaration, type: "FunctionExpression" };
@@ -28858,14 +28858,14 @@ function declarationToExpression(declaration) {
   return { ...declaration, type: "ClassExpression" };
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-is-declaration.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-is-declaration.js
 function isDeclaration(node2) {
   return Boolean(
     node2.type === "FunctionDeclaration" || node2.type === "ClassDeclaration" || node2.type === "VariableDeclaration"
   );
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/plugin/recma-document.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/plugin/recma-document.js
 function recmaDocument(options) {
   const baseUrl = options.baseUrl || void 0;
   const baseHref = typeof baseUrl === "object" ? baseUrl.href : baseUrl;
@@ -29486,7 +29486,7 @@ function createImportMetaUrlVariable() {
   ];
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/util/estree-util-to-binary-addition.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/util/estree-util-to-binary-addition.js
 function toBinaryAddition(expressions) {
   let index2 = -1;
   let left;
@@ -29498,7 +29498,7 @@ function toBinaryAddition(expressions) {
   return left;
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/plugin/recma-jsx-rewrite.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/plugin/recma-jsx-rewrite.js
 function recmaJsxRewrite(options) {
   const { development, outputFormat, providerImportSource } = options;
   return function(tree, file) {
@@ -29873,7 +29873,7 @@ function inScope(scopes, id) {
   return false;
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/plugin/rehype-remove-raw.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/plugin/rehype-remove-raw.js
 function rehypeRemoveRaw() {
   return function(tree) {
     visit2(tree, "raw", function(_, index2, parent) {
@@ -29885,7 +29885,7 @@ function rehypeRemoveRaw() {
   };
 }
 
-// experiments/jsx-webview/node_modules/collapse-white-space/index.js
+// tools/mdx/node_modules/collapse-white-space/index.js
 var js = /\s+/g;
 var html4 = /[\t\n\v\f\r ]+/g;
 function collapseWhiteSpace(value, options) {
@@ -29914,7 +29914,7 @@ function trimFactory(replace) {
   }
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/plugin/remark-mark-and-unravel.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/plugin/remark-mark-and-unravel.js
 function remarkMarkAndUnravel() {
   return function(tree) {
     visit2(tree, function(node2, index2, parent) {
@@ -29971,7 +29971,7 @@ function remarkMarkAndUnravel() {
   };
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/node-types.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/node-types.js
 var nodeTypes = (
   /** @type {const} */
   [
@@ -29983,7 +29983,7 @@ var nodeTypes = (
   ]
 );
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/core.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/core.js
 var removedOptions = [
   "compilers",
   "filepath",
@@ -30036,53 +30036,69 @@ function createProcessor(options) {
   return pipeline;
 }
 
-// experiments/jsx-webview/node_modules/@mdx-js/mdx/lib/compile.js
+// tools/mdx/node_modules/@mdx-js/mdx/lib/compile.js
 function compileSync(vfileCompatible, compileOptions) {
   const { file, options } = resolveFileAndOptions(vfileCompatible, compileOptions);
   return createProcessor(options).processSync(file);
 }
 
-// experiments/moejs/compiler-entry.mjs
+// tools/mdx/compiler-entry.mjs
 function fence(source, language) {
   const ticks = "`".repeat(Math.max(3, ...[...source.matchAll(/`+/g)].map((m) => m[0].length + 1)));
   return `${ticks}${language}
 ${source}
 ${ticks}`;
 }
-function nested(node2) {
-  return node2.children?.some((c) => c.type === "mdxTextExpression" || c.type === "mdxFlowExpression" || (c.type === "mdxJsxTextElement" || c.type === "mdxJsxFlowElement") && (c.name === null || /^[A-Z]/.test(c.name)) || nested(c));
+function jsxElement2(node2) {
+  return node2.type === "mdxJsxTextElement" || node2.type === "mdxJsxFlowElement";
 }
-function imports(node2) {
+function activeMDX(node2) {
+  if (node2.type === "mdxTextExpression" || node2.type === "mdxFlowExpression") return true;
+  if (jsxElement2(node2)) {
+    if (node2.name === null || /^[A-Z]/.test(node2.name) || node2.name.includes(".")) return true;
+    if (node2.attributes?.some((a) => a.type === "mdxJsxExpressionAttribute" || a.value?.type === "mdxJsxAttributeValueExpression" || /^(className|htmlFor|on[A-Z])/.test(a.name || ""))) return true;
+  }
+  return node2.children?.some(activeMDX) || false;
+}
+function contains(node2, predicate) {
   if (!node2 || typeof node2 !== "object") return false;
-  if (node2.type === "ImportExpression" || node2.type === "ImportDeclaration") return true;
-  return Object.values(node2).some((v) => Array.isArray(v) ? v.some(imports) : imports(v));
+  if (predicate(node2)) return true;
+  return Object.values(node2).some((value) => Array.isArray(value) ? value.some((n) => contains(n, predicate)) : contains(value, predicate));
+}
+function unsupportedRuntime(node2) {
+  if (contains(node2, (n) => n.type === "ImportExpression" || n.type === "ImportDeclaration")) return "Document module imports are unsupported";
+  if (contains(node2, (n) => n.type === "AwaitExpression")) return "Await expressions are unsupported by the synchronous island runtime";
+  if (contains(node2, (n) => n.type === "MetaProperty" && n.meta?.name === "import")) return "import.meta requires a module loader and is unsupported";
+  return "";
 }
 function compileMDX(input) {
   const { source, namespace } = JSON.parse(input);
   const tree = createProcessor().parse(source);
   let markdown = "", cursor = 0;
   const blocks = [], diagnostics = [];
-  for (const n of tree.children) {
-    const island = n.type === "mdxJsxFlowElement" && (n.name === null || /^[A-Z]/.test(n.name));
-    const unsupported = n.type === "mdxjsEsm" || n.type === "mdxFlowExpression";
-    if (!island && !unsupported) {
-      if (nested(n)) throw new Error("Inline/nested MDX outside an island is unsupported");
+  for (const node2 of tree.children) {
+    const island = node2.type === "mdxFlowExpression" || node2.type === "mdxJsxFlowElement" && activeMDX(node2) || node2.type === "paragraph" && activeMDX(node2);
+    const sourceOnly = node2.type === "mdxjsEsm";
+    if (!island && !sourceOnly) {
+      if (activeMDX(node2)) throw new Error("Nested MDX outside a top-level paragraph or JSX island is unsupported");
       continue;
     }
-    const start2 = n.position.start.offset, end = n.position.end.offset, raw = source.slice(start2, end);
+    const start2 = node2.position.start.offset, end = node2.position.end.offset;
+    const raw = source.slice(start2, end);
     markdown += source.slice(cursor, start2);
-    if (unsupported) {
-      diagnostics.push("Imports/exports/shared expressions are source-only");
+    if (sourceOnly) {
+      diagnostics.push("Imports/exports/document scope are source-only; no module loader is provided");
       markdown += fence(raw, "mdx-source-only-" + namespace);
     } else {
       if (blocks.length >= 32) throw new Error("Maximum 32 islands");
       const language = `arcmd-jsx-${namespace}-${blocks.length}`;
       const block = { language, source: raw, height: 240, html: "", error: "", compiled: "" };
       try {
-        if (imports(n.data?.estree) || imports(n)) throw new Error("Document module imports are unsupported");
+        const unsupported = unsupportedRuntime(node2);
+        if (unsupported) throw new Error(unsupported);
         block.compiled = String(compileSync(raw, { development: false, outputFormat: "function-body" }));
-      } catch (e) {
-        block.error = String(e.message);
+      } catch (error) {
+        block.error = String(error.message);
         diagnostics.push(block.error);
       }
       blocks.push(block);

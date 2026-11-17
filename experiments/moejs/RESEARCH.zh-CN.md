@@ -78,3 +78,25 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_macos.py --out /work
 - `npm test --prefix experiments/jsx-webview`：15/15；`node --test experiments/moejs/runtime.test.mjs`：3/3（实际主程序无 Node 编译、交互、未知组件可见失败、CSP）。Node 只用于开发测试，不作为应用运行时依赖。
 - `go test ./internal/app -count=1`：只有既知 6 项基线失败：`TestBottomBlockHandleMenuAndIndentSubmenu`、`TestRebindShortcuts`、`TestLibrarySpaces`、`TestLibraryCardDrag`、`TestQACitationPreviewDoesNotOccludeAnswerText`、`TestMoreMenuAndSettings`。未顺手修改这些无关功能，不将本次全包测试描述为全绿。
 - 构建真实 `cmd/arcmd` 的 macOS arm64 包，复用整包 ad-hoc 签名及无 Node 主线打包入口。包结构/签名资源/公开下载 SHA256 在发布流程另行核验，结果写 Release；不宣称新包已在真实 Mac 验收。
+
+## 2026-11-17（UTC+8）：MDX 3.1.1 分阶段兼容 / phase 1
+
+用户授权只在 fork 新分支继续迭代并更新根 README；不改已提交上游分支、不合并 main、不发 Release。核查当前直接依赖本来已经精确 pin `@mdx-js/mdx` 3.1.1，因此不追 latest、不做无必要版本升级。官方 3.1.1 package manifest：<https://github.com/mdx-js/mdx/blob/3.1.1/packages/mdx/package.json>；语法定义 <https://mdxjs.com/docs/what-is-mdx/>；MDX 3 的 await/ES2024 等能力见 <https://mdxjs.com/blog/v3/>。编译器版本、宿主模块/组件解析、浏览器执行必须分别验证；使用版本号绝不等于完整兼容。
+
+先读真实 native block 模型和 MDX AST，确认 `EmbeddedBlock` 只能替换整块而没有原生行内 runs。选择有边界的增量：独立 flow expression、IIFE 内局部变量、array/map JSX、含表达式/组件的小写 JSX；顶层段落含 active MDX 时只提升该段落为岛屿，其他普通正文保持原生。不是整页 WebView，也不把“按段提升”伪称原生行内控件。标题/列表/引用嵌套仍明确报边界错误。document ESM/共享作用域、async/await、import.meta 与模块资源仍未支持；把 exports 复制到每个 WebView 会错误模拟共享状态，因此没有这样做。
+
+新增 Tabs/TabItem/Accordion 为本仓库独立实现，未搬终端 mdx 仓库源码；它们是宿主组件，不当作版本兼容的替代指标。用户文档表达式仍只在 WebView 执行，可信 compiler 在 moejs 中只处理输入字符串；不绑定 Go/文件/网络，不改 CSP/预算。正常无横幅；已有 theme/height IIFE 和观察者处理保持。
+
+建立 `tools/mdx/compatibility.json` 可执行分层矩阵：开发测试先用官方精确版本验证 fixture 语法，再调用真实 Go 主程序（PATH 无 Node）检查 host 接受/拒绝与生成 HTML，最后 JSDOM 验证输出/事件/组件错误。预期拒绝项通过不算功能支持；JSDOM 不算 Mac WKWebView 验收。新增 deterministic build-info，记录 exact pins/profile/锁文件与生成资源 SHA256；Go 实际校验内嵌资产而非只加版本标签。旧 `experiments/moejs/build.mjs` 转交 canonical 工具，避免旧 source 重新生成覆盖新编译器。
+
+根中英文 README 去掉过期“独立只读实验、主程序未改”和全局“零 WebView”的矛盾表述，保留上游归属，明确本阶段无新 release。源视图实际是只读导出预览，修改 JSX 仍由 agent/外部编辑器完成后重载。新增 Go 测试对含 Unicode 的 inline/flow expression 执行真实保存、预览还原、外部改源后重载及 source SHA/一次创建视图的验证。版本、用法、限制与下一阶段详见 `docs/mdx-compatibility.md`。
+
+### 本轮实际验证（MDX 3 第一阶段）
+
+- `npm run build --prefix tools/mdx` 重复生成的 compiler/runtime/metadata 三项字节一致；metadata SHA256 为 `fd15b48bc5fb3ae6f4e55c02775140dfa7e9674d13f2e3c3bb0310613f92114d`。
+- canonical `npm test --prefix tools/mdx` **44/44**：16 个回归、26 个分层矩阵 fixture、元数据和宿主组件集成测试。26 项状态分布 supported 12 / partial 5 / unsupported 9；预期拒绝也是通过，绝非 44 项语言能力全部支持。涵盖真实 Go 无 Node 编译、JSDOM 输出/用户事件/Tabs 键盘及 Accordion/主题状态。
+- 额外新建从未预编译的含 inline/flow 的文件，真实 `cmd/arcmd --jsx-check` 在仅设置 `HOME` 与 `PATH=/no-node` 的空环境运行成功，输出 exact compiler/profile、2 个 HTML 岛屿及匹配源 SHA，原文件未改动。
+- `go test ./internal/jsx ./cmd/arcmd`、相关 app JSX/MDX/open/save/reload 测试、`go vet ./...`、`go mod tidy -diff` 通过；Darwin arm64 / Linux amd64 / Windows amd64 的 `CGO_ENABLED=0 go build ./...` 通过。`go run ./tools/ci version` 仍为 0.2.2，未改应用标识或发布配置。
+- 全量 `go test ./... -count=1` 仅已有六项 app baseline 失败：`TestBottomBlockHandleMenuAndIndentSubmenu`、`TestRebindShortcuts`、`TestLibrarySpaces`、`TestLibraryCardDrag`、`TestQACitationPreviewDoesNotOccludeAnswerText`、`TestMoreMenuAndSettings`。未修复或算作本次回归；其余包通过。
+- 原生 `Snapshot` 测试通过，检查 light/dark 阅读图无异常；这些是原生正文截图，不是实际 WKWebView 验收。旧 jsx-webview npm 测试 15/15、旧 moejs runtime 测试 3/3 通过，亦不替代本轮新能力验证。
+- 本轮没有真实 Mac / Finder / WKWebView 验收，没有新 Release，也不改变 main、维护 state 或已有上游贡献分支。
