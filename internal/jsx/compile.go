@@ -1,195 +1,94 @@
 package jsx
 
 import (
-	"bytes"
-	"errors"
+	"context"
+	"crypto/rand"
+	_ "embed"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/MoeForge/moejs"
 )
 
-var (
-	ErrNoNode     = errors.New("JSX compiler requires a local Node.js (node on PATH), which is not bundled with ArcMD")
-	ErrNoCompiler = errors.New("JSX compiler script not found")
-	ErrCompile    = errors.New("JSX compilation failed")
-)
+// Options bounds an embedded compilation; there is no external compiler path.
+type Options struct{ Timeout time.Duration }
 
-// Options control how a document is compiled. Zero values are discovered.
-type Options struct {
-	Node     string
-	Compiler string
-	CacheDir string
-	Timeout  time.Duration
-}
+//go:embed assets/mdx-compiler.js
+var compilerJS string
+var compilerOnce sync.Once
+var compilerModule *moejs.Module
+var compilerError error
 
-func (o Options) withDefaults() Options {
-	if o.Node == "" {
-		o.Node = os.Getenv("ARCMD_JSX_NODE")
-	}
-	if o.Node == "" {
-		o.Node = "node"
-	}
-	if o.Compiler == "" {
-		o.Compiler = os.Getenv("ARCMD_JSX_COMPILER")
-	}
-	if o.Compiler == "" {
-		if p, err := FindCompiler(); err == nil {
-			o.Compiler = p
-		}
-	}
-	if o.CacheDir == "" {
-		o.CacheDir = os.Getenv("ARCMD_JSX_CACHE")
-	}
-	if o.Timeout <= 0 {
-		o.Timeout = 30 * time.Second
-	}
-	return o
-}
+const MaxSourceBytes = 512 << 10
+const CompilerMemoryLimit = 256 << 20
 
-// FindCompiler locates experiments/jsx-webview/compile.mjs from the
-// environment, the executable, or a source tree walked from the working
-// directory.
-func FindCompiler() (string, error) {
-	var candidates []string
-	if p := os.Getenv("ARCMD_JSX_COMPILER"); p != "" {
-		candidates = append(candidates, p)
-	}
-	if exe, err := os.Executable(); err == nil {
-		dir := filepath.Dir(exe)
-		candidates = append(candidates,
-			filepath.Join(dir, "experiments", "jsx-webview", "compile.mjs"),
-			filepath.Join(dir, "..", "Resources", "jsx-webview", "compile.mjs"),
-			filepath.Join(dir, "Resources", "jsx-webview", "compile.mjs"),
-		)
-	}
-	if wd, err := os.Getwd(); err == nil {
-		for dir := wd; ; dir = filepath.Dir(dir) {
-			candidates = append(candidates, filepath.Join(dir, "experiments", "jsx-webview", "compile.mjs"))
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				break
-			}
-		}
-	}
-	for _, p := range candidates {
-		if p == "" {
-			continue
-		}
-		if st, err := os.Stat(p); err == nil && !st.IsDir() {
-			return p, nil
-		}
-	}
-	return "", ErrNoCompiler
-}
-
-// Compile runs the official island compiler. The source string is never
-// written to the user's document path. A matching cache entry is reused.
-// Missing Node or a compile error is returned so the host can show source.
+// Compile runs only the trusted, embedded MDX compiler inside moejs. Document
+// expressions are parsed into output code, NEVER executed in this runtime.
+// There are no host bindings, importer, Node modules, filesystem or web APIs.
 func Compile(source string, opt Options) (Manifest, error) {
-	opt = opt.withDefaults()
-	var empty Manifest
-	if opt.Compiler == "" {
-		return empty, ErrNoCompiler
+	var m Manifest
+	if len(source) > MaxSourceBytes {
+		return m, fmt.Errorf("MDX source exceeds %d bytes", MaxSourceBytes)
 	}
-	if _, err := exec.LookPath(opt.Node); err != nil {
-		return empty, fmt.Errorf("%w: %v", ErrNoNode, err)
+	compilerOnce.Do(func() { compilerModule, compilerError = moejs.Compile("embedded-mdx-compiler.js", compilerJS) })
+	if compilerError != nil {
+		return m, fmt.Errorf("moejs compiler initialization: %w", compilerError)
 	}
-	sum := SourceSHA256(source)
-	if opt.CacheDir != "" {
-		if m, err := readCache(opt.CacheDir, sum); err == nil {
-			return m, nil
+	limit := opt.Timeout
+	if limit <= 0 || limit > 5*time.Second {
+		limit = 5 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), limit)
+	defer cancel()
+	rt := moejs.NewRuntime(moejs.Options{MemoryLimit: CompilerMemoryLimit, DisableDynamicCode: true})
+	interrupted := make(chan struct{})
+	stop := context.AfterFunc(ctx, func() { rt.Interrupt(ctx.Err()); close(interrupted) })
+	defer func() {
+		if !stop() {
+			<-interrupted
+		}
+	}()
+	if err := rt.Load(compilerModule); err != nil {
+		return m, fmt.Errorf("moejs load: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return m, err
+	}
+	var nonce [16]byte
+	for {
+		if _, err := rand.Read(nonce[:]); err != nil {
+			return m, err
+		}
+		if !strings.Contains(source, hex.EncodeToString(nonce[:])) {
+			break
 		}
 	}
-	inDir, err := os.MkdirTemp("", "arcmd-jsx-in-")
+	input, _ := json.Marshal(map[string]string{"source": source, "namespace": hex.EncodeToString(nonce[:])})
+	hook, err := compilerModule.Hook("compileMDX")
 	if err != nil {
-		return empty, err
+		return m, err
 	}
-	defer os.RemoveAll(inDir)
-	in := filepath.Join(inDir, "source.mdx")
-	out := filepath.Join(inDir, "manifest.json")
-	if err := os.WriteFile(in, []byte(source), 0600); err != nil {
-		return empty, err
+	result, err := rt.Call(hook, moejs.String(string(input)))
+	if err != nil {
+		return m, fmt.Errorf("moejs MDX: %w", err)
 	}
-	cmd := exec.Command(opt.Node, opt.Compiler, in, out)
-	cmd.Dir = filepath.Dir(opt.Compiler)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	cmd.Stdout = &stderr
-	if err := runTimeout(cmd, opt.Timeout); err != nil {
-		msg := strings.TrimSpace(stderr.String())
-		if msg == "" {
-			msg = err.Error()
+	if err := ctx.Err(); err != nil {
+		return m, err
+	}
+	if err = rt.UnmarshalWith(result, &m, moejs.DecodeOptions{MaxBytes: 16 << 20, MaxNodes: 200000}); err != nil {
+		return m, fmt.Errorf("moejs result: %w", err)
+	}
+	m.SourceSHA256 = SourceSHA256(source)
+	for i := range m.Blocks {
+		b := &m.Blocks[i]
+		if b.Error == "" && b.Compiled != "" {
+			b.HTML = islandPage(b.Source, b.Compiled)
 		}
-		return empty, fmt.Errorf("%w: %s", ErrCompile, msg)
-	}
-	file, err := os.Open(out)
-	if err != nil {
-		return empty, fmt.Errorf("%w: %v", ErrCompile, err)
-	}
-	defer file.Close()
-	m, err := ParseManifest(file)
-	if err != nil {
-		return empty, err
-	}
-	if m.SourceSHA256 != "" && m.SourceSHA256 != sum {
-		return empty, fmt.Errorf("%w: source checksum mismatch", ErrCompile)
-	}
-	if m.SourceSHA256 == "" {
-		m.SourceSHA256 = sum
-	}
-	if opt.CacheDir != "" {
-		_ = writeCache(opt.CacheDir, sum, out)
+		b.Compiled = ""
 	}
 	return m, nil
-}
-
-func readCache(dir, sum string) (Manifest, error) {
-	var empty Manifest
-	file, err := os.Open(filepath.Join(dir, sum+".json"))
-	if err != nil {
-		return empty, err
-	}
-	defer file.Close()
-	m, err := ParseManifest(file)
-	if err != nil {
-		return empty, err
-	}
-	if m.SourceSHA256 != sum {
-		return empty, errors.New("stale JSX cache")
-	}
-	return m, nil
-}
-
-func writeCache(dir, sum, manifestPath string) error {
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-	data, err := os.ReadFile(manifestPath)
-	if err != nil {
-		return err
-	}
-	tmp := filepath.Join(dir, sum+".json.tmp")
-	if err := os.WriteFile(tmp, data, 0600); err != nil {
-		return err
-	}
-	return os.Rename(tmp, filepath.Join(dir, sum+".json"))
-}
-
-func runTimeout(cmd *exec.Cmd, d time.Duration) error {
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	done := make(chan error, 1)
-	go func() { done <- cmd.Wait() }()
-	select {
-	case err := <-done:
-		return err
-	case <-time.After(d):
-		_ = cmd.Process.Kill()
-		<-done
-		return fmt.Errorf("compiler timed out after %s", d)
-	}
 }

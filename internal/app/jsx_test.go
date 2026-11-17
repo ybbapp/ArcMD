@@ -1,8 +1,7 @@
 package app
 
 import (
-	"os"
-	"path/filepath"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -13,20 +12,8 @@ import (
 
 type jsxTestView struct{ ui.NativeWebView }
 
-func compilerAvailable(t *testing.T) string {
-	t.Helper()
-	compiler, err := jsx.FindCompiler()
-	if err != nil {
-		t.Skip(err)
-	}
-	if _, err := os.Stat(filepath.Join(filepath.Dir(compiler), "node_modules")); err != nil {
-		t.Skip("compiler dependencies are not installed")
-	}
-	return compiler
-}
-
 func TestOpenMDXAttachesEmbeddedBlocks(t *testing.T) {
-	compilerAvailable(t)
+
 	t.Setenv("ARCMD_JSX_CACHE", t.TempDir())
 	a, tt := newTestApp(t)
 	a.testIslandView = func() ui.NativeWebView { return &jsxTestView{} }
@@ -70,7 +57,7 @@ func TestJSXCompileFailureFallsBackToSource(t *testing.T) {
 	t.Setenv("ARCMD_JSX_NODE", "node-not-installed-for-arcmd-jsx")
 	t.Setenv("ARCMD_JSX_CACHE", t.TempDir())
 	a, tt := newTestApp(t)
-	source := "# Broken\n\n<Counter />\n"
+	source := "# Broken\n\n<Counter initial={ />\n"
 	if err := vault.Write(root(a), "Broken.mdx", source); err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +66,7 @@ func TestJSXCompileFailureFallsBackToSource(t *testing.T) {
 	if a.doc == nil || a.doc.loadErr != nil {
 		t.Fatal("document should still open")
 	}
-	if a.doc.jsxErr == nil {
+	if a.doc.jsxErr == nil || a.doc.jsxDiagnostic() == "" {
 		t.Fatal("expected a compile fallback error")
 	}
 	if a.doc.jsx != nil || len(a.doc.jsxBlocks) != 0 {
@@ -105,5 +92,44 @@ func TestOpenMarkdownWithoutJSXIsUnchanged(t *testing.T) {
 	a.open("Welcome.md")
 	if a.doc.jsx != nil || a.doc.jsxErr != nil || len(a.doc.jsxBlocks) != 0 {
 		t.Fatal("ordinary markdown should not run the JSX compiler")
+	}
+}
+
+func TestJSXFailureDiagnosticIsVisible(t *testing.T) {
+	a, tt := newTestApp(t)
+	if err := vault.Write(root(a), "Bad.mdx", "# Bad\n\n<Counter initial={ />\n"); err != nil {
+		t.Fatal(err)
+	}
+	a.refreshTree()
+	a.open("Bad.mdx")
+	tt.Frame()
+	if !strings.Contains(strings.Join(tt.Texts(), "\n"), "JSX 编译失败") {
+		t.Fatalf("hidden failure: %v", tt.Texts())
+	}
+	a.doc.jsxErr = nil
+	a.doc.jsxViewErr = fmt.Errorf("controlled native initialization failure")
+	tt.Frame()
+	if !strings.Contains(strings.Join(tt.Texts(), "\n"), "WebView 失败") {
+		t.Fatal("hidden WebView failure")
+	}
+}
+
+func TestOpenMoeNestedMDXWithoutNode(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	t.Setenv("ARCMD_JSX_NODE", "/missing")
+	a, tt := newTestApp(t)
+	a.testIslandView = func() ui.NativeWebView { return &jsxTestView{} }
+	source := "# 新文档 😀\n\n<Counter initial={17+24} />\n\n<Callout title=\"nested\">\n\n**bold**\n\n<Counter initial={12} />\n\n</Callout>\n"
+	if e := vault.Write(root(a), "Fresh.mdx", source); e != nil {
+		t.Fatal(e)
+	}
+	a.refreshTree()
+	a.open("Fresh.mdx")
+	tt.Frame()
+	if a.doc.jsxErr != nil || len(a.doc.jsxBlocks) != 2 {
+		t.Fatalf("nested islands not mounted: %v %+v", a.doc.jsxErr, a.doc.jsxBlocks)
+	}
+	if a.doc.text() != source || a.doc.dirty() {
+		t.Fatal("projection altered persisted source")
 	}
 }

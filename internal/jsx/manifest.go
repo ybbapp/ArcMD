@@ -26,6 +26,7 @@ type Manifest struct {
 // Block is one compiled JSX island. Height is only a pre-measure placeholder.
 type Block struct {
 	Language string  `json:"language"`
+	Compiled string  `json:"compiled,omitempty"`
 	Source   string  `json:"source"`
 	HTML     string  `json:"html"`
 	Error    string  `json:"error"`
