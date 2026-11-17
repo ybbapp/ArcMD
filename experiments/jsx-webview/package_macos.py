@@ -82,11 +82,11 @@ def sign_app(app):
     return tool, resources
 
 
-def dependency_licenses(destination):
+def dependency_licenses(destination, target="./cmd/arcmd-jsx"):
     # Enumerate the actual target's imported modules, not unrelated lazy/test
     # module-graph entries which may have no downloaded source directory.
     env = dict(os.environ, GOOS="darwin", GOARCH="arm64", CGO_ENABLED="0", GOPROXY="off")
-    text = run("go", "list", "-deps", "-json", "./cmd/arcmd-jsx", env=env,
+    text = run("go", "list", "-deps", "-json", target, env=env,
                capture_output=True, text=True).stdout
     decoder = json.JSONDecoder()
     modules = []

@@ -110,3 +110,14 @@ try{return JSON.stringify({ok:true,v:await(\n%s\n)})}catch...
 - 共享主题、测高、编译调用：`internal/jsx`
 - 主程序接入：`internal/app/jsx.go`、`internal/app/document.go`
 - 实验入口：`cmd/arcmd-jsx`
+
+## 2026-11-17：同步上游、合并接入与主程序发布
+
+- 用户授权每小时同步上游：无新上游 Release 时只同步 `main`；有新 Release 才解决冲突并构建发布。本次用户另行授权立即合并 PR 和发布主程序。
+- 本次检查上游 `Ciao1019/ArcMD` 默认分支 `main`，SHA `d8f9ee7767b2104246e1207d869765f850efffd9`；最新 Release `v0.2.0`，ID `447020319`。上游未比 fork 起点增加提交，因此无需冲突处理。
+- [PR #1](https://github.com/ybbapp/ArcMD/pull/1) 通过普通 merge 合入 fork `main`，merge commit `1737ba4e2aaec83308141c6e92508b99483468ee`。没有 force push，没有写入上游。
+- `package_main_macos.py` 新增主程序专用打包入口：构建 `./cmd/arcmd`，而非 `./cmd/arcmd-jsx`；随包携带编译器、锁定版本的生产 JS 依赖和 **darwin-arm64** esbuild，资源位置能被现有 `FindCompiler` 找到；不捆绑 Node。嵌套 esbuild 与整个应用均做 ad-hoc 签名。
+- JSX 运行条件：用户自行安装 Node.js 22+，启动环境能找到 Node（或设 `ARCMD_JSX_NODE`）。附带显式启动脚本处理 Homebrew PATH，缺 Node 时脚本报错，不把源码 fallback 说成渲染成功。独立安装说明见 `main-release.zh-CN.md`。
+- 打包时用随包 JS 依赖在 Linux Node 上编译示例（仅此烟测覆盖为 Linux esbuild）；校验目标二进制 Mach-O arm64、ad-hoc 签名结构、ZIP CRC/可执行权限。真实 macOS 的原生启动、系统信任、目标 esbuild 与 WebView 仍需用户验收。
+- 无上游自动更新配置或上游更新签名；fork 的包从本 fork Release 手动下载。没有关闭 Gatekeeper/SIP，也没有本地服务。
+- 维护锁、状态字段、可复用命令见 [MAINTENANCE.zh-CN.md](MAINTENANCE.zh-CN.md)。Release 附 `BUILD-INFO.json` 记录最终源码提交与上游信息，SHA-256 文件独立附带。
