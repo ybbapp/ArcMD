@@ -1,8 +1,17 @@
-# ArcMD 0.2.3 · ybbapp 主线版（MDX 3.1.1 第一阶段）
+# ArcMD 0.2.4 · ybbapp 主线版（上游官方 v0.2.1 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-## 0.2.3：明确版本下的阶段兼容
+本包对应上游官方 Release [v0.2.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.1)（ID 448715564）。本 fork 已发布过 0.2.1–0.2.3，因此本包版本为 0.2.4，避免版本号冲突。
+
+## 上游 v0.2.1 能力（已纳入本包）
+
+- 纯 Go 矢量 PDF 导出：可选中、可搜索的矢量路径与字形子集，层次大纲和可点击链接，不再整页栅格 JPEG。
+- 原生 Mermaid：在 Go 中渲染 flowchart/graph 与 sequenceDiagram，亮/暗主题，无需 JavaScript/WebView。
+- `\boldsymbol` 粗体数学字体，拼音/多关键词搜索与持久索引缓存，命名版本里程碑与字素级行内 diff。
+- Obsidian `![[...]]` 图片嵌入兼容，以及 Windows 快捷键默认与路径错误处理修正。
+
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.4）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -13,7 +22,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，明确要求合并并新增 Release。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310；本次以普通 merge 合入，再做版本/打包说明与构建元数据修正。**新生成的0.2.3主线ZIP未再次在真实Mac/Finder/WKWebView验收**，不能把先前测试包验收当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.4 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -22,7 +31,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复旧正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.2 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.3 ，不需要删除数据。
 
 ## 范围与安全
 
@@ -41,4 +50,4 @@
 
 输出包含compiler精确版本/profile/build SHA、源SHA、岛屿与诊断。编译/部分不支持返回非零；未知组件等浏览器错误仍要在界面检查。输出含原文，请只保存到自己的本地文件。
 
-canonical编译器/浏览器测试44/44（含预期拒绝项，不是44项能力全支持），旧套件15/15和3/3、相关Go/vet、无Node新文件动态编译及交叉构建验证。完整Go测试保留6个已知Linux app baseline失败，不借机修复。JSDOM和交叉构建/ZIP/签名结构核查不替代真实WKWebView与macOS安全验证。详见Release测试记录和docs/mdx-compatibility.md。
+canonical编译器/浏览器测试与相关Go/vet、无Node新文件动态编译及交叉构建将随本次 Release 记录。完整Go测试若仅保留既有六个已知Linux app baseline失败，不借机修复。JSDOM和交叉构建/ZIP/签名结构核查不替代真实WKWebView与macOS安全验证。详见Release测试记录和docs/mdx-compatibility.md。

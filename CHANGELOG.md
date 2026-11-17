@@ -1,6 +1,20 @@
 # Changelog
 
+## 0.2.4
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.1)（ID 448715564）。上游曾将未发布的 0.3.0 源码改称为 0.2.1。本 fork 自身已发布过 0.2.1–0.2.3，因此本包版本为 0.2.4，避免与既有 fork Release 冲突。
+
+- 上游 0.2.1：纯 Go 矢量 PDF 导出、原生 Mermaid、`\boldsymbol` 粗体数学字体、拼音/多关键词搜索与持久缓存、命名版本里程碑与字素级行内 diff、Obsidian `![[...]]` 图片嵌入，以及 Windows 快捷键与路径修正。详见下方上游 0.2.1 说明。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
+## 0.2.3
+
+- 将用户已验收的 MDX 3.1.1 第一阶段（PR #3 / `2283afd` 测试包）合入主线并发布 macOS Apple Silicon 正式包。
+- 精确锁定 `@mdx-js/mdx` 3.1.1 与 `arcmd-mdx3-phase1`；正常界面无技术横幅。新主线 ZIP 当时未再次真实 Mac 验收。
+
 ## 0.2.1
+
 
 This release upgrades PDF export to a pure-Go vector pipeline with hierarchical outlines and clickable links, adds native Mermaid diagram rendering, `\boldsymbol` bold math fonts, and Obsidian `![[...]]` image embed compatibility, speeds up large-document editing and command-bar discovery with Pinyin/multi-keyword search and persistent caching, introduces named version milestones with grapheme-level inline diffs, and resolves Windows shortcut and path-handling issues.
 
@@ -35,7 +49,7 @@ Packages are available for macOS (Apple Silicon and Intel), Windows x64, and Lin
 
 ### ybbapp fork
 
-- 同步上游 0.2.1 源码（上游将此前未发布的 0.3.0 源码改称为 0.2.1，并加入 Windows 快捷键/路径修正与 Obsidian `![[...]]` 图片嵌入）。保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。尚未针对此次上游源码同步发布新的 fork 安装包。
+- 同步上游 0.2.1 源码（上游将此前未发布的 0.3.0 源码改称为 0.2.1，并加入 Windows 快捷键/路径修正与 Obsidian `![[...]]` 图片嵌入）。保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。对应 fork 安装包见 0.2.4。
 
 ## 0.2.2
 
