@@ -179,6 +179,7 @@ func (a *App) windowView(c *ui.Context, w *docWindow) {
 		}
 		width, _ := c.Size()
 		a.syncJSX(c, d)
+		a.jsxStatus(c, d)
 		editor.View(c.Key(d.viewKey()), d.ed, a.editorOptionsFor(c, width, false, d))
 	})
 	w.win.SetTitle(docName(d.title()))

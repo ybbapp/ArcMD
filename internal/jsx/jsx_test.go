@@ -3,8 +3,6 @@ package jsx
 import (
 	"encoding/json"
 	"math"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -86,16 +84,8 @@ func TestRestoreSourceUnwrapsOnlyNamespacedFences(t *testing.T) {
 }
 
 func TestCompileProjectsIslandsAndRestoreMatchesSource(t *testing.T) {
-	compiler, err := FindCompiler()
-	if err != nil {
-		t.Skip(err)
-	}
-	if _, err := os.Stat(filepath.Join(filepath.Dir(compiler), "node_modules")); err != nil {
-		t.Skip("compiler dependencies are not installed")
-	}
 	source := "# Native\n\nA paragraph.\n\n<Counter initial={5} />\n\nAfter the island.\n"
-	cache := t.TempDir()
-	m, err := Compile(source, Options{Compiler: compiler, CacheDir: cache})
+	m, err := Compile(source, Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,19 +98,17 @@ func TestCompileProjectsIslandsAndRestoreMatchesSource(t *testing.T) {
 	if RestoreSource(m.Markdown, m.Namespace) != source {
 		t.Fatalf("restore mismatch:\n%s\n----\n%s", RestoreSource(m.Markdown, m.Namespace), source)
 	}
-	again, err := Compile(source, Options{Compiler: compiler, CacheDir: cache})
-	if err != nil || again.Namespace != m.Namespace {
-		t.Fatalf("cache miss: %v %+v", err, again)
+	again, err := Compile(source, Options{})
+	if err != nil || again.SourceSHA256 != m.SourceSHA256 {
+		t.Fatalf("repeat compilation failed: %v %+v", err, again)
 	}
 }
 
-func TestCompileMissingNodeFallsBack(t *testing.T) {
-	compiler, err := FindCompiler()
-	if err != nil {
-		t.Skip(err)
-	}
-	_, err = Compile("# Hi\n\n<Counter />\n", Options{Node: "node-not-installed-for-arcmd-jsx", Compiler: compiler})
-	if err == nil || !strings.Contains(err.Error(), "Node") && !strings.Contains(err.Error(), "node") {
-		t.Fatalf("want a node-missing error, got %v", err)
+func TestCompileWithoutNode(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	t.Setenv("ARCMD_JSX_NODE", "/does/not/exist")
+	m, err := Compile("# Fresh file\n\n<Callout title=\"Fresh\">\n\n<Counter initial={2+3} />\n\n</Callout>\n", Options{})
+	if err != nil || !m.HasHTML() {
+		t.Fatalf("no-Node compiler: %v %+v", err, m)
 	}
 }

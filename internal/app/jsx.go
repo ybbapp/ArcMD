@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	model "github.com/Ciao1019/ArcMD/internal/document"
@@ -44,6 +46,7 @@ func (d *document) closeJSX() {
 	d.jsxBlocks = nil
 	d.jsxThemeOK = false
 	d.jsxThemeKey = ""
+	d.jsxViewErr = nil
 }
 
 func (a *App) jsxWindow(d *document) *mygo.Window {
@@ -83,7 +86,7 @@ func (a *App) newIslandView(d *document) (ui.NativeWebView, error) {
 }
 
 func (a *App) ensureJSXViews(d *document) {
-	if d == nil || d.jsx == nil || d.source {
+	if d == nil || d.jsx == nil || d.source || d.jsxViewErr != nil {
 		return
 	}
 	if d.jsxBlocks == nil {
@@ -109,6 +112,7 @@ func (a *App) ensureJSXViews(d *document) {
 		view, err := a.newIslandView(d)
 		if err != nil {
 			log.Printf("jsx island: %v (showing source)", err)
+			d.jsxViewErr = err
 			continue
 		}
 		if view == nil {
@@ -119,6 +123,12 @@ func (a *App) ensureJSXViews(d *document) {
 			height = 240
 		}
 		if w, ok := view.(*mygo.WebView); ok {
+			w.Page().OnDidFailLoad(func(err *mygo.LoadError) {
+				d.jsxViewErr = fmt.Errorf("WebView load failed: %v", err)
+				if win := a.jsxWindow(d); win != nil {
+					win.Invalidate()
+				}
+			})
 			w.Page().OnDidFinishLoad(func() {
 				d.jsxThemeOK = false
 				if d.jsxThemeKey != "" {
@@ -252,4 +262,43 @@ func (a *App) syncJSX(c *ui.Context, d *document) {
 		a.syncJSXTheme(d, c.Theme())
 	}
 	a.pollJSXHeights(d)
+}
+
+// jsxDiagnostic never treats a source fallback as successful rendering.
+func (d *document) jsxDiagnostic() string {
+	if d == nil {
+		return ""
+	}
+	var messages []string
+	if d.jsxErr != nil {
+		messages = append(messages, "JSX 编译失败（moejs）："+d.jsxErr.Error())
+	}
+	if d.jsx != nil {
+		messages = append(messages, d.jsx.Diagnostics...)
+		for _, b := range d.jsx.Blocks {
+			if b.Error != "" {
+				messages = append(messages, b.Error)
+			}
+		}
+	}
+	if d.jsxViewErr != nil {
+		messages = append(messages, "JSX WebView 失败："+d.jsxViewErr.Error())
+	}
+	msg := strings.Join(messages, "\n")
+	if len(msg) > 4096 {
+		msg = msg[:4096] + "…"
+	}
+	return msg
+}
+func (a *App) jsxStatus(c *ui.Context, d *document) {
+	if d == nil || !jsx.IsMDX(d.rel) {
+		return
+	}
+	ui.Text(c, "JSX · moejs 内置编译器（无需 Node）").FontSize(11).Padding(4, 12)
+	if msg := d.jsxDiagnostic(); msg != "" {
+		ui.Text(c, "部分或全部 JSX 未渲染；下方为源码。\n"+msg).TextColor(c.Theme().Danger).Padding(8, 12)
+		if d == a.doc && !d.dirty() && ui.Button(c, "重新载入并重试 JSX").Clicked() {
+			a.reload()
+		}
+	}
 }

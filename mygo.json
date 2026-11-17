@@ -1,21 +1,30 @@
 {
-  "name": "ArcMD",
+  "name": "ArcMD MoeJS Test",
   "slug": "arcmd",
-  "identifier": "com.cizai.arcmd",
-  "version": "0.2.0",
+  "identifier": "org.ybbapp.arcmd.moejs-test",
+  "version": "0.2.0-moejs-test",
   "icon": "resources/icon.png",
   "main": "./cmd/arcmd",
   "out": "dist",
-  "resources": ["LICENSE", "third_party"],
+  "resources": [
+    "LICENSE",
+    "third_party"
+  ],
   "fileAssociations": [
     {
-      "ext": ["md", "markdown", "mdx"],
+      "ext": [
+        "md",
+        "markdown",
+        "mdx"
+      ],
       "name": "Markdown Document",
       "mimeType": "text/markdown",
       "role": "Editor"
     },
     {
-      "ext": ["arcmd"],
+      "ext": [
+        "arcmd"
+      ],
       "name": "ArcMD Document",
       "mimeType": "application/x-arcmd",
       "role": "Editor"
@@ -24,9 +33,7 @@
   "macos": {
     "icon": "resources/icon.icns"
   },
-  "linux": { "webview": false },
-  "updates": {
-    "publicKey": "5WSm8Z4W2nF//KbuHmHZjP1uR8RC7vvS/xApNVO5nWc=",
-    "github": "Ciao1019/ArcMD"
+  "linux": {
+    "webview": false
   }
 }

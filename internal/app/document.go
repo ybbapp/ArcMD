@@ -89,6 +89,7 @@ type document struct {
 	// when compilation failed and the editor shows source instead.
 	jsx         *jsx.Manifest
 	jsxErr      error
+	jsxViewErr  error
 	jsxBlocks   map[string]editor.EmbeddedBlock
 	jsxViews    []ui.NativeWebView
 	jsxTheme    jsx.Theme
