@@ -63,7 +63,7 @@ def main():
                    'experiments/jsx-webview/demo.mdx', str(manifest),
                    env=dict(os.environ, ESBUILD_BINARY_PATH=str(host_esbuild)))
         smoke = json.loads(manifest.read_text())
-        if not smoke.get('islands'):
+        if not smoke.get('blocks'):
             raise ValueError('packaged compiler produced no islands')
         tool = shutil.which('rcodesign') or str(Path.home() / '.cargo/bin/rcodesign')
         common.run(tool, 'sign', str(native))
@@ -125,7 +125,7 @@ exec "$APP/Contents/MacOS/ArcMD" "$@"
             'goVersion': common.run('go', 'version', capture_output=True, text=True).stdout.strip(),
             'nodeBundled': False, 'compilerBundled': True, 'compilerTarget': 'darwin-arm64',
             'compilerSmokeTest': 'Linux Node + bundled modules + explicit Linux esbuild override',
-            'compilerSmokeIslandCount': len(smoke['islands']),
+            'compilerSmokeIslandCount': len(smoke['blocks']),
             'bundleAdHocSignature': True, 'developerIDSigned': False,
             'notarized': False, 'macOSRuntimeTested': False,
             'minimumMacOSVersion': '13.0', 'autoUpdaterConfigured': False,
