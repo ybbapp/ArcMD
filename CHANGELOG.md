@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.3.0
+## 0.2.1
 
-This release upgrades PDF export to a pure-Go vector pipeline with hierarchical outlines and clickable links, adds native Mermaid diagram rendering and `\boldsymbol` bold math fonts, speeds up large-document editing and command-bar discovery with Pinyin/multi-keyword search and persistent caching, and introduces named version milestones with grapheme-level inline diffs.
+This release upgrades PDF export to a pure-Go vector pipeline with hierarchical outlines and clickable links, adds native Mermaid diagram rendering, `\boldsymbol` bold math fonts, and Obsidian `![[...]]` image embed compatibility, speeds up large-document editing and command-bar discovery with Pinyin/multi-keyword search and persistent caching, introduces named version milestones with grapheme-level inline diffs, and resolves Windows shortcut and path-handling issues.
 
 ### Vector PDF export and native Mermaid diagrams
 
@@ -16,9 +16,14 @@ This release upgrades PDF export to a pure-Go vector pipeline with hierarchical 
 - **Native `\boldsymbol` math rendering (`internal/tex`, `internal/editor/math.go`)**: Parse and render `\boldsymbol{...}` across display math, inline math, bookmark previews, and vector PDF export using embedded unmodified `KaTeX_Main-Bold.ttf` and `KaTeX_Math-BoldItalic.ttf` faces (`9b2280d`), carrying scoped bold styling and glyph cache keys while preserving operator spacing, limits, and integral upper-hook clearance ([#4](https://github.com/Ciao1019/ArcMD/pull/4), thanks to `@Raspercival`).
 - **Version milestones, grapheme-level inline diffs, and Fenwick virtualization (`internal/history`, `internal/app/versions.go`, `internal/editor/fenwick.go`)**: Save, rename, and filter protected named milestones in `.arcmd/history` (`labels.json`), highlight exact intra-line character and word edits with Unicode grapheme-aware LCS diffing, and index virtualized row heights with an `O(log N)` Fenwick tree for large documents.
 
+### Obsidian compatibility and Windows fixes
+
+- **Obsidian `![[...]]` image embeds and Space attachment lookup (`internal/editor/markdown.go`, `internal/wiki/wiki.go`, `internal/app/document.go`, `internal/app/relocate.go`)**: Import standalone and back-to-back Obsidian image embeds (`![[image.png]]`, `![[folder/image.png|360]]`, `![[image.png|360x240]]`, and `![[image.png|caption|width]]`) into native image blocks while preserving untouched `![[...]]` source lines verbatim on save, excluding `![[...]]` embeds from note wiki-links and `[[` completion, and resolving Space-root or bare attachment filenames across non-hidden Space directories while keeping External Space isolation strict ([#6](https://github.com/Ciao1019/ArcMD/issues/6)).
+- **Windows shortcut defaults, menu labels, and path error handling (`internal/editor/keys.go`, `internal/app/keymap.go`, `internal/fsutil/fsutil.go`, `internal/vault/vault.go`, `internal/prefs/secrets.go`, `internal/app/document.go`)**: Bind `overview`, `prev-bookmark`, and `next-bookmark` to `Ctrl+Alt+S` / `Ctrl+Alt+Up/Down` outside macOS so they do not collapse into `Ctrl+S` or `Ctrl+Up/Down`, format non-macOS `Combo.Label()` values as `Ctrl+Shift+K`, distinguish regular-file path blockers from missing files under Windows `ERROR_PATH_NOT_FOUND`, and run `go test ./...` on `windows-2022` in CI ([#5](https://github.com/Ciao1019/ArcMD/issues/5)).
+
 ### Documentation
 
-- Update `README.md`, `README.en.md`, `AGENTS.md`, and `third_party/README.md` for version 0.3.0, vector PDF export, native Mermaid diagrams, `\boldsymbol`, Pinyin/cached search, and version milestones.
+- Update `README.md`, `README.en.md`, `AGENTS.md`, and `third_party/README.md` for version 0.2.1, vector PDF export, native Mermaid diagrams, `\boldsymbol`, Pinyin/cached search, version milestones, Obsidian `![[...]]` image embeds, and Windows fixes.
 
 ### Data compatibility
 
@@ -30,14 +35,14 @@ Packages are available for macOS (Apple Silicon and Intel), Windows x64, and Lin
 
 ### ybbapp fork
 
-- 同步上游 0.3.0 源码，并保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。尚未针对此次上游源码同步发布新的 fork 安装包。
+- 同步上游 0.2.1 源码（上游将此前未发布的 0.3.0 源码改称为 0.2.1，并加入 Windows 快捷键/路径修正与 Obsidian `![[...]]` 图片嵌入）。保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。尚未针对此次上游源码同步发布新的 fork 安装包。
 
 ## 0.2.2
 
 - 正常 JSX 渲染不再显示实现技术横幅，也不预留状态占位。
 - 保留编译、逐岛屿和 WebView 失败诊断与重试；主线名称、身份与配置不变。
 
-## 0.2.1
+## 0.2.1 (ybbapp fork)
 
 - ybbapp fork：合入用户已验收的 moejs 块级 MDX 编译方案，运行时无需 Node。
 - 显示编译、逐岛屿与 WebView 失败诊断；保留原生正文、主题跟随和内容测高。
