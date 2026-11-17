@@ -17,3 +17,7 @@
 # Update signing keys belong outside the repository.
 mygo-update.key
 *.private-key
+
+# Local JSX experiment build artifacts
+/experiments/jsx-webview/node_modules/
+/experiments/jsx-webview/*.manifest.json

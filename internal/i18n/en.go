@@ -2,6 +2,10 @@ package i18n
 
 // en translates the interface's messages into English, by their Chinese.
 var en = map[string]string{
+	"ArcMD JSX 实验 — 只读 / 固定高度": "ArcMD JSX experiment — read-only / fixed height",
+	"切换源码": "Toggle source",
+	"原生浮层": "Native overlay",
+	"此原生浮层应覆盖网页内容。": "This native popover must cover the web page.",
 	"外部空间":    "External",
 	"打开文件…":   "Open File\u2026",
 	"从外部空间移除": "Remove from External",

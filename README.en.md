@@ -1,3 +1,5 @@
+> This branch adds an isolated, read-only **native text + JSX WebView islands** experiment, not full MDX support. The ordinary ArcMD app is unchanged. See [setup and compatibility boundaries](experiments/jsx-webview/README.md).
+
 <div align="center">
 
 <img src="docs/images/readme/logo-horizontal.png" width="400" alt="ArcMD logo">

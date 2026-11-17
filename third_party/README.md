@@ -87,3 +87,13 @@ native Go, under the MIT License, Copyright (c) 2025 kokonutUI. The full
 MIT notice is in `kokonutui/LICENSE`.
 
 [Kokonut UI source](https://github.com/kokonut-labs/kokonutui)
+
+## Optional JSX-island experiment
+
+`experiments/jsx-webview/` compiles MDX with `@mdx-js/mdx` and bundles
+React/ReactDOM using esbuild (all MIT). npm retains their license files;
+`jsx-experiment/react-LICENSE`, `jsx-experiment/react-dom-LICENSE` and
+`jsx-experiment/scheduler-LICENSE` retain
+the notices for the runtime bundled into generated page artifacts. esbuild
+preserves inline legal comments. jsdom is an MIT-licensed test-only dependency.
+This runtime is used only by the separate `cmd/arcmd-jsx` experiment.
