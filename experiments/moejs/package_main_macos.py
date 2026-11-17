@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Cross-build real cmd/arcmd with embedded moejs; no runtime Node resources."""
-import argparse,hashlib,importlib.util,json,os
+import argparse,hashlib,importlib.util,json,os,re
 from pathlib import Path
 import plistlib,shutil,stat,subprocess,tempfile,zipfile
 ROOT=Path(__file__).resolve().parents[2]
@@ -32,7 +32,8 @@ def main():
   mod=Path(c.run('go','list','-m','-f','{{.Dir}}','github.com/MoeForge/moejs',capture_output=True,text=True).stdout.strip())
   shutil.copy2(mod/'THIRD_PARTY_NOTICES',resources/'third_party/moejs-THIRD_PARTY_NOTICES')
   shutil.copy2(ROOT/'experiments/moejs/demo.mdx',release/'demo.mdx')
-  notes=(ROOT/'experiments/moejs/main-release.zh-CN.md').read_text().replace('# ArcMD 0.2.1','# ArcMD '+version,1)+'\n源码提交：`'+commit+'`\n\n上游 main：`'+args.upstream_sha+'`；上游 Release：`'+info['upstreamRelease']['tag_name']+'`（ID '+str(info['upstreamRelease']['id'])+'）。\n'
+  notes=(ROOT/'experiments/moejs/main-release.zh-CN.md').read_text()+'\n源码提交：`'+commit+'`\n\n上游 main：`'+args.upstream_sha+'`；上游 Release：`'+info['upstreamRelease']['tag_name']+'`（ID '+str(info['upstreamRelease']['id'])+'）。\n'
+  notes=re.sub(r'^# ArcMD \S+', '# ArcMD '+version, notes, count=1)
   (release/'README.zh-CN.md').write_text(notes);(resources/'README.zh-CN.md').write_text(notes)
   (resources/'BUILD-INFO.json').write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n')
   _,sig=c.sign_app(app);info['binarySHA256']=c.sha(binary);info['binaryAnalysis']=c.macho_details(binary.read_bytes());info['bundleCodeResourcesSHA256']=c.sha(sig)

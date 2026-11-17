@@ -1,6 +1,12 @@
-# ArcMD 0.2.1 · ybbapp 主线版（moejs）
+# ArcMD 0.2.2 · ybbapp 主线版（moejs）
 
 这是 `ybbapp/ArcMD:main` 的正式 fork Release，真正的 `cmd/arcmd` 主程序，不是独立实验窗口。运行时无需 Node/npm/esbuild，也不需要之前的 `Open-with-JSX.command`。适用 macOS 13+、Apple Silicon（arm64）。
+
+## 0.2.2 修复
+
+正常成功渲染不再展示技术状态横幅，也不预留占位；失败诊断、重试与 `--jsx-check` 保留。与 0.2.1 相同的 `ArcMD.app` / `org.ybbapp.arcmd` / 主线配置目录，没有新增应用身份。此前预览/Test 版为不同产品身份，覆盖正式版不会自动卸载它们；不同路径副本或系统“打开方式”旧记录也可能造成多条条目，但未核查你的 Mac，不能据此确定本机副本数量或来源。
+
+完整身份和安全更新说明：[APP-IDENTITY.zh-CN.md](https://github.com/ybbapp/ArcMD/blob/main/experiments/moejs/APP-IDENTITY.zh-CN.md)。
 
 ## 验收来源与本包区别
 
@@ -8,7 +14,7 @@
 
 ## 安装与使用
 
-1. 解压后将 `ArcMD.app` 放入“应用程序”；退出正在运行的旧 ArcMD 后再替换。主线沿用原先 `ArcMD` 配置与默认空间目录，不再使用实验版的 `ArcMD MoeJS Test` 独立配置；实验版设置不会自动迁移。建议先备份重要文件再更新。
+1. 保存工作并退出正在运行的旧 ArcMD / 预览 / Test，解压后将 `ArcMD.app` 明确替换到 `/Applications/ArcMD.app`（不要保留两个），再从此路径启动并确认版本。主线沿用原先 `ArcMD` 配置与默认空间目录，不再使用实验版的 `ArcMD MoeJS Test` 独立配置；实验版设置不会自动迁移。建议先备份重要文件再更新。
 2. 整个应用已做 ad-hoc 签名，仍无 Developer ID、未公证。首次只信任这份应用：Control 单击→打开，或在“系统设置→隐私与安全性”允许。必要时仅对这一份已校验的应用执行 `xattr -d com.apple.quarantine "/Applications/ArcMD.app"`，不要关闭 Gatekeeper/SIP。
 3. 可直接从 Finder 启动，不必安装 Node、不必在终端设置 PATH。打开本地 `.mdx`；随包 `demo.mdx` 有 Counter 和嵌套 Callout，可复制、改数字/文字后重新打开，确认针对新文件编译。普通正文仍由原生编辑器排版。
 4. 点击计数器再切换浅/深主题，主题更新不重载组件；高度按内容测量。修改后重新打开/重载才重新编译；不保证交互状态跨保存保留。

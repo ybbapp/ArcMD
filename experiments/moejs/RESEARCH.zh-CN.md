@@ -63,3 +63,18 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_macos.py --out /work
 用户确认实验包 `moejs-test-8dc66bb` 测试通过并授权合入、发布。PR #2 普通 merge 提交为 `0f8ecd239f94291fe530f6fb55ceaedfc64f3220`，不改写实验历史，保留原预发布。随后仅做主线发布支持修正：产品名/默认配置恢复 ArcMD、版本 0.2.1；新增 moejs 主线打包入口，旧 `experiments/jsx-webview/package_main_macos.py` 转交它，杜绝小时构建退回 Node 方案。
 
 主线包源码与上游基线、无 Node 烟测结果、签名/哈希随 BUILD-INFO 发布。用户验收的是先前实验包；新主线 ZIP 未再次真实 Mac 测试，发布说明明确区分。事务全程持有维护锁；成功发布并核验资产后才原子更新主线维护状态，上游已打包 Release 基线不凭空推进。详见 [主线安装说明](main-release.zh-CN.md)。
+
+## 2026-11-17（UTC+8）：0.2.2 正常界面清理与身份核查
+
+用户指出正式版仍显示 `JSX · moejs 内置编译器（无需 Node）`，要求处理后重新发布。移除这个无条件正常态技术横幅；无诊断时函数直接返回，不生成状态节点、padding 或占位；失败时仍显示编译/逐岛屿/WebView 诊断与主窗口重试，CLI 诊断保留。新增正常态文本/布局零占位、真实文档无技术横幅、逐岛屿错误和重试保留的测试。相关生产路径检查未发现其他同类常驻实验状态 UI；没有扩大到其他编辑器功能。
+
+同时只读检查此前各类包的 Info.plist、配置及 MyGo 单实例键，确认预览、Test、正式主线是可并存的不同身份；主线 0.2.1/0.2.2 名称、bundle ID、配置均保持一致。详见 [APP-IDENTITY.zh-CN.md](APP-IDENTITY.zh-CN.md)。未访问用户 Mac，不能确定用户副本实际数量、位置或 LaunchServices 状态，也没有自动删除用户应用/文档/配置。
+
+### 0.2.2 验证结果（Linux box）
+
+- `go test ./internal/app -run 'Test(JSX|OpenMDX|OpenMoe)' -count=1`：通过，覆盖成功无横幅/无布局占位、失败可见与重试、无 Node 嵌套文档、源码完整性。
+- `go test ./internal/jsx ./cmd/arcmd ./cmd/arcmd-jsx ./internal/editor`：通过。
+- `go vet ./internal/jsx ./internal/app ./cmd/arcmd ./cmd/arcmd-jsx ./internal/editor`：通过；`go run ./tools/ci version` 输出 `0.2.2`。
+- `npm test --prefix experiments/jsx-webview`：15/15；`node --test experiments/moejs/runtime.test.mjs`：3/3（实际主程序无 Node 编译、交互、未知组件可见失败、CSP）。Node 只用于开发测试，不作为应用运行时依赖。
+- `go test ./internal/app -count=1`：只有既知 6 项基线失败：`TestBottomBlockHandleMenuAndIndentSubmenu`、`TestRebindShortcuts`、`TestLibrarySpaces`、`TestLibraryCardDrag`、`TestQACitationPreviewDoesNotOccludeAnswerText`、`TestMoreMenuAndSettings`。未顺手修改这些无关功能，不将本次全包测试描述为全绿。
+- 构建真实 `cmd/arcmd` 的 macOS arm64 包，复用整包 ad-hoc 签名及无 Node 主线打包入口。包结构/签名资源/公开下载 SHA256 在发布流程另行核验，结果写 Release；不宣称新包已在真实 Mac 验收。

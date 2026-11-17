@@ -30,6 +30,9 @@ func TestOpenMDXAttachesEmbeddedBlocks(t *testing.T) {
 		t.Fatalf("islands: %+v", a.doc.jsx.Blocks)
 	}
 	tt.Frame()
+	if strings.Contains(strings.Join(tt.Texts(), "\n"), "内置编译器") {
+		t.Fatal("technical success banner leaked")
+	}
 	if len(a.doc.jsxBlocks) != 1 {
 		t.Fatalf("EmbeddedBlock not attached: %+v", a.doc.jsxBlocks)
 	}
@@ -106,6 +109,9 @@ func TestJSXFailureDiagnosticIsVisible(t *testing.T) {
 	if !strings.Contains(strings.Join(tt.Texts(), "\n"), "JSX 编译失败") {
 		t.Fatalf("hidden failure: %v", tt.Texts())
 	}
+	if !tt.HasText("重新载入并重试 JSX") {
+		t.Fatal("retry action missing")
+	}
 	a.doc.jsxErr = nil
 	a.doc.jsxViewErr = fmt.Errorf("controlled native initialization failure")
 	tt.Frame()
@@ -131,5 +137,42 @@ func TestOpenMoeNestedMDXWithoutNode(t *testing.T) {
 	}
 	if a.doc.text() != source || a.doc.dirty() {
 		t.Fatal("projection altered persisted source")
+	}
+}
+
+func TestJSXSuccessHasNoStatusOrPlaceholder(t *testing.T) {
+	a := &App{}
+	d := &document{rel: "Normal.mdx", jsx: &jsx.Manifest{}}
+	view := func(status bool) func(*ui.Context) {
+		return func(c *ui.Context) {
+			ui.Column(c).Children(func() {
+				if status {
+					a.jsxStatus(c, d)
+				}
+				ui.Text(c, "body sentinel")
+			})
+		}
+	}
+	control := ui.NewTester(view(false), 600, 400)
+	control.Frame()
+	actual := ui.NewTester(view(true), 600, 400)
+	actual.Frame()
+	if got := actual.Texts(); len(got) != 1 || got[0] != "body sentinel" {
+		t.Fatalf("success leaked status UI: %q", got)
+	}
+	want, wok := control.Find("body sentinel")
+	got, gok := actual.Find("body sentinel")
+	if !wok || !gok || got != want {
+		t.Fatalf("success reserved space: got=%+v want=%+v", got, want)
+	}
+}
+
+func TestJSXPerIslandErrorRemainsVisible(t *testing.T) {
+	a := &App{}
+	d := &document{rel: "Partial.mdx", jsx: &jsx.Manifest{Blocks: []jsx.Block{{Error: "controlled island compile failure"}}}}
+	tt := ui.NewTester(func(c *ui.Context) { a.jsxStatus(c, d) }, 600, 400)
+	tt.Frame()
+	if !strings.Contains(strings.Join(tt.Texts(), "\n"), "controlled island compile failure") {
+		t.Fatal("per-island failure hidden")
 	}
 }

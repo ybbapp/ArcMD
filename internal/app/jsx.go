@@ -294,11 +294,13 @@ func (a *App) jsxStatus(c *ui.Context, d *document) {
 	if d == nil || !jsx.IsMDX(d.rel) {
 		return
 	}
-	ui.Text(c, "JSX · moejs 内置编译器（无需 Node）").FontSize(11).Padding(4, 12)
-	if msg := d.jsxDiagnostic(); msg != "" {
-		ui.Text(c, "部分或全部 JSX 未渲染；下方为源码。\n"+msg).TextColor(c.Theme().Danger).Padding(8, 12)
-		if d == a.doc && !d.dirty() && ui.Button(c, "重新载入并重试 JSX").Clicked() {
-			a.reload()
-		}
+	msg := d.jsxDiagnostic()
+	if msg == "" {
+		// Successful documents emit no status nodes, padding or placeholder.
+		return
+	}
+	ui.Text(c, "部分或全部 JSX 未渲染；下方为源码。\n"+msg).TextColor(c.Theme().Danger).Padding(8, 12)
+	if d == a.doc && !d.dirty() && ui.Button(c, "重新载入并重试 JSX").Clicked() {
+		a.reload()
 	}
 }
