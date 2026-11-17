@@ -1,0 +1,28 @@
+# MDX 3.1.1 compatibility phase 1
+
+This heading and ordinary paragraph remain native.
+
+The inline result is <strong>{6 * 7}</strong> (this whole paragraph is one island).
+
+{[1, 2, 3].map(value => <span key={value}>{value} </span>)}
+
+<Callout title="Local expression scope">
+
+{(() => { const total = 17 + 24; return <strong>{total}</strong> })()}
+
+</Callout>
+
+<Tabs label="Examples">
+<TabItem label="Counter">
+<Counter initial={2 + 3} label="Count" />
+</TabItem>
+<TabItem label="Details">
+<Accordion title="How this works">
+
+Ordinary Markdown stays native; only MDX-bearing blocks are embedded.
+
+</Accordion>
+</TabItem>
+</Tabs>
+
+The body is still a local file. Ask your agent or an external editor to edit JSX, then reload it in ArcMD.

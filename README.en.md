@@ -1,4 +1,4 @@
-> This branch adds an isolated, read-only **native text + JSX WebView islands** experiment, not full MDX support. The ordinary ArcMD app is unchanged. See [setup and compatibility boundaries](experiments/jsx-webview/README.md).
+> This fork is iterating toward **versioned MDX 3.1.1 compatibility**: native prose plus isolated JSX/expression islands, without runtime Node. It is not full MDX support. See [scope and usage](#mdx-support).
 
 <div align="center">
 
@@ -38,7 +38,7 @@
 <br>
 
 ArcMD brings Markdown's familiar writing flow onto a calm, expressive native canvas.
-**Built entirely in Go with [MyGo](https://github.com/egoist/mygo)'s Native UI** — windows, GPU drawing, glyph shaping, and input handling run directly from Go with **no HTML, JavaScript, WebView, Electron, or cgo**.
+**The ordinary Markdown editor is built in Go with [MyGo](https://github.com/egoist/mygo) Native UI**: windows, drawing, shaping and input run directly from Go without Electron or cgo. **This fork’s `.mdx` extension is an explicit exception**: active JSX/expression containers use isolated WebViews with a moejs-embedded compiler, not a whole-document web editor.
 
 | ⚡ Pure Native, 120 Hz Ready | 📄 Plain `.md`, Zero Lock-in | 🎨 Arc Spaces & Tactile Craft |
 | --- | --- | --- |
@@ -108,6 +108,48 @@ ArcMD edits and autosaves standard **`.md` Markdown** files (`.md`, `.markdown`,
 - **Backward compatible**: existing legacy `.arcmd` files and history snapshots continue to open and edit seamlessly.
 
 ---
+
+<a id="mdx-support"></a>
+## Fork MDX 3.1.1 support (phase 1)
+
+The exact target is **`@mdx-js/mdx` 3.1.1**, host profile `arcmd-mdx3-phase1`, **not full MDX 3 conformance**. This feature branch is still being validated; existing 0.2.2 releases do not contain these additions. Credit and the native editor design remain with [upstream ArcMD](https://github.com/Ciao1019/ArcMD).
+
+| Capability | Current status |
+| --- | --- |
+| Native Markdown/code examples; block JSX/fragments, Counter/Callout | Supported; ordinary prose stays native and fenced examples stay inert |
+| Flow `{expression}`, IIFE-local variables, array/map JSX, expression/spread props and lowercase wrappers containing components | New; island-local scope only |
+| Inline JSX/expressions in top-level paragraphs | **Partial**: the whole affected paragraph becomes a WebView, not native inline runs; other paragraphs remain native |
+| Tabs / TabItem / Accordion | New host components, not proof of full language conformance |
+| JSX in headings/lists/quotes; document exports/shared scope, imports/component files, await/import.meta, cross-island state | Unsupported; rejected or diagnosed, without arbitrary file/network loading |
+| Full Markdown/plugin/resource context | Partial/unsupported; native math/etc. are not automatically MDX plugins and external resources remain blocked |
+
+Open a local `.mdx` through a space/sidebar/system file-open action. **No runtime Node** is needed, including Finder launches. Only MDX-bearing blocks/paragraphs use the embedded compiler:
+
+```mdx
+# Native heading
+
+This paragraph stays native.
+
+The answer is <strong>{6 * 7}</strong> (this whole paragraph becomes an island).
+
+{[1, 2, 3].map(n => <span key={n}>{n} </span>)}
+
+<Counter initial={2 + 3} />
+```
+
+See [`tools/mdx/example.mdx`](tools/mdx/example.mdx) for Tabs/Accordion. Ask an agent or external editor to change JSX, then reload; the current source view is a **read-only export preview**. Original island text is restored for saving and rendering never writes source; normal native Markdown serialization can still normalize formatting. Themes update without reloading and height follows content. State is not promised across reloads/tab switches. Success has no technical banner; errors retain diagnostics and clean-document reload/retry.
+
+Only developers need Node 22.12+ / 24 to regenerate pinned assets and run tests:
+
+```sh
+npm ci --prefix tools/mdx
+npm run build --prefix tools/mdx
+npm test --prefix tools/mdx
+go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
+# JSON identifies actual compiler.version / profile / buildSha256.
+```
+
+moejs executes only the trusted compiler; document expressions run only in Untrusted WebViews, with no Go/file/network bridge, hash CSP and existing navigation/resource restrictions. Compiler evaluation keeps its 5-second / 256 MiB JS-allocation / 512 KiB-source / 32-island limits, not a CPU/RSS sandbox for browser code. Read the [version matrix, source/layout trade-offs and security boundaries](docs/mdx-compatibility.md) and [executable fixtures](tools/mdx/compatibility.json). Official syntax, host resolution and browser execution are distinct layers: passing expected-rejection tests does not make unsupported features supported. JSDOM is not Mac WKWebView acceptance; the six known Linux app baseline failures remain.
 
 ## Features at a Glance
 

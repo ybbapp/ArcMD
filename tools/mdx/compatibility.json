@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "target": {
+    "name": "@mdx-js/mdx",
+    "version": "3.1.1"
+  },
+  "profile": "arcmd-mdx3-phase1",
+  "cases": [
+    {
+      "id": "native-markdown",
+      "area": "native host",
+      "status": "supported",
+      "source": "# Native\n\nOrdinary **Markdown**.\n",
+      "blocks": 0
+    },
+    {
+      "id": "counter",
+      "area": "block JSX",
+      "status": "supported",
+      "source": "<Counter initial={2+3} />\n",
+      "blocks": 1,
+      "selector": "output",
+      "text": " 5"
+    },
+    {
+      "id": "nested-callout",
+      "area": "Markdown inside JSX",
+      "status": "supported",
+      "source": "<Callout title=\"Nested\">\n\n**Bold** and a counter.\n\n<Counter initial={9} />\n\n</Callout>\n",
+      "blocks": 1,
+      "selector": "output",
+      "text": " 9"
+    },
+    {
+      "id": "flow-expression",
+      "area": "flow expressions",
+      "status": "supported",
+      "source": "{1+2}\n",
+      "blocks": 1,
+      "selector": "#root",
+      "text": "3"
+    },
+    {
+      "id": "iife-expression",
+      "area": "local expression scope",
+      "status": "supported",
+      "source": "{(() => {const value=7; return <span {...{title:\"local\"}}>{value * 6}</span>})()}\n",
+      "blocks": 1,
+      "selector": "span",
+      "text": "42"
+    },
+    {
+      "id": "mapped-jsx",
+      "area": "arrays and JSX expressions",
+      "status": "supported",
+      "source": "{[1,2,3].map(n => <span key={n}>{n}</span>)}\n",
+      "blocks": 1,
+      "selector": "#root",
+      "text": "123"
+    },
+    {
+      "id": "fragment",
+      "area": "JSX fragments",
+      "status": "supported",
+      "source": "<>\n<span>Fragment</span>\n<Counter initial={8} />\n</>\n",
+      "blocks": 1,
+      "selector": "output",
+      "text": " 8"
+    },
+    {
+      "id": "inline-expression",
+      "area": "inline expressions / paragraph host",
+      "status": "partial",
+      "source": "中文 😀 answer is {6 * 7}.\n",
+      "blocks": 1,
+      "selector": "p",
+      "text": "中文 😀 answer is 42."
+    },
+    {
+      "id": "inline-jsx",
+      "area": "inline JSX / paragraph host",
+      "status": "partial",
+      "source": "A **native-like** paragraph with <strong>{2+3}</strong> inline.\n",
+      "blocks": 1,
+      "selector": "p",
+      "text": "A native-like paragraph with 5 inline."
+    },
+    {
+      "id": "lowercase-jsx-props",
+      "area": "lowercase JSX, spread and expression attributes",
+      "status": "supported",
+      "source": "<section {...{title:\"spread\"}}><span>{17+24}</span></section>\n",
+      "blocks": 1,
+      "selector": "section span",
+      "text": "41"
+    },
+    {
+      "id": "jsx-event-handler",
+      "area": "JSX event props / browser execution",
+      "status": "supported",
+      "source": "<button onClick={event => {event.currentTarget.textContent = \"Clicked\"}}>Click</button>\n",
+      "blocks": 1,
+      "selector": "button",
+      "text": "Click",
+      "click": true,
+      "textAfter": "Clicked"
+    },
+    {
+      "id": "lowercase-flow-with-component",
+      "area": "lowercase block wrapper",
+      "status": "supported",
+      "source": "<div>\n\n<Counter initial={11} />\n\n</div>\n",
+      "blocks": 1,
+      "selector": "output",
+      "text": " 11"
+    },
+    {
+      "id": "expression-comment",
+      "area": "expression comments",
+      "status": "partial",
+      "source": "A {/* comment */} visible <span>{\"word\"}</span>.\n",
+      "blocks": 1,
+      "selector": "p",
+      "text": "A  visible word."
+    },
+    {
+      "id": "empty-expression-comment",
+      "area": "empty expression / layout",
+      "status": "partial",
+      "source": "{/* preserved comment */}\n",
+      "blocks": 1,
+      "compileOnly": true
+    },
+    {
+      "id": "code-fences",
+      "area": "non-executing native source",
+      "status": "supported",
+      "source": "```mdx\n<Counter />\n{1+2}\n```\n",
+      "blocks": 0
+    },
+    {
+      "id": "native-columns",
+      "area": "existing native HTML convention",
+      "status": "partial",
+      "source": "<div class=\"arcmd-columns\" data-widths=\"50,50\">\n\nNative text.\n\n</div>\n",
+      "blocks": 0
+    },
+    {
+      "id": "heading-inline",
+      "area": "inline JSX inside heading",
+      "status": "unsupported",
+      "source": "# Heading <span>{2+3}</span>\n",
+      "compileError": "Nested MDX outside"
+    },
+    {
+      "id": "list-nested",
+      "area": "inline JSX inside list",
+      "status": "unsupported",
+      "source": "- List with <span>{2+3}</span>\n",
+      "compileError": "Nested MDX outside"
+    },
+    {
+      "id": "static-import",
+      "area": "file modules / imports",
+      "status": "unsupported",
+      "source": "import {Custom} from \"./local.js\"\n",
+      "blocks": 0,
+      "diagnostic": "source-only"
+    },
+    {
+      "id": "document-scope",
+      "area": "exports / cross-island scope",
+      "status": "unsupported",
+      "source": "export const answer = 42\n\n{answer}\n",
+      "blocks": 1,
+      "diagnostic": "source-only",
+      "runtimeError": "answer is not defined"
+    },
+    {
+      "id": "dynamic-import",
+      "area": "dynamic module loading",
+      "status": "unsupported",
+      "source": "<Callout>{import(\"./local.js\")}</Callout>\n",
+      "blocks": 1,
+      "blockError": "Document module imports"
+    },
+    {
+      "id": "await",
+      "area": "MDX 3 async expressions",
+      "status": "unsupported",
+      "source": "{await Promise.resolve(42)}\n",
+      "blocks": 1,
+      "blockError": "Await expressions"
+    },
+    {
+      "id": "import-meta",
+      "area": "MDX 3 import.meta / base URL",
+      "status": "unsupported",
+      "source": "{import.meta.url}\n",
+      "blocks": 1,
+      "blockError": "import.meta"
+    },
+    {
+      "id": "unregistered-component",
+      "area": "host component resolution",
+      "status": "unsupported",
+      "source": "<NotRegistered />\n",
+      "blocks": 1,
+      "runtimeError": "NotRegistered"
+    },
+    {
+      "id": "browser-only-execution",
+      "area": "trusted compiler / document execution boundary",
+      "status": "supported",
+      "source": "{(() => {throw new Error(\"document-executes-only-in-browser\")})()}\n",
+      "blocks": 1,
+      "runtimeError": "document-executes-only-in-browser"
+    },
+    {
+      "id": "invalid-mdx",
+      "area": "syntax errors",
+      "status": "unsupported",
+      "source": "<Counter initial={ />\n",
+      "officialSyntax": false,
+      "compileError": "."
+    }
+  ]
+}

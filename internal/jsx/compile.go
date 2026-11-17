@@ -22,6 +22,7 @@ var compilerJS string
 var compilerOnce sync.Once
 var compilerModule *moejs.Module
 var compilerError error
+var compilerIdentity CompilerInfo
 
 const MaxSourceBytes = 512 << 10
 const CompilerMemoryLimit = 256 << 20
@@ -34,7 +35,12 @@ func Compile(source string, opt Options) (Manifest, error) {
 	if len(source) > MaxSourceBytes {
 		return m, fmt.Errorf("MDX source exceeds %d bytes", MaxSourceBytes)
 	}
-	compilerOnce.Do(func() { compilerModule, compilerError = moejs.Compile("embedded-mdx-compiler.js", compilerJS) })
+	compilerOnce.Do(func() {
+		compilerIdentity, compilerError = compilerBuildIdentity(compilerBuildJSON)
+		if compilerError == nil {
+			compilerModule, compilerError = moejs.Compile("embedded-mdx-compiler.js", compilerJS)
+		}
+	})
 	if compilerError != nil {
 		return m, fmt.Errorf("moejs compiler initialization: %w", compilerError)
 	}
@@ -83,6 +89,7 @@ func Compile(source string, opt Options) (Manifest, error) {
 		return m, fmt.Errorf("moejs result: %w", err)
 	}
 	m.SourceSHA256 = SourceSHA256(source)
+	m.Compiler = compilerIdentity
 	for i := range m.Blocks {
 		b := &m.Blocks[i]
 		if b.Error == "" && b.Compiled != "" {
