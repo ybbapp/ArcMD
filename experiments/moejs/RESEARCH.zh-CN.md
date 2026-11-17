@@ -57,3 +57,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_macos.py --out /work
 - 新 moejs 实际应用输出的浏览器测试 3/3 通过；无 Node/PATH 用例、资源预算、输入不执行、可见错误测试通过。
 - `internal/app` 全量结果需和 main 的 6 个已知基线失败区分，最终结果见本 PR 正文与 Release 说明；不借机修改基线失败。
 - 本轮全量 `go test ./internal/app` 已完成：仍恰好是基线原有 6 项失败（TestBottomBlockHandleMenuAndIndentSubmenu、TestRebindShortcuts、TestLibrarySpaces、TestLibraryCardDrag、TestQACitationPreviewDoesNotOccludeAnswerText、TestMoreMenuAndSettings），没有新增失败。
+
+## 2026-11-17（UTC+8）：用户验收后合入与主线发布
+
+用户确认实验包 `moejs-test-8dc66bb` 测试通过并授权合入、发布。PR #2 普通 merge 提交为 `0f8ecd239f94291fe530f6fb55ceaedfc64f3220`，不改写实验历史，保留原预发布。随后仅做主线发布支持修正：产品名/默认配置恢复 ArcMD、版本 0.2.1；新增 moejs 主线打包入口，旧 `experiments/jsx-webview/package_main_macos.py` 转交它，杜绝小时构建退回 Node 方案。
+
+主线包源码与上游基线、无 Node 烟测结果、签名/哈希随 BUILD-INFO 发布。用户验收的是先前实验包；新主线 ZIP 未再次真实 Mac 测试，发布说明明确区分。事务全程持有维护锁；成功发布并核验资产后才原子更新主线维护状态，上游已打包 Release 基线不凭空推进。详见 [主线安装说明](main-release.zh-CN.md)。

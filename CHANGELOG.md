@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- ybbapp fork：合入用户已验收的 moejs 块级 MDX 编译方案，运行时无需 Node。
+- 显示编译、逐岛屿与 WebView 失败诊断；保留原生正文、主题跟随和内容测高。
+- 恢复 ArcMD 主线产品名称/配置；主线与小时维护构建统一使用无 Node 打包入口。
+
 ## 0.2.0
 
 This release introduces **Space Q&A**—a built-in, read-only AI research agent that searches and reads a Space's notes directly without a vector database—alongside viewport-aware floating menus, smarter live Markdown and display-math input, and large-document virtualization.

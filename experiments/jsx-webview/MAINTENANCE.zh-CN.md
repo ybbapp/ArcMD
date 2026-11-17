@@ -17,7 +17,7 @@
 
 1. `flock -n /workspace/arcmd-maintenance/repo.lock ...`，检查工作树干净；不干净则停止并报告，不 reset/stash 用户内容。
 2. 读取上游默认分支及最新 Release（只读 API），`git fetch origin && git fetch upstream`。`main` 正常 fast-forward 到 origin；再 `git merge --no-edit upstream/main`，保留 JSX 实现。普通 merge 解决明确冲突，不 rebase、force push 或重写已推历史；不确定/语义冲突停止报告。
-3. push 仅 `origin main`，原子更新同步状态。除非另获授权，不自动合并用户新建的 PR（本次 #1 已明确授权并合并）。
+3. push 仅 `origin main`，原子更新同步状态。除非另获授权，不自动合并用户新建的 PR（#1、#2 都已分别获明确授权并合并）。
 4. 上游 Release ID/tag 未变化：只更新 main 与同步状态，不构建、不发布。
 5. 有新上游 Release：运行相关测试，区分既有 6 个 app 基线失败；新回归停止。使用下面脚本构建主程序，发布到 fork，再读回 Release 与 assets。成功后原子推进打包标记。
 
@@ -29,15 +29,18 @@ gh api repos/Ciao1019/ArcMD/releases/latest \
   > /workspace/arcmd-maintenance/upstream-release.json
 npm ci --prefix experiments/jsx-webview --no-audit --no-fund
 npm test --prefix experiments/jsx-webview
+node --test experiments/moejs/runtime.test.mjs
 go test ./internal/jsx ./cmd/arcmd-jsx ./internal/editor ./cmd/arcmd
 go vet ./internal/jsx ./internal/app ./internal/editor ./cmd/arcmd ./cmd/arcmd-jsx
 # internal/app 全量还须记录那 6 项已知基线失败；不能把它们算为新增回归。
-python3 experiments/jsx-webview/package_main_macos.py \
+PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_main_macos.py \
   --out /workspace/arcmd-maintenance/releases \
   --upstream-sha "$(git rev-parse upstream/main)" \
   --upstream-release-json /workspace/arcmd-maintenance/upstream-release.json
 ```
 
-仅从干净、已提交且已经 push 的源码构建。脚本拒绝覆盖同名 ZIP；依赖 Node/npm、Go、rcodesign；只产物不发布。手动 `gh release create ... --repo ybbapp/ArcMD --target <source SHA>`；标题/说明中文，包含基线、上游/源码提交、SHA256、测试与真实 Mac 尚未验收、Node 依赖和应用签名限制。非 `v*` tag 避免误触上游签名更新 workflow；此 fork 包不提供上游签名更新清单。
+仅从干净、已提交且已经 push 的源码构建。脚本拒绝覆盖同名 ZIP；正式主线打包只依赖 Go、Python、rcodesign，使用已提交的内嵌 moejs/compiler/React bundle，无运行时 Node。Node/npm 仅用于上面的构建期浏览器/旧实验测试，或显式重新生成固定 bundle；打包脚本不安装 Node 依赖，不允许运行时 Node 回退；只产物不发布。手动 `gh release create ... --repo ybbapp/ArcMD --target <source SHA>`；标题/说明中文，包含基线、上游/源码提交、SHA256、测试与真实 Mac 尚未验收、构建期/运行时依赖区别和应用签名限制。非 `v*` tag 避免误触上游签名更新 workflow；此 fork 包不提供上游签名更新清单。
 
-本轮主程序包仍属预发布质量，Release 应标记 prerelease。只有用户真实 Mac 验收后才可声称可用性经过 Mac 验证。
+用户已验收 moejs-test-8dc66bb 并授权合入/正式发布；主线现为 ArcMD 正常产品名/配置，正式 fork Release 不标记 prerelease。必须区分“先前实验包已获用户验收”与“新构建主线 ZIP 尚未再次实机测试”，不得把前者说成后者已验证。旧实验预发布保留。
+
+主线权威入口为 `experiments/moejs/package_main_macos.py`；原 `experiments/jsx-webview/package_main_macos.py` 只兼容转交该入口，不能走回旧 Node 方案。小时任务应读取 state.json 的 build.command；上游 Release 没有变化仍只同步 main，不因本次手动正式发布而重复打包。

@@ -33,7 +33,7 @@ import (
 )
 
 // Version is ArcMD's version, which plugins' engines are checked against.
-const Version = "0.2.0-moejs-test"
+const Version = "0.2.1"
 
 // Config says where ArcMD keeps its files.
 type Config struct {
@@ -55,8 +55,8 @@ func DefaultConfig() (Config, error) {
 		return Config{}, err
 	}
 	return Config{
-		ConfigDir:    filepath.Join(cfg, "ArcMD MoeJS Test"),
-		DocumentsDir: filepath.Join(home, "Documents", "ArcMD MoeJS Test"),
+		ConfigDir:    filepath.Join(cfg, "ArcMD"),
+		DocumentsDir: filepath.Join(home, "Documents", "ArcMD"),
 	}, nil
 }
 
@@ -403,7 +403,7 @@ func (a *App) Run() error {
 		}))
 		a.watchFiles = a.watchFolder
 		a.win = mygo.NewWindow(mygo.WindowOptions{
-			Title:                "ArcMD · moejs Test",
+			Title:                "ArcMD",
 			Width:                1240,
 			Height:               800,
 			MinWidth:             640,

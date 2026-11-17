@@ -1,8 +1,8 @@
 {
-  "name": "ArcMD MoeJS Test",
+  "name": "ArcMD",
   "slug": "arcmd",
-  "identifier": "org.ybbapp.arcmd.moejs-test",
-  "version": "0.2.0-moejs-test",
+  "identifier": "org.ybbapp.arcmd",
+  "version": "0.2.1",
   "icon": "resources/icon.png",
   "main": "./cmd/arcmd",
   "out": "dist",
