@@ -100,3 +100,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_macos.py --out /work
 - 全量 `go test ./... -count=1` 仅已有六项 app baseline 失败：`TestBottomBlockHandleMenuAndIndentSubmenu`、`TestRebindShortcuts`、`TestLibrarySpaces`、`TestLibraryCardDrag`、`TestQACitationPreviewDoesNotOccludeAnswerText`、`TestMoreMenuAndSettings`。未修复或算作本次回归；其余包通过。
 - 原生 `Snapshot` 测试通过，检查 light/dark 阅读图无异常；这些是原生正文截图，不是实际 WKWebView 验收。旧 jsx-webview npm 测试 15/15、旧 moejs runtime 测试 3/3 通过，亦不替代本轮新能力验证。
 - 本轮没有真实 Mac / Finder / WKWebView 验收，没有新 Release，也不改变 main、维护 state 或已有上游贡献分支。
+
+
+## 0.2.3 主线发布
+
+用户确认 PR #3 / `2283afd` 测试包效果可接受，授权普通 merge 和新正式 Release。保留精确 MDX 3.1.1 / phase1 编译和渲染实现，只更新主线 0.2.3 版本、正式 README/包内说明及打包元数据/示例。稳定 ArcMD.app / org.ybbapp.arcmd / 正常配置不变。主线打包继续内嵌 moejs，无运行时 Node，纳入 canonical 新功能示例和精确 compiler build metadata；不是预编译示例方案。新 main ZIP 未再次真实 Mac 验收，用户验收来源仍单独标注为上述分支测试包。保留所有实验记录与 Release，既有上游贡献分支不变。实际测试/源码 SHA/产物 SHA256 随正式 Release 记录；维护状态仅在公开下载校验成功后原子更新，沿用 repo.lock 整事务互斥，上游 Release 基线保持 v0.2.0 / 447020319。

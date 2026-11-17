@@ -8,7 +8,7 @@
 
 [简体中文](README.md) · English
 
-<a href="mygo.json"><img src="https://img.shields.io/badge/version-0.2.0-F21158" alt="Version 0.2.0"></a>
+<a href="mygo.json"><img src="https://img.shields.io/badge/version-0.2.3-F21158" alt="Version 0.2.3"></a>
 <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-F25F11" alt="macOS, Windows and Linux">
 <a href="https://github.com/egoist/mygo"><img src="https://img.shields.io/badge/built%20with-Go%20%2B%20MyGo-00ADD8?logo=go&amp;logoColor=white" alt="Built natively with Go and MyGo"></a>
 <a href=".github/workflows/build.yml"><img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088ff?logo=githubactions&amp;logoColor=white" alt="CI workflow configuration"></a>
@@ -27,7 +27,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-en.svg" height="56" alt="Download ArcMD for Windows — x64 installer and ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-en.svg" height="56" alt="Download ArcMD for Linux — x64 and ARM64, DEB and TAR.GZ"></a>
 
-<sub>The current preview version is 0.2.0. The buttons open the releases page, or you can <a href="#build-from-source">build from source</a>.</sub>
+<sub>The buttons above link to upstream multi-platform releases; the fork 0.2.3 MDX-enhanced macOS Apple Silicon package is on the <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.3">fork release page</a>, or you can <a href="#build-from-source">build from source</a>.</sub>
 
 <br><br>
 
@@ -112,7 +112,7 @@ ArcMD edits and autosaves standard **`.md` Markdown** files (`.md`, `.markdown`,
 <a id="mdx-support"></a>
 ## Fork MDX 3.1.1 support (phase 1)
 
-The exact target is **`@mdx-js/mdx` 3.1.1**, host profile `arcmd-mdx3-phase1`, **not full MDX 3 conformance**. This feature branch is still being validated; existing 0.2.2 releases do not contain these additions. Credit and the native editor design remain with [upstream ArcMD](https://github.com/Ciao1019/ArcMD).
+The exact target is **`@mdx-js/mdx` 3.1.1**, host profile `arcmd-mdx3-phase1`, **not full MDX 3 conformance**. This phase ships in fork version 0.2.3 ([macOS Apple Silicon download](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.3)); existing 0.2.2 releases do not contain these additions. Credit and the native editor design remain with [upstream ArcMD](https://github.com/Ciao1019/ArcMD).
 
 | Capability | Current status |
 | --- | --- |

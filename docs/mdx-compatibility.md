@@ -2,8 +2,8 @@
 
 This fork targets **`@mdx-js/mdx` 3.1.1**, with the explicit host profile
 `arcmd-mdx3-phase1`. This is an exact compiler dependency and a tested subset,
-**not a claim of complete MDX 3 conformance**. This branch does not modify the
-separate upstream contribution, merge main, or publish a release. Existing
+**not a claim of complete MDX 3 conformance**. Phase 1 ships in fork 0.2.3 after
+PR #3 was merged; the separate upstream contribution remains unchanged. Existing
 0.2.2 binaries do not contain these additions.
 
 Official sources: [pinned 3.1.1 package](https://github.com/mdx-js/mdx/blob/3.1.1/packages/mdx/package.json),
@@ -129,8 +129,8 @@ to about:blank. No CSP relaxation or global Linux WebView enablement is introduc
 Tests use the real binary with `PATH=/no-node`, fresh source, browser interaction,
 known failure paths, source preservation and explicit unsupported-version features.
 JSDOM does not validate real WKWebView layout, CSP enforcement or Finder startup.
-This new phase has not been accepted on a real Mac; previous user acceptance
-only covers the earlier implementation. The existing six Linux `internal/app`
+The user accepted the phase-1 test package at `2283afd` on their Mac. The new
+0.2.3 main package has not itself been tested again on a real Mac. The existing six Linux `internal/app`
 baseline test failures are not fixed or relabelled as passing.
 
 ## Next stage (not included)

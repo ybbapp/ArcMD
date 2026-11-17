@@ -1,41 +1,44 @@
-# ArcMD 0.2.2 · ybbapp 主线版（moejs）
+# ArcMD 0.2.3 · ybbapp 主线版（MDX 3.1.1 第一阶段）
 
-这是 `ybbapp/ArcMD:main` 的正式 fork Release，真正的 `cmd/arcmd` 主程序，不是独立实验窗口。运行时无需 Node/npm/esbuild，也不需要之前的 `Open-with-JSX.command`。适用 macOS 13+、Apple Silicon（arm64）。
+这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-## 0.2.2 修复
+## 0.2.3：明确版本下的阶段兼容
 
-正常成功渲染不再展示技术状态横幅，也不预留占位；失败诊断、重试与 `--jsx-check` 保留。与 0.2.1 相同的 `ArcMD.app` / `org.ybbapp.arcmd` / 主线配置目录，没有新增应用身份。此前预览/Test 版为不同产品身份，覆盖正式版不会自动卸载它们；不同路径副本或系统“打开方式”旧记录也可能造成多条条目，但未核查你的 Mac，不能据此确定本机副本数量或来源。
+编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
-完整身份和安全更新说明：[APP-IDENTITY.zh-CN.md](https://github.com/ybbapp/ArcMD/blob/main/experiments/moejs/APP-IDENTITY.zh-CN.md)。
+- 原生 Markdown 正文，块级 JSX/表达式使用隔离 WebView。新增独立表达式、数组/map JSX、局部 IIFE、小写 JSX 容器、expression/spread props 和事件。
+- 顶层段落内行内 JSX/表达式部分支持：整个受影响段落变成一个岛屿，不是原生 inline run 或整页网页；普通段落不受影响。
+- 新增独立实现的 Tabs/TabItem/Accordion，保留 Counter/Callout。随包 demo.mdx 包含行内42、数组1/2/3、局部41、Counter初值5和嵌套Tabs/Accordion。
+- 主题跟随且不重载组件，内容测高、源码保存还原、错误诊断/重试保留；正常没有技术横幅。
 
-## 验收来源与本包区别
+## 验收来源
 
-用户已确认 [moejs-test-8dc66bb](https://github.com/ybbapp/ArcMD/releases/tag/moejs-test-8dc66bb) 测试通过，并要求合入及发布；[PR #2](https://github.com/ybbapp/ArcMD/pull/2) 以普通 merge 合入 main。本包沿用验收过的 moejs 编译/渲染实现，并恢复正式 ArcMD 名称、版本与主线配置目录，更新主线打包入口。**新生成的主线包尚未在真实 Mac 再次测试**，不能把实验包验收当成本 ZIP 已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，明确要求合并并新增 Release。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310；本次以普通 merge 合入，再做版本/打包说明与构建元数据修正。**新生成的0.2.3主线ZIP未再次在真实Mac/Finder/WKWebView验收**，不能把先前测试包验收当作本包已实机验收。
 
 ## 安装与使用
 
-1. 保存工作并退出正在运行的旧 ArcMD / 预览 / Test，解压后将 `ArcMD.app` 明确替换到 `/Applications/ArcMD.app`（不要保留两个），再从此路径启动并确认版本。主线沿用原先 `ArcMD` 配置与默认空间目录，不再使用实验版的 `ArcMD MoeJS Test` 独立配置；实验版设置不会自动迁移。建议先备份重要文件再更新。
-2. 整个应用已做 ad-hoc 签名，仍无 Developer ID、未公证。首次只信任这份应用：Control 单击→打开，或在“系统设置→隐私与安全性”允许。必要时仅对这一份已校验的应用执行 `xattr -d com.apple.quarantine "/Applications/ArcMD.app"`，不要关闭 Gatekeeper/SIP。
-3. 可直接从 Finder 启动，不必安装 Node、不必在终端设置 PATH。打开本地 `.mdx`；随包 `demo.mdx` 有 Counter 和嵌套 Callout，可复制、改数字/文字后重新打开，确认针对新文件编译。普通正文仍由原生编辑器排版。
-4. 点击计数器再切换浅/深主题，主题更新不重载组件；高度按内容测量。修改后重新打开/重载才重新编译；不保证交互状态跨保存保留。
-5. 编译、逐岛屿编译及 WebView 创建/加载失败会显示诊断；未知组件会在岛屿中显示 `JSX rendering failed` 和源码。源码 fallback 不代表渲染成功。干净文档可重新载入并重试。
+1. 保存文档并完全退出所有旧 ArcMD 进程，将本包 ArcMD.app 明确替换到 /Applications/ArcMD.app，从这个路径启动。稳定名称 ArcMD.app、bundle ID org.ybbapp.arcmd、正常配置与单实例均不变；不新增测试产品身份，也不会自动删除文档、配置或其他应用副本。建议先备份重要文档/配置。
+2. 全包 ad-hoc 临时签名，无 Developer ID，未 Apple 公证。若系统拦截，请按 macOS 针对单个应用的安全提示决定是否允许运行；不要关闭 Gatekeeper/SIP。
+3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
+4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
+5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复旧正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.2 ，不需要删除数据。
 
-## 本地诊断（无需 Node）
+## 范围与安全
 
-```sh
-/Applications/ArcMD.app/Contents/MacOS/ArcMD --jsx-check "/path/to/file.mdx" > /tmp/arcmd-manifest.json
-```
+不支持 import/exports 模块解析、文档共享作用域、用户组件模块、跨岛屿状态、dynamic import/import.meta/await，以及岛屿外标题/列表/引用中的行内MDX。空表达式仍有最小留白，完整MDX插件/引用上下文/资源解析没有实现；不是完整MDX支持。不改只读标题折叠。
 
-输出当前文件的编译 manifest/HTML；编译错误返回非零并写 stderr。未知组件是浏览器渲染期错误，仍要在界面查看。输出含原文，只写入你指定的本地文件。
+运行时通过内嵌 moejs 动态编译受支持的新文件，不是预编译示例冒充支持。开发者重新生成编译器/React资源和运行npm测试需要Node；普通Go构建用提交的资源，应用运行不需要Node。
 
-## 范围与安全限制
+可信编译器在moejs中只把文档作为文本解析，不执行文档表达式；无Go/OS/文件/网络API、无模块加载器或动态eval。保持5秒求值截止、256MiB JS分配、512KiB源文件、32岛屿、16MiB/200000节点返回限制；固定编译器初始解析在求值期限之前，这些不是进程总RSS限制。
 
-- 只支持当前块级 JSX 岛屿，不是完整 MDX；不支持文件 import/完整模块系统、行内 JSX、跨岛屿共享状态，未改只读标题折叠。仅 `.mdx` 启用该编译流程。
-- 构建开发时可用 Node 生成固定 compiler/React bundle；安装包运行时通过内嵌 moejs 编译任意受支持的新文件，不执行外部 Node，也不是预编译 demo 冒充动态支持。
-- moejs 仅运行可信编译器，将用户输入作为字符串解析，不执行文档表达式。无 Go/文件/网络绑定，禁动态 eval；5 秒编译截止、256 MiB JS 分配预算、512 KiB 源文件、32 岛屿及 16 MiB 返回上限。这不是 OS 进程总内存硬隔离。
-- 文档表达式只在 Untrusted WebView 运行；继续无 Go bridge、hash CSP、禁网络/导航。渲染投影不写回用户源文件，保存时还原命名空间围栏。
-- 本 fork 包不配置上游自动替换更新；手动从 ybbapp/ArcMD Release 下载。小时任务更新仓库/发布包，不是用户机器上的自动安装器。
+文档表达式只在Untrusted WebView执行，无Go bridge，hash CSP、禁网络/导航保持。编译预算不是浏览器不可信表达式的CPU/内存沙箱承诺。现有Linux WebView设置不放宽。本fork不配置上游自动替换更新，小时维护不是用户电脑上的自动安装器。
 
-## 测试边界
+## 诊断与测试边界
 
-Linux 上验证真实二进制在无 Node/PATH 环境动态编译新文件，相关 Go 测试/go vet、JSDOM 交互、资源预算/中断、源 round-trip 与可见诊断；交叉编译 macOS arm64、整包签名并校验 ZIP/权限/资源哈希。`internal/app` 保留原有 6 个基线失败，详见 Release 记录。新主线 ZIP 的 Finder/WKWebView/Gatekeeper 行为仍需真实 Mac 验证。
+终端只读编译诊断（无需Node）：
+/Applications/ArcMD.app/Contents/MacOS/ArcMD --jsx-check /绝对路径/文件.mdx
+
+输出包含compiler精确版本/profile/build SHA、源SHA、岛屿与诊断。编译/部分不支持返回非零；未知组件等浏览器错误仍要在界面检查。输出含原文，请只保存到自己的本地文件。
+
+canonical编译器/浏览器测试44/44（含预期拒绝项，不是44项能力全支持），旧套件15/15和3/3、相关Go/vet、无Node新文件动态编译及交叉构建验证。完整Go测试保留6个已知Linux app baseline失败，不借机修复。JSDOM和交叉构建/ZIP/签名结构核查不替代真实WKWebView与macOS安全验证。详见Release测试记录和docs/mdx-compatibility.md。
