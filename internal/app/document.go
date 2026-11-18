@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -23,6 +24,7 @@ import (
 	"github.com/Ciao1019/ArcMD/internal/jsx"
 	"github.com/Ciao1019/ArcMD/internal/space"
 	"github.com/Ciao1019/ArcMD/internal/vault"
+	"github.com/Ciao1019/ArcMD/internal/whiteboard"
 	"github.com/egoist/mygo/ui"
 )
 
@@ -39,6 +41,9 @@ type document struct {
 	diskText         string
 	source           bool
 	ed               *editor.Editor
+	board            *editor.Board
+	boardReadOnly    bool
+	boardBaseline    [32]byte
 	version          uint64
 	edited           time.Time
 	saveErr          error
@@ -55,6 +60,7 @@ type document struct {
 	skeletonDirty       bool
 	textDirty           map[string]bool
 	baselineRuns        map[string][16]byte
+	baselineOrigRuns    map[string][]model.Run
 	loadErr             error
 	preview             string
 	previewScroll       ui.ScrollState
@@ -106,6 +112,19 @@ type document struct {
 
 func openDocument(sp *space.Space, rel, text string, preferSource bool) *document {
 	d := &document{space: sp, rel: rel, diskText: text, source: preferSource}
+	if vault.IsWhiteboard(rel) {
+		scene, err := whiteboard.Decode(text)
+		if err != nil {
+			d.loadErr = err
+			scene = whiteboard.NewScene()
+		}
+		d.board = editor.NewBoard(scene)
+		d.boardBaseline = scene.Digest()
+		d.ed = editor.FromOwnedDocument(model.New())
+		d.initLazyBaseline()
+		d.source = false
+		return d
+	}
 	var doc *model.Document
 	if strings.EqualFold(path.Ext(rel), ".arcmd") {
 		var err error
@@ -130,8 +149,13 @@ func openDocument(sp *space.Space, rel, text string, preferSource bool) *documen
 func (d *document) title() string { return vault.Title(d.rel) }
 
 // text is the user-facing Markdown/MDX that should be written to disk.
-// JSX projections are inverted so island fences never land in the file.
+// Whiteboards serialize their scene; JSX projections are inverted so
+// island fences never land in the file.
 func (d *document) text() string {
+	if d.isWhiteboard() {
+		s, _ := encodeWhiteboardFile(d.rel, d.board.SceneSnapshot())
+		return s
+	}
 	md := editor.ExportMarkdown(d.ed.Committed())
 	if d.jsx != nil {
 		return jsx.RestoreSource(md, d.jsx.Namespace)
@@ -155,6 +179,14 @@ func (d *document) ensureBodyParagraph() {
 func (d *document) dirty() bool {
 	if d.loadErr != nil {
 		return false
+	}
+	if d.isWhiteboard() {
+		if rev := d.board.Revision(); !d.dirtyKnown || rev != d.dirtyRev {
+			d.dirtyNow = d.board.Scene.Digest() != d.boardBaseline
+			d.dirtyRev, d.dirtyKnown = rev, true
+			d.dirtyVersion = d.board.Version()
+		}
+		return d.dirtyNow
 	}
 	if rev := d.ed.Revision(); !d.dirtyKnown || rev != d.dirtyRev {
 		// Preedit revisions update display indexes but leave committed content
@@ -194,8 +226,18 @@ func (d *document) dirty() bool {
 }
 
 func (d *document) recomputeDirtySlow() {
-	if d.baselinePending && d.ed.Revision() == d.dirtyRev {
-		d.dirtyNow = false
+	if d.baselinePending && !d.ed.Composing() {
+		clear(d.textDirty)
+		for id := range d.baselineOrigRuns {
+			leaf, ok := d.ed.Engine.LeafByID(id)
+			if !ok || model.RunsDigest(leaf.Block.Runs) != d.baselineRuns[id] {
+				if d.textDirty == nil {
+					d.textDirty = make(map[string]bool, max(1, len(d.baselineOrigRuns)))
+				}
+				d.textDirty[id] = true
+			}
+		}
+		d.dirtyNow = len(d.textDirty) != 0
 		d.skeletonDirty = false
 		d.textDirtyKnown = true
 		return
@@ -248,7 +290,7 @@ func (d *document) rebuildTextDirty(doc *model.Document) {
 	walk(doc.Blocks, nil)
 }
 
-func computeBaselineRuns(doc *model.Document, dst map[string][16]byte) map[string][16]byte {
+func computeBaselineRuns(doc *model.Document, overrides map[string][]model.Run, dst map[string][16]byte) map[string][16]byte {
 	if dst == nil {
 		dst = make(map[string][16]byte, max(16, len(doc.Blocks)))
 	} else {
@@ -268,7 +310,13 @@ func computeBaselineRuns(doc *model.Document, dst map[string][16]byte) map[strin
 				walk(block.Children, inner)
 				continue
 			}
-			dst[block.ID] = model.RunsDigest(block.Runs)
+			runs := block.Runs
+			if len(overrides) > 0 {
+				if orig, ok := overrides[block.ID]; ok {
+					runs = orig
+				}
+			}
+			dst[block.ID] = model.RunsDigest(runs)
 		}
 	}
 	walk(doc.Blocks, nil)
@@ -282,30 +330,56 @@ func (d *document) initLazyBaseline() {
 	d.baseline = [32]byte{}
 	d.baselineSkeleton = [32]byte{}
 	clear(d.baselineRuns)
+	clear(d.baselineOrigRuns)
 	d.skeletonDirty = false
 	clear(d.textDirty)
 	d.textDirtyKnown = true
 	d.dirtyRev, d.dirtyKnown, d.dirtyNow = d.ed.Revision(), true, false
 	d.dirtyVersion = d.ed.Version()
 	d.ed.Engine.OnBeforeChange = func() { d.ensureBaseline() }
+	d.ed.Engine.OnBeforeLeafChange = d.recordLeafBaseline
+}
+
+func (d *document) recordLeafBaseline(id string, runs []model.Run) {
+	if !d.baselinePending {
+		return
+	}
+	if _, exists := d.baselineOrigRuns[id]; exists {
+		return
+	}
+	if d.baselineOrigRuns == nil {
+		d.baselineOrigRuns = make(map[string][]model.Run, 4)
+	}
+	if d.baselineRuns == nil {
+		d.baselineRuns = make(map[string][16]byte, 4)
+	}
+	cloned := slices.Clone(runs)
+	d.baselineOrigRuns[id] = cloned
+	d.baselineRuns[id] = model.RunsDigest(cloned)
 }
 
 func (d *document) ensureBaseline() [32]byte {
 	if d.baselinePending {
 		d.baselinePending = false
 		d.ed.Engine.OnBeforeChange = nil
-		d.baseline, _ = d.ed.Doc.Digest()
-		d.rememberBaseline(d.ed.Doc)
+		d.ed.Engine.OnBeforeLeafChange = nil
+		d.baseline, _ = d.ed.Doc.DigestWithLeafRuns(d.baselineOrigRuns)
+		d.baselineRuns = computeBaselineRuns(d.ed.Doc, d.baselineOrigRuns, d.baselineRuns)
+		d.baselineSkeleton = d.ed.Doc.SkeletonDigest()
+		clear(d.baselineOrigRuns)
 	}
 	return d.baseline
 }
 
 func (d *document) rememberBaseline(doc *model.Document) {
-	d.applyBaselineState(computeBaselineRuns(doc, d.baselineRuns), doc.SkeletonDigest())
+	d.applyBaselineState(computeBaselineRuns(doc, nil, d.baselineRuns), doc.SkeletonDigest())
 }
 
 func (d *document) applyBaselineState(runs map[string][16]byte, skeleton [32]byte) {
 	d.baselinePending = false
+	d.ed.Engine.OnBeforeChange = nil
+	d.ed.Engine.OnBeforeLeafChange = nil
+	clear(d.baselineOrigRuns)
 	d.baselineRuns = runs
 	d.baselineSkeleton = skeleton
 	d.skeletonDirty = false
@@ -324,6 +398,7 @@ type asyncSaveResult struct {
 	committed        *model.Document
 	unchanged        bool
 	arcmd            bool
+	board            bool
 	historyRecorded  bool
 	missing          bool
 	conflict         bool
@@ -342,14 +417,21 @@ type cachedImage struct {
 
 // changed hashes the document and compares it with the saved baseline.
 func (d *document) changed() bool {
-	if d.baselinePending {
+	if d.isWhiteboard() {
+		return d.board.Scene.Digest() != d.boardBaseline
+	}
+	if d.baselinePending && len(d.baselineOrigRuns) == 0 {
 		return false
 	}
+	prev := d.ensureBaseline()
 	digest, err := d.ed.Committed().Digest()
-	return err != nil || digest != d.baseline
+	return err != nil || digest != prev
 }
 
 func (d *document) toggleMode() {
+	if d.isWhiteboard() {
+		return
+	}
 	d.ed.UnmarkText()
 	d.modeSwitchPending = true
 	d.modeAt = time.Time{}
@@ -481,6 +563,15 @@ func (d *document) applyAsyncSave(res asyncSaveResult) {
 	switch {
 	case res.unchanged:
 		d.saveErr = nil
+		if res.board {
+			if d.isWhiteboard() && d.board.Version() == res.version && d.board.Revision() == res.revision {
+				d.dirtyRev, d.dirtyKnown, d.dirtyNow = d.board.Revision(), true, false
+				d.dirtyVersion = d.board.Version()
+			} else {
+				d.dirtyKnown = false
+			}
+			return
+		}
 		if res.baselineRuns != nil {
 			d.baselineRuns = res.baselineRuns
 			d.baselineSkeleton = res.baselineSkeleton
@@ -502,6 +593,20 @@ func (d *document) applyAsyncSave(res asyncSaveResult) {
 		d.saveErr = res.err
 		d.failedVersion = res.version
 	default:
+		if res.board {
+			d.diskText, d.boardBaseline, d.saveErr = res.text, res.baseline, nil
+			if res.historyRecorded {
+				d.historyStarted = true
+			}
+			d.conflict, d.missing, d.diskNow = false, false, ""
+			if d.isWhiteboard() && d.board.Version() == res.version && d.board.Revision() == res.revision {
+				d.dirtyRev, d.dirtyKnown, d.dirtyNow = d.board.Revision(), true, false
+				d.dirtyVersion = d.board.Version()
+			} else {
+				d.dirtyKnown = false
+			}
+			return
+		}
 		if !res.arcmd {
 			res.committed.ImportSource = res.text
 			if d.ed.Doc != res.committed {
@@ -539,6 +644,19 @@ func (d *document) save() error { return d.write(false) }
 // file that changed since ArcMD last read or wrote it, or to bring back one
 // that went: the file watch may be late or absent, so the file itself is
 // compared, a cheap read of one document.
+func (d *document) pendingDirtyState() (dirty, known bool) {
+	if !d.baselinePending || d.ed.Composing() {
+		return false, false
+	}
+	for id, orig := range d.baselineOrigRuns {
+		leaf, ok := d.ed.Engine.LeafByID(id)
+		if !ok || !slices.Equal(leaf.Block.Runs, orig) {
+			return true, true
+		}
+	}
+	return false, true
+}
+
 func (d *document) write(force bool) error {
 	d.waitAsyncSave()
 	if d.loadErr != nil {
@@ -552,19 +670,27 @@ func (d *document) write(force bool) error {
 			return errMissing
 		}
 	}
-	if !force && d.baselinePending {
-		d.saveErr = nil
-		return nil
+	if d.isWhiteboard() {
+		return d.writeWhiteboard(force)
 	}
-	prevBaseline := d.ensureBaseline()
-	// Fingerprint the committed model without full JSON serialization on clean
-	// checks; only .arcmd saves serialize JSON.
-	committed := d.ed.Committed()
-	baseline, digErr := committed.Digest()
-	changed := digErr != nil || baseline != prevBaseline
-	if !changed && !force {
-		d.saveErr = nil
-		return nil
+	var baseline [32]byte
+	if dirty, known := d.pendingDirtyState(); known {
+		if !dirty && !force {
+			d.saveErr = nil
+			return nil
+		}
+	} else {
+		prevBaseline := d.ensureBaseline()
+		// Fingerprint the committed model without full JSON serialization on clean
+		// checks; only .arcmd saves serialize JSON.
+		committed := d.ed.Committed()
+		var digErr error
+		baseline, digErr = committed.Digest()
+		changed := digErr != nil || baseline != prevBaseline
+		if !changed && !force {
+			d.saveErr = nil
+			return nil
+		}
 	}
 	if !force {
 		disk, err := readFile(d.space, d.rel)
@@ -580,11 +706,15 @@ func (d *document) write(force bool) error {
 			return errConflict
 		}
 	}
+	committed := d.ed.Committed()
 	var text string
 	var err error
 	arcmd := strings.EqualFold(path.Ext(d.rel), ".arcmd")
 	if arcmd {
 		text, err = committed.Encode()
+		if err == nil && d.baselinePending {
+			baseline, _ = committed.Digest()
+		}
 	} else {
 		err = committed.Validate()
 		if err == nil {
@@ -616,18 +746,64 @@ func (d *document) write(force bool) error {
 	return nil
 }
 
+func (d *document) writeWhiteboard(force bool) error {
+	baseline := d.board.Scene.Digest()
+	if baseline == d.boardBaseline && !force {
+		d.saveErr = nil
+		return nil
+	}
+	if !force {
+		disk, err := readFile(d.space, d.rel)
+		switch {
+		case isMissingDocFile(d.space, d.rel, err):
+			d.missing = true
+			return errMissing
+		case err != nil:
+			d.saveErr = err
+			return err
+		case disk != d.diskText:
+			d.conflict, d.diskNow = true, disk
+			return errConflict
+		}
+	}
+	text, err := encodeWhiteboardFile(d.rel, d.board.Scene)
+	if err == nil {
+		err = writeFile(d.space, d.rel, text)
+	}
+	if err != nil {
+		d.saveErr = err
+		return err
+	}
+	before := d.diskText
+	d.diskText, d.boardBaseline, d.saveErr = text, baseline, nil
+	d.recordVersion(before)
+	d.conflict, d.missing, d.diskNow = false, false, ""
+	d.dirtyRev, d.dirtyKnown, d.dirtyNow = d.board.Revision(), true, false
+	d.dirtyVersion = d.board.Version()
+	return nil
+}
+
 // viewKey identifies the document's editor view by the editor itself, not
 // by its path: a path changes when the file follows the title, and a new
 // key would make the view a new element, taking the focus and ending an
 // input method's composition mid-word.
-func (d *document) viewKey() string { return fmt.Sprintf("editor:%p", d.ed) }
+func (d *document) viewKey() string {
+	if d.isWhiteboard() {
+		return fmt.Sprintf("board:%p", d.board)
+	}
+	return fmt.Sprintf("editor:%p", d.ed)
+}
 
 func (d *document) autosave(c *ui.Context) { d.autosaveWith(c, nil) }
 
 func (d *document) autosaveWith(c *ui.Context, post func(func())) {
 	d.pollAsyncSave()
-	if version := d.ed.Version(); version != d.version {
-		d.version, d.edited = version, c.Now()
+	ver := d.ed.Version()
+	if d.isWhiteboard() {
+		ver = d.board.Version()
+	}
+	if ver != d.version {
+		d.version, d.edited = ver, c.Now()
 	}
 	if d.saving || d.conflict || d.missing || !d.dirty() || d.saveErr != nil && d.version == d.failedVersion {
 		return
@@ -647,6 +823,10 @@ func (d *document) autosaveWith(c *ui.Context, post func(func())) {
 
 func (d *document) startAsyncAutosave(post func(func())) {
 	if d.loadErr != nil {
+		return
+	}
+	if d.isWhiteboard() {
+		d.startAsyncWhiteboardAutosave(post)
 		return
 	}
 	committed := d.ed.Committed()
@@ -683,7 +863,7 @@ func (d *document) startAsyncAutosave(post func(func())) {
 			ch <- asyncSaveResult{
 				unchanged:        true,
 				baseline:         preBaseline,
-				baselineRuns:     computeBaselineRuns(snapshot, nil),
+				baselineRuns:     computeBaselineRuns(snapshot, nil, nil),
 				baselineSkeleton: snapshot.SkeletonDigest(),
 				committed:        committed,
 				version:          ver,
@@ -742,7 +922,7 @@ func (d *document) startAsyncAutosave(post func(func())) {
 			if wErr := writeFile(&spClone, rel, outText); wErr != nil {
 				res.err = wErr
 			} else {
-				res.baselineRuns = computeBaselineRuns(snapshot, nil)
+				res.baselineRuns = computeBaselineRuns(snapshot, nil, nil)
 				res.baselineSkeleton = snapshot.SkeletonDigest()
 				if !historyOff {
 					if needInitialHistory {
@@ -751,6 +931,86 @@ func (d *document) startAsyncAutosave(post func(func())) {
 					_ = history.Record(spClone.Root, rel, outText, time.Now(), false)
 					res.historyRecorded = true
 				}
+			}
+		}
+		ch <- res
+		post(func() { d.pollAsyncSave() })
+	}()
+}
+
+func (d *document) startAsyncWhiteboardAutosave(post func(func())) {
+	snap := d.board.SceneSnapshot()
+	prevBaseline := d.boardBaseline
+
+	spClone := *d.space
+	if d.space.ExternalFiles != nil {
+		spClone.ExternalFiles = make(map[string]string, len(d.space.ExternalFiles))
+		for k, v := range d.space.ExternalFiles {
+			spClone.ExternalFiles[k] = v
+		}
+	}
+	rel := d.rel
+	expectedDisk := d.diskText
+	historyOff := d.historyOff
+	needInitialHistory := !d.historyOff && !d.historyStarted && expectedDisk != ""
+	fullPath := d.fullPath()
+	ver := d.version
+	rev := d.board.Revision()
+	ch := make(chan asyncSaveResult, 1)
+	d.saving = true
+	d.saveDone = ch
+
+	go func() {
+		preBaseline := snap.Digest()
+		if preBaseline == prevBaseline {
+			ch <- asyncSaveResult{
+				unchanged: true,
+				board:     true,
+				baseline:  preBaseline,
+				version:   ver,
+				revision:  rev,
+			}
+			post(func() { d.pollAsyncSave() })
+			return
+		}
+		outText, prepErr := encodeWhiteboardFile(rel, snap)
+		res := asyncSaveResult{
+			text:     outText,
+			baseline: preBaseline,
+			board:    true,
+			version:  ver,
+			revision: rev,
+		}
+		if prepErr != nil {
+			res.err = prepErr
+			ch <- res
+			post(func() { d.pollAsyncSave() })
+			return
+		}
+		disk, err := readFile(&spClone, rel)
+		switch {
+		case isMissingDocFile(&spClone, rel, err):
+			res.missing = true
+		case err != nil:
+			res.err = err
+		case disk != expectedDisk:
+			res.conflict, res.diskNow = true, disk
+		default:
+			var initialAt time.Time
+			if needInitialHistory {
+				initialAt = time.Now().Add(-time.Second)
+				if info, stErr := os.Stat(fullPath); stErr == nil && info.ModTime().Before(initialAt) {
+					initialAt = info.ModTime()
+				}
+			}
+			if wErr := writeFile(&spClone, rel, outText); wErr != nil {
+				res.err = wErr
+			} else if !historyOff {
+				if needInitialHistory {
+					_ = history.Record(spClone.Root, rel, expectedDisk, initialAt, true)
+				}
+				_ = history.Record(spClone.Root, rel, outText, time.Now(), false)
+				res.historyRecorded = true
 			}
 		}
 		ch <- res

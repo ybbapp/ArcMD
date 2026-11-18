@@ -24,3 +24,10 @@ mygo-update.key
 
 # Canonical MDX compiler build/test dependencies.
 /tools/mdx/node_modules/
+
+# Local benchmark binaries and generated promo/video scripts
+/perf
+/brag-output/
+/promo-output/
+/xiaohongshu-output/
+/tools/readme-video/

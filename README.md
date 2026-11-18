@@ -27,7 +27,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-zh-CN.svg" height="56" alt="下载 ArcMD Windows 版：x64 安装程序与 ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-zh-CN.svg" height="56" alt="下载 ArcMD Linux 版：x64 与 ARM64，DEB 与 TAR.GZ"></a>
 
-<sub>当前源码已同步上游 0.2.1。以上按钮指向上游多平台发布；本 fork 0.2.4 的 MDX 增强 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.4">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
+<sub>当前源码已同步上游 v0.2.2 标签；截至同步时上游尚未发布对应 GitHub Release。以上按钮仍指向上游多平台发布页；本 fork 已发布的 0.2.4 安装包仍对应上游官方 Release v0.2.1，见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.4">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
 
 <br><br>
 
@@ -42,7 +42,7 @@ ArcMD 将熟悉的 Markdown 写作流带入细腻跟手的原生富文本画布�
 
 | ⚡ 原生正文，120 Hz 满帧 | 📄 原生 `.md`，来去自由 | 🎨 Arc 式空间与微交互 |
 | --- | --- | --- |
-| 自研结构化文档引擎与增量排版，百万字混合长文输入 P50 仅 **0.273 ms**，后台落盘主线程零卡顿。 | 直接原地读写标准 `.md` 文件，不制造私有副本，随时与 Obsidian、VS Code、Typora 和 Git 共用同一文件夹。 | 多彩 Space 轻扫切换、全局收藏、置顶常驻标签页，配合光标滑行、即时语法编译与弹簧微动效。 |
+| 自研结构化文档引擎与增量排版，百万字混合长文输入 P50 仅 **0.248 ms**，后台落盘主线程零卡顿。 | 直接原地读写标准 `.md` 文件，不制造私有副本，随时与 Obsidian、VS Code、Typora 和 Git 共用同一文件夹。 | 多彩 Space 轻扫切换、全局收藏、置顶常驻标签页，配合光标滑行、即时语法编译与弹簧微动效。 |
 
 > **致敬与起源**
 >
@@ -155,7 +155,7 @@ go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
 
 | 领域 | 内置能力 |
 | --- | --- |
-| **丰富内容块** | H1–H6 标题、嵌套列表与任务、引用、五色可换图标高亮块、17 种语言状态机增量高亮代码块（支持单块自动换行切换）、原生 Mermaid 流程图与时序图、`\boldsymbol` 粗体数学公式、`<details>` 折叠块、脚注、上下标、`:sm` 表情与 `@` 日期/文档提及、可选中英文自动加空格。 |
+| **丰富内容块** | H1–H6 标题、嵌套列表与任务、引用、五色可换图标高亮块、17 种语言状态机增量高亮代码块（支持单块自动换行切换）、原生 Mermaid 流程图与时序图、Excalidraw 兼容手绘白板（`.excalidraw.svg` / `.excalidraw` 与 `/` 内嵌白板）、`\boldsymbol` 粗体数学公式、`<details>` 折叠块、脚注、上下标、`:sm` 表情与 `@` 日期/文档提及、可选中英文自动加空格。 |
 | **表格、双栏与媒体** | CSV/TSV 粘贴建表、行列拖拽换位、跨格合并拆分、16 色底色、按列自然排序；可调比例双栏布局；图片无损裁剪（保留原图）与页面内 GIF 播放；框选多块批量操作与目录拖拽移动整章。 |
 | **分屏、命令栏与模板** | 最多四分屏并排或拆分为独立原生窗口；零阻塞 <kbd>⌘K</kbd> 命令栏（拼音/首字母与多关键词全文检索、持久化磁盘缓存、<kbd>⇧⌘R</kbd> 跨文档替换与一键撤销）；空间模板（`{{date}}` / `{{time}}` / `{{weekday}}` / `{{title}}`）与 <kbd>⌥⌘T</kbd> 今日笔记。 |
 | **双链、专注与守护** | `[[双链]]` 跨空间补全、反向链接聚合与改名自动同步，`#标签` 全局整理；<kbd>⇧⌘F</kbd> 专注模式、段落余晖淡化、打字机滚动、字数目标与分屏只读锁；<kbd>⇧⌘M</kbd> 同步位置 Markdown 预览、纯 Go 矢量 PDF（Type 3 字形、目录书签与可点击链接） / 独立 HTML 导出；`.arcmd/history` 命名里程碑、字素级行内差异恢复与外部修改冲突保护。 |
@@ -172,7 +172,7 @@ go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
 | 快捷键 | 功能 | 快捷键 | 功能 |
 | --- | --- | --- | --- |
 | <kbd>⌘K</kbd> / <kbd>⌘P</kbd> | 打开命令栏与全文搜索 | <kbd>⌃1</kbd>…<kbd>⌃9</kbd> | 切换到第 N 个空间 |
-| <kbd>⌘N</kbd> / <kbd>⇧⌘N</kbd> | 新建文档 / 新建文件夹 | <kbd>⇧⌘L</kbd> | 打开资料库（空间 / 插件 / 最近删除） |
+| <kbd>⌘N</kbd> / <kbd>⇧⌘N</kbd> / <kbd>⌥⌘B</kbd> | 新建文档 / 文件夹 / 白板 | <kbd>⇧⌘L</kbd> | 打开资料库（空间 / 插件 / 最近删除） |
 | <kbd>⌘&#92;</kbd> | 收起 / 展开侧边栏 | <kbd>⌃⇧=</kbd> / <kbd>⌃⇧−</kbd> | 添加 / 关闭分屏面板 |
 | <kbd>⇧⌘M</kbd> | 富文本 ⇄ Markdown 预览（同步位置） | <kbd>⇧⌘F</kbd> | 进入 / 退出专注模式 |
 | <kbd>⌘F</kbd> / <kbd>⇧⌘R</kbd> | 页内查找替换 / 跨文档查找替换 | <kbd>⌘D</kbd> / <kbd>⇧⌘D</kbd> | 添加移除书签 / 全部书签列表 |
@@ -187,16 +187,16 @@ go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
 
 | 操作 | P50 | P95 |
 | --- | ---: | ---: |
-| ⌨️ 输入 | **0.273 ms** | **0.291 ms** |
-| ⌫ 退格 | **0.271 ms** | **0.306 ms** |
-| 🖱️ 滚动 | **0.548 ms** | **1.132 ms** |
+| ⌨️ 输入 | **0.248 ms** | **0.304 ms** |
+| ⌫ 退格 | **0.245 ms** | **0.284 ms** |
+| 🖱️ 滚动 | **0.447 ms** | **1.059 ms** |
 
-120 Hz 显示器的每帧预算约为 **8.3 ms**。即使面对百万字长文，CPU 场景构建的 P95 仍低于 **1.2 ms**；包含事件处理的正文输入 P50 为 **0.275 ms**，打开查找框输入为 **0.281 ms**，输入法连续候选更新为 **0.264 ms**，单次普通输入分配量约 **0.067 MB/次**（分配吞吐，非常驻内存）。
+120 Hz 显示器的每帧预算约为 **8.3 ms**。即使面对百万字长文，CPU 场景构建的 P95 仍低于 **1.1 ms**；包含事件处理的正文输入 P50 为 **0.249 ms**，打开查找框输入为 **0.260 ms**，输入法连续候选更新为 **0.234 ms**，单次普通输入分配量约 **0.063 MB/次**（分配吞吐，非常驻内存）。
 
 <details>
 <summary>测试环境与测量说明</summary>
 
-- **硬件与环境**：Apple M5 / 24 GiB，macOS 26.5.1，Go 1.27.3，MyGo v0.7.4，`CGO_ENABLED=0`。
+- **硬件与环境**：Apple M5 / 24 GiB，macOS 26.5.1，Go 1.27.3，MyGo v0.10.0，`CGO_ENABLED=0`。
 - **统计口径**：通过无窗口宿主运行完整帧构建管线，测量 CPU 场景构建耗时；不包含系统事件分发、GPU 光栅化呈现与显示器延迟，因此不直接等同于端到端屏幕延迟。
 - **复现方法**：详见[性能报告（英文）](docs/performance.md)与[基准测试工具（英文）](tools/perf/README.md)。
 
@@ -233,7 +233,7 @@ ARCMD_HOME=/tmp/arcmd-dev CGO_ENABLED=0 go run ./cmd/arcmd
 构建原生应用安装包（详见[构建与发布指南](docs/building.md)）：
 
 ```sh
-CGO_ENABLED=0 go run github.com/egoist/mygo/cmd/mygo@v0.7.4 build
+CGO_ENABLED=0 go run github.com/egoist/mygo/cmd/mygo@v0.10.0 build
 ```
 
 ---
