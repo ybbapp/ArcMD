@@ -175,7 +175,8 @@ type Editor struct {
 	footerH float32
 	// printing paints for paper: no caret, hints, controls or hover
 	// (print.go).
-	printing bool
+	printing        bool
+	mapTablePreview bool // compact cell metrics for read-only document map previews
 	// typewriter keeps the caret's line at the middle of the page; dim
 	// fades the blocks but the caret's, as focus mode does.
 	typewriter, dim bool
@@ -525,9 +526,9 @@ type Options struct {
 	NoAutoPair           bool
 	CodeNoWrap           bool
 	FontSize, LineHeight float32
-	// FontFamily is the body text's family list, "" for the system's; Column
-	// is the text column's width, 0 for 820. Code keeps its monospace.
+	// Column is the text column's width, 0 for 820. Code keeps its monospace.
 	FontFamily   string
+	DocTitle     string
 	Column       float32
 	Width        float32
 	Theme        *ui.Theme

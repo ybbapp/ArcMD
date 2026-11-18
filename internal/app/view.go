@@ -206,6 +206,8 @@ func (a *App) shortcuts(c *ui.Context) {
 		a.toggleLibrary()
 	case a.pressed(c, "outline"):
 		a.toggleOutline()
+	case a.pressed(c, "mindmap"):
+		a.toggleActiveDocumentMap()
 	case a.pressed(c, "bookmark"):
 		a.toggleBookmarkAtCaret()
 	case a.pressed(c, "bookmarks"):
@@ -418,7 +420,7 @@ func (a *App) documentContent(c *ui.Context, d *document, cardWidth float32) {
 		} else {
 			a.syncJSX(c, d)
 			a.jsxStatus(c, d)
-			editor.View(c.Key(d.viewKey()), d.ed, a.editorOptionsFor(c, cardWidth, false, d))
+			a.documentMapWorkspace(c, d, cardWidth)
 		}
 	})
 }

@@ -104,3 +104,5 @@ retained in `moejs/`. Its moego v0.1.0-alpha.3 dependency is MIT (`moego/LICENSE
 The existing standalone experiment runtime notices in `jsx-experiment/` are
 retained for that historical entry point. New Tabs/TabItem/Accordion source was
 implemented in this repository, not copied from a terminal-reader repository.
+
+The native document map adapts the MIT-licensed [mygo-native-ui mindmap](https://github.com/xingkaixin/mygo-native-ui/tree/main/ui/mindmap). See [license and provenance](mygo-native-ui/README.md).
