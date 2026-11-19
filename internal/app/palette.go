@@ -132,8 +132,12 @@ func (a *App) openPalette() {
 						continue
 					}
 					if sp := a.state.Get(res.id); sp != nil {
-						arrangeNodes(sp, "", res.nodes)
-						a.pageTrees[res.id] = pageTree{res.nodes, res.err}
+						nodes := res.nodes
+						if res.err == nil {
+							nodes = dropTreeFolder(nodes, attachmentFolder(sp))
+						}
+						arrangeNodes(sp, "", nodes)
+						a.pageTrees[res.id] = pageTree{nodes, res.err}
 					}
 				}
 			})
@@ -219,6 +223,8 @@ func (a *App) actions() []action {
 		cmd(i18n.T("更改空间图标…"), "", func() { a.editSpaceProperty(active, "icon") })
 		if !active.IsExternal() {
 			cmd(i18n.T("重命名空间…"), "", func() { a.editSpaceProperty(active, "name") })
+			cmd(i18n.T("选择附件目录…"), "", func() { a.chooseAttachmentsFolder(active) })
+			cmd(i18n.T("恢复默认附件目录"), "", func() { a.setAttachmentsFolder(active, "") })
 		}
 	}
 	cmd(i18n.T("切换侧边栏"), a.keyLabel("sidebar"), a.toggleSidebar)

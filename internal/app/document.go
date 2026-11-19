@@ -1056,6 +1056,12 @@ func (d *document) imageResourceWith(url string, post func(func())) editor.Image
 		}
 		return editor.ImageResource{Problem: problem}
 	}
+	return d.imageResourceFrom(full, url, post)
+}
+
+// imageResourceFrom builds the resource of a picture whose file has been
+// resolved already.
+func (d *document) imageResourceFrom(full, url string, post func(func())) editor.ImageResource {
 	if post == nil {
 		return decodeLocalImageSync(full)
 	}
@@ -1201,11 +1207,21 @@ func resolveSpaceImage(sp *space.Space, rel, url string) (string, error) {
 	}
 	decoded := unescapeImagePath(url)
 	if hasParentSegment(decoded) {
+		if matches := attachmentMatches(sp, root, docRel, url); len(matches) > 0 {
+			if full, ok := existingFile(root, matches[0]); ok {
+				return full, nil
+			}
+		}
 		return direct, nil
 	}
 	if cand, rErr := vault.Resolve(root, decoded); rErr == nil {
 		if info, stErr := os.Stat(cand); stErr == nil && !info.IsDir() {
 			return cand, nil
+		}
+	}
+	if matches := attachmentMatches(sp, root, docRel, url); len(matches) > 0 {
+		if full, ok := existingFile(root, matches[0]); ok {
+			return full, nil
 		}
 	}
 	if !strings.Contains(decoded, "/") {
