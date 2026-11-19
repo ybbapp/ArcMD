@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.7
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.4](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.4)（ID 451987552）。本 fork 自身已发布过 0.2.1–0.2.6，因此本包版本为 0.2.7，避免与既有 fork Release 冲突。官方 Release 标签指向 `5b2a59ae6ac5bc06009a70ab2a26a1c625593d08`。
+
+- 上游 0.2.4：修复在反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（[#33](https://github.com/Ciao1019/ArcMD/issues/33)）。关闭文档后回收编辑器与解码位图，限制后台图片解码并发并在 GPU 上传后释放 CPU 像素缓冲，侧栏缩略图改为 8 项 LRU 与缩放解码，并清理空间会话、白板缓存与模态引用。详见下方「0.2.4 (upstream)」。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.2.6
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.3](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.3)（ID 451347527）。本 fork 自身已发布过 0.2.1–0.2.5，因此本包版本为 0.2.6，避免与既有 fork Release 冲突。官方 Release 标签指向 `d626bbbb93f21eb501e16ee344d608e3c53ffd12`（含 Release 说明提交之后的 `internal/i18n/en.go` gofmt）。
