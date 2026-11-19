@@ -31,6 +31,21 @@ ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能�
 - 将用户已验收的 MDX 3.1.1 第一阶段（PR #3 / `2283afd` 测试包）合入主线并发布 macOS Apple Silicon 正式包。
 - 精确锁定 `@mdx-js/mdx` 3.1.1 与 `arcmd-mdx3-phase1`；正常界面无技术横幅。新主线 ZIP 当时未再次真实 Mac 验收。
 
+## 0.2.4 (upstream)
+
+This patch release fixes unbounded memory accumulation when switching repeatedly across Markdown documents, sidebar hover previews, and Spaces ([#33](https://github.com/Ciao1019/ArcMD/issues/33)).
+
+### Memory and Resource Lifecycle Fixes
+
+- **Reclaim closed documents and decoded image bitmaps on switch (`internal/app/app.go`, `internal/app/document.go`, `internal/app/opendocs.go`, `internal/app/split.go`, `internal/app/windows.go`, `internal/editor/images.go`)**: Retire closed `*document` instances and evict non-resident entries from `imgResolved` and `search.liveDocs` whenever switching notes, closing split panes or secondary windows, reloading, or unpinning tabs so closed editors and multi-megabyte RGBA `*ui.Bitmap` buffers are immediately eligible for garbage collection ([#33](https://github.com/Ciao1019/ArcMD/issues/33)).
+- **Bounded async image decode concurrency and CPU pixel release (`internal/app/document.go`, `internal/app/view.go`)**: Cap concurrent background image decoders to 4 goroutines, abort queued or in-flight decodes as soon as a superseded document closes, and call `Bitmap.ReleasePixels()` after GPU texture upload on live windows so uncompressed RGBA/mipmap buffers do not remain duplicated in system RAM ([#33](https://github.com/Ciao1019/ArcMD/issues/33)).
+- **Bounded sidebar thumbnail LRU cache and scaled preview decoding (`internal/app/preview.go`, `internal/app/document.go`, `internal/app/links.go`)**: Bound `preview.thumbs` to an 8-entry LRU cache, drop transient `open/...` clones when previews close, decode sidebar thumbnail images via `ui.DecodeBitmapScaled(data, 640)` instead of full-resolution bitmaps, and read `[[wiki-link]]` hover previews directly from the search index / text extractor without allocating thumbnail editors ([#33](https://github.com/Ciao1019/ArcMD/issues/33)).
+- **Active Space session slot, whiteboard cache, and modal cleanup (`internal/app/app.go`, `internal/app/whiteboard.go`, `internal/app/versions.go`, `internal/app/gitmerge.go`)**: Clear the active Space's suspended `session.doc` reference upon returning to a Space, bound `wbCache` to 16 entries, and release retained document/diff state when the Version History, Git Changes, or 3-Way Merge modals close ([#33](https://github.com/Ciao1019/ArcMD/issues/33)).
+
+### Downloads
+
+Packages are available for macOS (Apple Silicon and Intel), Windows x64, and Linux (x64 and ARM64). Verify downloads against `SHA256SUMS.txt`. Signed update archives and manifests support in-app updates.
+
 ## 0.2.3 (upstream)
 
 This release introduces a pure-Go WebAssembly plugin sandbox (`wazero`) with a bundled official **Cloud Sync** plugin (S3 SigV4 & WebDAV incremental bidirectional sync), an IDEA-style **3-Way Merge** and Git diff view, a navigable **Document Mind Map**, per-Space **Attachments Folders** with automatic relinking, native **`<kbd>` keycaps** and raw HTML / comment rendering, **Sidebar Multi-Select** batch file management, and targeted fixes across Mermaid sequence diagrams, TeX `\tag` numbering, Windows hardlinks, inline rename contrast, and macOS window lifecycle.
