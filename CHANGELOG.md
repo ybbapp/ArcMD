@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.6
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.3](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.3)（ID 451347527）。本 fork 自身已发布过 0.2.1–0.2.5，因此本包版本为 0.2.6，避免与既有 fork Release 冲突。官方 Release 标签指向 `d626bbbb93f21eb501e16ee344d608e3c53ffd12`（含 Release 说明提交之后的 `internal/i18n/en.go` gofmt）。
+
+- 上游 0.2.3：纯 Go `wazero` WASM 插件沙箱与官方「云端同步」插件（S3 SigV4 / WebDAV 增量双向同步）、IDEA 式三栏合并与 Git 差异视图、可导航文档思维导图、每空间附件目录与自动重链、原生 `<kbd>` 与原始 HTML/注释渲染、侧栏多选批量管理，以及 Mermaid sequence、TeX `\tag`、Windows 硬链接、行内重命名对比度和 macOS 窗口生命周期等修复。详见下方「0.2.3 (upstream)」。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.2.5
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.2](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.2)（ID 450124722）。本 fork 自身已发布过 0.2.1–0.2.4，因此本包版本为 0.2.5，避免与既有 fork Release 冲突。官方 Release 标签现指向 `6ad40d616d2d7f4a2ab2c525a7d7e06f9e408313`，包含最初标签提交 `eabb520` 之后的 CoreText 修复。

@@ -122,3 +122,11 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/moejs/package_macos.py --out /work
 保留精确 MDX 3.1.1 / phase1 与 JSX 岛屿语义（主题跟随、内容测高、安全隔离、原始 MDX 保存），不扩大为实现完整 MDX 模块系统、行内 JSX 或运行时 Node。稳定 ArcMD.app / org.ybbapp.arcmd / 正常配置不变。主线打包继续内嵌 moejs，无运行时 Node。新 main ZIP 未在真实 Mac 验收；用户验收来源仍单独标注为 2283afd 测试包。维护状态仅在公开下载校验成功后原子更新 last_packaged_upstream_release 为 v0.2.2 / 450124722；失败不改成功标记。沿用 repo.lock 整事务互斥，只写 ybbapp/ArcMD。
 
 完整 `go test ./...` 仅复现：已知 Linux app 基线失败 TestQACitationPreviewDoesNotOccludeAnswerText；以及与干净上游/main 在本 Linux 环境中相同的 Issue 19 失败 TestIssue19CodeTabVisualIndentAndPaste 与 TestIssue19LongIndentedCodeLineSoftWrap/tab（char.X=8.428711）。未借机修改这些测试，也没有新增失败。其余五项已知 Linux app 基线测试已通过。canonical 编译器/浏览器测试 44/44，旧套件 15/15，moejs 运行时 3/3，相关 Go/vet/mod tidy 与 darwin/arm64、linux/amd64、windows/amd64 CGO-disabled 构建通过。
+
+## 0.2.6 主线发布
+
+上游 Ciao1019/ArcMD 于 2026-11-19 20:57（UTC+8）发布官方 Release v0.2.3（ID 451347527）。官方标签指向 `d626bbbb93f21eb501e16ee344d608e3c53ffd12`，包含 Release 说明提交 `7daaa51` 之后的 `internal/i18n/en.go` gofmt。本次小时维护将这份源码普通 merge 进 ybbapp/ArcMD main，并构建发布 fork 正式包 0.2.6。本 fork 已占用 0.2.1–0.2.5 版本号，因此新包为 0.2.6，避免与既有 Release 冲突。
+
+保留精确 MDX 3.1.1 / phase1 与 JSX 岛屿语义（主题跟随、内容测高、安全隔离、原始 MDX 保存），不扩大为实现完整 MDX 模块系统、行内 JSX 或运行时 Node。稳定 ArcMD.app / org.ybbapp.arcmd / 正常配置不变。主线打包继续内嵌 moejs，无运行时 Node。新 main ZIP 未在真实 Mac 验收；用户验收来源仍单独标注为 2283afd 测试包。维护状态仅在公开下载校验成功后原子更新 last_packaged_upstream_release 为 v0.2.3 / 451347527；失败不改成功标记。沿用 repo.lock 整事务互斥，只写 ybbapp/ArcMD。
+
+完整 `go test ./...` 仅复现：已知 Linux app 基线失败 TestQACitationPreviewDoesNotOccludeAnswerText；以及与干净上游/main 在本 Linux 环境中相同的 Issue 19 失败 TestIssue19CodeTabVisualIndentAndPaste 与 TestIssue19LongIndentedCodeLineSoftWrap/tab（char.X=8.428711）。未借机修改这些测试，也没有新增失败。其余五项已知 Linux app 基线测试已通过。canonical 编译器/浏览器测试 44/44，旧套件 15/15，moejs 运行时 3/3，相关 Go/vet/mod tidy 与 darwin/arm64、linux/amd64、windows/amd64 CGO-disabled 构建通过。
