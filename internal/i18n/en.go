@@ -1189,4 +1189,6 @@ var en = map[string]string{
 	"锁定":                       "Lock",
 	"解锁":                       "Unlock",
 	"粘贴":                       "Paste",
+	"键盘按键":                     "Keyboard Key",
+	"HTML 注释":                  "HTML Comment",
 }

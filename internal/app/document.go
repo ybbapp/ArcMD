@@ -93,6 +93,11 @@ type document struct {
 	plain      string
 	plainRev   uint64
 	plainKnown bool
+	// savedWrites counts successful disk writes of this document; notedWrites
+	// and savedSeq keep search/footer views fresh while refreshSearch catches up.
+	savedWrites uint64
+	notedWrites uint64
+	savedSeq    uint64
 	// typedRev and typedAt are the last revision footers saw and when they
 	// first saw it (liveTyping).
 	typedRev uint64
@@ -208,7 +213,7 @@ func (d *document) dirty() bool {
 				d.dirtyNow = true
 			} else if d.textDirtyKnown {
 				current := d.ed.Engine.LeafAt(change.Start).Block
-				if saved, exists := d.baselineRuns[change.ID]; exists && saved == model.RunsDigest(current.Runs) {
+				if saved, exists := d.baselineRuns[change.ID]; exists && saved == model.LeafDigest(current) {
 					delete(d.textDirty, change.ID)
 				} else {
 					if d.textDirty == nil {
@@ -234,7 +239,7 @@ func (d *document) recomputeDirtySlow() {
 		clear(d.textDirty)
 		for id := range d.baselineOrigRuns {
 			leaf, ok := d.ed.Engine.LeafByID(id)
-			if !ok || model.RunsDigest(leaf.Block.Runs) != d.baselineRuns[id] {
+			if !ok || model.LeafDigest(leaf.Block) != d.baselineRuns[id] {
 				if d.textDirty == nil {
 					d.textDirty = make(map[string]bool, max(1, len(d.baselineOrigRuns)))
 				}
@@ -286,7 +291,7 @@ func (d *document) rebuildTextDirty(doc *model.Document) {
 				walk(block.Children, inner)
 				continue
 			}
-			if saved, ok := d.baselineRuns[block.ID]; !ok || saved != model.RunsDigest(block.Runs) {
+			if saved, ok := d.baselineRuns[block.ID]; !ok || saved != model.LeafDigest(block) {
 				d.textDirty[block.ID] = true
 			}
 		}
@@ -314,13 +319,13 @@ func computeBaselineRuns(doc *model.Document, overrides map[string][]model.Run, 
 				walk(block.Children, inner)
 				continue
 			}
-			runs := block.Runs
 			if len(overrides) > 0 {
 				if orig, ok := overrides[block.ID]; ok {
-					runs = orig
+					dst[block.ID] = model.RunsDigest(orig)
+					continue
 				}
 			}
-			dst[block.ID] = model.RunsDigest(runs)
+			dst[block.ID] = model.LeafDigest(block)
 		}
 	}
 	walk(doc.Blocks, nil)
@@ -346,6 +351,10 @@ func (d *document) initLazyBaseline() {
 
 func (d *document) recordLeafBaseline(id string, runs []model.Run) {
 	if !d.baselinePending {
+		return
+	}
+	if leaf, ok := d.ed.Engine.LeafByID(id); ok && len(leaf.Block.Comments) > 0 {
+		d.ensureBaseline()
 		return
 	}
 	if _, exists := d.baselineOrigRuns[id]; exists {
@@ -621,6 +630,7 @@ func (d *document) applyAsyncSave(res asyncSaveResult) {
 			}
 		}
 		d.diskText, d.baseline, d.saveErr = res.text, res.baseline, nil
+		d.savedWrites++
 		if res.baselineRuns != nil {
 			d.baselineRuns = res.baselineRuns
 			d.baselineSkeleton = res.baselineSkeleton
@@ -741,6 +751,7 @@ func (d *document) write(force bool) error {
 		baseline, _ = committed.Digest()
 	}
 	d.diskText, d.baseline, d.saveErr = text, baseline, nil
+	d.savedWrites++
 	if d.source {
 		d.preview = d.text()
 	}
