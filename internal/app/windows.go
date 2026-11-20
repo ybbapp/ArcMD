@@ -51,7 +51,7 @@ func (a *App) openInWindow(sp *space.Space, rel string) {
 		w.win.Focus()
 		return
 	}
-	if !a.flush() {
+	if a.autosaveEnabled() && !a.flush() {
 		return
 	}
 	d := a.residentDocument(sp.ID, rel)
@@ -114,10 +114,21 @@ func (a *App) makeWindow(title string, view func(*ui.Context), close func() bool
 // it cannot be saved.
 func (a *App) closeWindow(w *docWindow) bool {
 	if d := w.doc; d != nil {
-		ok := true
-		a.withDocument(d, func() { ok = a.flushCurrent() })
-		if !ok {
-			a.showSaveFailure(d)
+		if a.autosaveEnabled() {
+			ok := true
+			a.withDocument(d, func() { ok = a.flushCurrent() })
+			if !ok {
+				a.showSaveFailure(d)
+				return false
+			}
+		} else if !a.confirmLeaveDocs([]*document{d}, func() {
+			if w.win != nil {
+				w.win.Close()
+			}
+		}) {
+			if w.win != nil {
+				w.win.Focus()
+			}
 			return false
 		}
 	}
@@ -160,6 +171,9 @@ func (a *App) windowView(c *ui.Context, w *docWindow) {
 		ui.Text(c, i18n.T("文档已关闭")).TextColor(t.TextMuted).Padding(80, 24)
 		return
 	}
+	if a.pressed(c, "save") {
+		a.withDocument(d, func() { a.flushCurrent() })
+	}
 	bar := c.TitleBar()
 	ui.Column(c.Key("window-doc")).Fill().Children(func() {
 		top := ui.Row(c.Key("window-bar")).Height(max(44, bar.Height)).PaddingX(12).Gap(8).AlignItems(ui.Center).DragWindow()
@@ -188,6 +202,9 @@ func (a *App) windowView(c *ui.Context, w *docWindow) {
 		a.jsxStatus(c, d)
 		a.documentMapWorkspace(c, d, width)
 	})
+	if a.unsaved.open && len(a.unsaved.docs) == 1 && a.unsaved.docs[0] == d {
+		a.unsavedPromptView(c)
+	}
 	w.win.SetTitle(docName(d.title()))
 }
 

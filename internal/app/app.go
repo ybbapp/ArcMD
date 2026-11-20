@@ -110,6 +110,7 @@ type App struct {
 	paneNavigation  bool
 	documentContext int
 	splitResizing   bool
+	dockSliding     bool
 	sessions        map[string]*spaceSession
 	// openDocs are the pinned documents kept open behind the one shown,
 	// and bounce the row springing from a close (opendocs.go).
@@ -146,11 +147,21 @@ type App struct {
 	renameFocused bool
 	// renameSpace is the ID of the space holding the item being renamed.
 	renameSpace string
+	// openAfterRename opens a freshly duplicated document once its inline
+	// rename is confirmed with Enter (copy.go).
+	openAfterRename string
+	// pendingDupUndo defers a duplicated item's Undo toast until its inline
+	// rename finishes so the toast shows the final name with a fresh timeout.
+	pendingDupUndo *place
 	// picks are the sidebar rows picked with Cmd/Shift-click in picksSpace,
 	// and pickAnchor where the next Shift-click range starts (multiselect.go).
 	picks      map[string]bool
 	picksSpace string
 	pickAnchor string
+	// copied holds the sidebar items copied for pasting, and recentCopies
+	// keeps live paths for paste/duplicate undo toasts (copy.go).
+	copied       []place
+	recentCopies []*place
 
 	palette palette
 	// qa is the panel of questions about the space (qa.go).
@@ -243,7 +254,8 @@ type App struct {
 	// focus is focus mode; narrow whether the window is narrow enough to
 	// fold the sidebar away, narrowShown whether it is shown anyway
 	// (focus.go).
-	focus, narrow, narrowShown bool
+	focus, narrow, narrowReady, narrowShown bool
+	unsaved                                 unsavedPrompt
 	// versions is the history window (versions.go); bin keeps what was
 	// deleted recently, which the library lists (trash.go).
 	versions   versionsState
@@ -538,11 +550,20 @@ func (a *App) showMain(w mainWindow) {
 // macOS, closing the window with ⌘W or the red close button hides it so the
 // app stays running in the Dock until an explicit Quit (⌘Q).
 func (a *App) closeMain(w mainWindow, goos string) bool {
-	if !a.flush() {
-		if w != nil {
-			a.showMain(w)
+	if a.autosaveEnabled() {
+		if !a.flush() {
+			if w != nil {
+				a.showMain(w)
+			}
+			return false
 		}
-		return false
+	} else if a.quitting || goos != "darwin" {
+		if !a.confirmLeaveDocs(a.residentDocuments(), func() { a.retryCloseMain(w, goos) }) {
+			if w != nil {
+				a.showMain(w)
+			}
+			return false
+		}
 	}
 	a.finishSpaceEdit()
 	if a.captureSplits() {
@@ -899,6 +920,7 @@ func (a *App) showIn(sp *space.Space, rel string) bool {
 				a.notify("文件已被移动或删除：%s", sp.ExternalFiles[rel])
 				return false
 			}
+			a.forgetCopied(sp.ID, rel)
 			a.state.Forget(sp.ID, rel)
 			a.saveState()
 			a.refreshTree()
@@ -907,8 +929,25 @@ func (a *App) showIn(sp *space.Space, rel string) bool {
 		}
 		return false
 	}
-	if !a.flush() {
-		return false
+	if a.autosaveEnabled() {
+		if !a.flush() {
+			return false
+		}
+	} else {
+		paneIdx := -1
+		if a.paneNavigation && a.split != nil {
+			paneIdx = a.split.active
+		}
+		if !a.confirmLeaveDocs(a.leavingCurrentDoc(), func() {
+			if paneIdx >= 0 && a.split != nil && paneIdx < len(a.split.panes) {
+				a.focusPane(paneIdx, false)
+				a.navigateInPane(a.doc, func() { a.openIn(sp, rel) })
+				return
+			}
+			a.openIn(sp, rel)
+		}) {
+			return false
+		}
 	}
 	if a.split != nil && a.doc != nil && !a.paneNavigation {
 		a.suspendSplit()
@@ -998,7 +1037,7 @@ func (a *App) goHistory(step int) {
 		a.paneNavigation = true
 		defer func() { a.paneNavigation = false; a.syncSplit() }()
 	}
-	if !a.flush() {
+	if !a.confirmLeaveDocs(a.leavingCurrentDoc(), func() { a.goHistory(step) }) {
 		return
 	}
 	for a.canGo(step) {
@@ -1041,7 +1080,7 @@ func (a *App) reload() {
 		a.useDisk()
 		return
 	}
-	if !a.flush() {
+	if !a.confirmLeaveDocs([]*document{a.doc}, a.reload) {
 		return
 	}
 	rel, source := a.doc.rel, a.doc.source
@@ -1240,7 +1279,9 @@ func (a *App) startRename(rel string) {
 // renameIn edits the name of the file or folder at rel of the space sp: in
 // its row, or under its tile for a favorite, which may be another space's.
 func (a *App) renameIn(sp *space.Space, rel string) {
-	a.renaming, a.renameSpace, a.renameFocused = rel, sp.ID, false
+	a.flushPendingDupUndo("", "")
+	a.dismissPreview()
+	a.renaming, a.renameSpace, a.renameFocused, a.openAfterRename = rel, sp.ID, false, ""
 	if sp.IsExternal() {
 		rel = filepath.Base(sp.ExternalFiles[rel])
 	}
@@ -1250,19 +1291,34 @@ func (a *App) renameIn(sp *space.Space, rel string) {
 	}
 }
 
-// commitRename gives the file or folder being renamed the name typed.
-func (a *App) commitRename() {
+// commitRename gives the file or folder being renamed the name typed, opening
+// a freshly duplicated document when its inline rename is confirmed.
+func (a *App) commitRename() { a.finishRename(true) }
+
+func (a *App) finishRename(openDuplicated bool) {
 	rel, name := a.renaming, strings.TrimSpace(a.newName)
+	openPending := openDuplicated && a.openAfterRename != "" && a.openAfterRename == rel
+	dupPending := a.pendingDupUndo != nil && a.pendingDupUndo.space == a.renameSpace && a.pendingDupUndo.rel == rel
 	a.renaming = ""
+	a.openAfterRename = ""
 	if rel == "" || name == "" {
+		if dupPending {
+			a.flushPendingDupUndo("", "")
+		}
 		return
 	}
 	sp := a.state.Get(a.renameSpace)
 	if sp == nil {
+		if dupPending {
+			a.flushPendingDupUndo("", "")
+		}
 		return
 	}
 	renaming := a.residentDocument(sp.ID, rel)
-	if !a.flush() {
+	if a.autosaveEnabled() && !a.flush() {
+		if dupPending {
+			a.flushPendingDupUndo("", "")
+		}
 		return
 	}
 	if renaming != nil {
@@ -1272,6 +1328,9 @@ func (a *App) commitRename() {
 	to, err := renameFile(sp, rel, name)
 	if err != nil {
 		a.notify("重命名 %s 失败。%v", path.Base(rel), err)
+		if dupPending {
+			a.flushPendingDupUndo(sp.ID, rel)
+		}
 		return
 	}
 	if to != rel {
@@ -1283,6 +1342,22 @@ func (a *App) commitRename() {
 			a.relink(vault.Title(rel), vault.Title(to), sources)
 		}
 	}
+	if dupPending {
+		a.flushPendingDupUndo(sp.ID, to)
+	}
+	if openPending && sp == a.state.ActiveSpace() && vault.IsDocument(to) {
+		a.open(to)
+		if d := a.doc; d != nil && d.space == sp && d.rel == to && d.loadErr == nil && !d.isWhiteboard() {
+			d.ensureBodyParagraph()
+			leaves := d.ed.Doc.Leaves()
+			pos := 0
+			if len(d.ed.Doc.Blocks) > 0 && d.ed.Doc.Blocks[0].Kind == "heading" && len(leaves) > 1 {
+				pos = leaves[1].End
+			}
+			d.ed.SetSelection(pos, pos)
+			d.ed.RequestFocus = true
+		}
+	}
 }
 
 // moveInto moves the file or folder at rel into the folder dir.
@@ -1291,7 +1366,7 @@ func (a *App) moveInto(rel, dir string) {
 		return
 	}
 	sp := a.state.ActiveSpace()
-	if !a.flush() {
+	if a.autosaveEnabled() && !a.flush() {
 		return
 	}
 	to, _, err := a.moveWithResources(sp, rel, sp, dir)
@@ -1318,6 +1393,7 @@ func (a *App) moved(sp *space.Space, from, to string) {
 		a.dragGrab.rel = to
 	}
 	a.followPicks(sp.ID, from, to)
+	a.followCopied(sp.ID, from, sp.ID, to)
 	a.followOpen(sp.ID, from, sp.ID, to)
 	a.followSplitPaths(sp.ID, from, sp.ID, to)
 	a.saveState()
@@ -1331,7 +1407,7 @@ func (a *App) switchSpaceOnly(id string) bool {
 		return false
 	}
 	next := a.state.Get(id)
-	if next == nil || !a.canEnter(next.Root) || !a.flush() {
+	if next == nil || !a.canEnter(next.Root) || (a.autosaveEnabled() && !a.flush()) {
 		return false
 	}
 	if a.carrying == nil && a.carried == nil {
@@ -1348,7 +1424,9 @@ func (a *App) switchSpaceOnly(id string) bool {
 	a.saveState()
 	a.syncOpen()
 	a.doc = nil
+	a.flushPendingDupUndo("", "")
 	a.renaming = ""
+	a.openAfterRename = ""
 	a.syncTree()
 	a.pager.swipe = 0
 	a.pagerSettle(a.spaceIndex(id), from)
@@ -1415,6 +1493,9 @@ func (a *App) togglePin(sp *space.Space, rel string) {
 		return
 	}
 	if sp.IsPinned(rel) {
+		if d := a.openDocs[place{sp.ID, rel}]; d != nil && d != a.doc && !a.confirmLeaveDocs([]*document{d}, func() { a.togglePin(sp, rel) }) {
+			return
+		}
 		sp.Unpin(rel)
 		a.saveState()
 		return
@@ -1465,7 +1546,7 @@ func (a *App) trash(rel string) {
 	if err != nil {
 		return
 	}
-	if !a.flush() {
+	if a.autosaveEnabled() && !a.flush() {
 		return
 	}
 	kept, ok := a.keepDeleted(sp.ID, sp.Name, sp.Root, rel)
@@ -1482,6 +1563,7 @@ func (a *App) trash(rel string) {
 		}
 	}
 	a.forgetPicks(sp.ID, rel)
+	a.forgetCopied(sp.ID, rel)
 	a.state.Forget(sp.ID, rel)
 	a.saveState()
 	a.refreshTree()
