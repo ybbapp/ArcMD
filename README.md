@@ -8,7 +8,7 @@
 
 简体中文 · [English](README.en.md)
 
-<a href="mygo.json"><img src="https://img.shields.io/badge/version-0.2.7-F21158" alt="版本 0.2.7"></a>
+<a href="mygo.json"><img src="https://img.shields.io/badge/version-0.2.8-F21158" alt="版本 0.2.8"></a>
 <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-F25F11" alt="支持 macOS、Windows 与 Linux">
 <a href="https://github.com/egoist/mygo"><img src="https://img.shields.io/badge/built%20with-Go%20%2B%20MyGo-00ADD8?logo=go&amp;logoColor=white" alt="使用 Go 与 MyGo 原生开发"></a>
 <a href=".github/workflows/build.yml"><img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088ff?logo=githubactions&amp;logoColor=white" alt="CI 工作流配置"></a>
@@ -27,7 +27,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-zh-CN.svg" height="56" alt="下载 ArcMD Windows 版：x64 安装程序与 ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-zh-CN.svg" height="56" alt="下载 ArcMD Linux 版：x64 与 ARM64，DEB 与 TAR.GZ"></a>
 
-<sub>当前源码与本 fork 安装包均对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.4">v0.2.4</a>。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.7 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.7">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
+<sub>当前源码与本 fork 安装包均对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.5">v0.2.5</a>。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.8 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.8">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
 
 <br><br>
 
@@ -112,7 +112,7 @@ ArcMD 直接以标准 **`.md` Markdown** 作为主格式，编辑时在后台原
 <a id="mdx-support"></a>
 ## 本 fork 的 MDX 3.1.1 增强（第一阶段）
 
-目标精确锁定 **`@mdx-js/mdx` 3.1.1**，兼容配置为 `arcmd-mdx3-phase1`，不是“已完整兼容 MDX 3”。本阶段已合入主线，当前正式版为 0.2.6（[macOS Apple Silicon 下载](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.6)），同时包含上游官方 v0.2.3；0.2.3 起具备下列 MDX 能力。保留 [上游 ArcMD](https://github.com/Ciao1019/ArcMD) 的归属与原生编辑器设计。
+目标精确锁定 **`@mdx-js/mdx` 3.1.1**，兼容配置为 `arcmd-mdx3-phase1`，不是“已完整兼容 MDX 3”。本阶段已合入主线，当前正式版为 0.2.8（[macOS Apple Silicon 下载](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.8)），同时包含上游官方 v0.2.5；0.2.3 起具备下列 MDX 能力。保留 [上游 ArcMD](https://github.com/Ciao1019/ArcMD) 的归属与原生编辑器设计。
 
 | 能力 | 当前状态 |
 | --- | --- |

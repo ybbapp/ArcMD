@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.8
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.5](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.5)（ID 453104529）。本 fork 自身已发布过 0.2.1–0.2.7，因此本包版本为 0.2.8，避免与既有 fork Release 冲突。官方 Release 标签指向 `cc5013ef3de866c74c1535378a3d3ada26acb04d`（含 Release 说明提交之后的 `internal/i18n/en.go` gofmt）。
+
+- 上游 0.2.5：侧栏复制/粘贴/创建副本（[#10](https://github.com/Ciao1019/ArcMD/issues/10)、[#39](https://github.com/Ciao1019/ArcMD/pull/39)），更清晰的公式绘制与按内容扩展的表格、窄窗口侧栏迟滞、可选自动保存（[#32](https://github.com/Ciao1019/ArcMD/issues/32)），表格行选中崩溃修复（[#34](https://github.com/Ciao1019/ArcMD/issues/34)、[#35](https://github.com/Ciao1019/ArcMD/pull/35)），以及纯文本字面复制。空间问答流式 Responses / Chat Completions 协议（[#23](https://github.com/Ciao1019/ArcMD/pull/23)）此前已同步进 main，并包含在本官方 Release 中。详见下方「0.2.5 (upstream)」。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.2.7
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.4](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.4)（ID 451987552）。本 fork 自身已发布过 0.2.1–0.2.6，因此本包版本为 0.2.7，避免与既有 fork Release 冲突。官方 Release 标签指向 `5b2a59ae6ac5bc06009a70ab2a26a1c625593d08`。

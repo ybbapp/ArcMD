@@ -1,26 +1,25 @@
-# ArcMD 0.2.7 · ybbapp 主线版（上游官方 v0.2.4 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.8 · ybbapp 主线版（上游官方 v0.2.5 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.2.4](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.4)（ID 451987552，源码 `5b2a59ae6ac5bc06009a70ab2a26a1c625593d08`）。本 fork 已发布过 0.2.1–0.2.6，因此本包版本为 0.2.7，避免版本号冲突。
+本包对应上游官方 Release [v0.2.5](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.5)（ID 453104529，源码 `cc5013ef3de866c74c1535378a3d3ada26acb04d`）。本 fork 已发布过 0.2.1–0.2.7，因此本包版本为 0.2.8，避免版本号冲突。
 
-## 上游 v0.2.4 能力（已纳入本包）
+## 上游 v0.2.5 能力（已纳入本包）
+
+- 侧栏复制、粘贴与创建副本（Ciao1019/ArcMD#10、#39）：可在侧栏对文档、文件夹、多选和收藏磁贴使用右键或 ⌘C/⌘V（Windows/Linux 为 Ctrl），支持跨文件夹和跨空间粘贴，并保留或重定位附件/封面；副本进入行内重命名并打开到正文，撤销走回收站。
+- 更清晰的公式绘制、按内容宽度扩展的表格、窄窗口侧栏展开迟滞，以及设置/命令栏中的可选自动保存（#32）：关闭自动保存后，离开或关闭未保存文档会提示「保存 / 不保存 / 取消」。
+- 从表格、行内代码和正文复制时保留字面纯文本，不再带 Markdown 转义或对齐用 HTML 包裹；单词内部的下划线也不再被转义。
+- 表格工具栏在行索引超出列数时不再崩溃（#34、#35）。
+- 空间问答的流式 Responses 与 Chat Completions 协议选择（#23）已在此前的 main 同步中合入，并包含在本官方 v0.2.5 说明中。
+- 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
+
+## 上游 v0.2.4 及更早能力（仍纳入本包）
 
 - 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（Ciao1019/ArcMD#33）：关闭文档后回收编辑器与解码位图，限制后台图片解码并发为 4，并在 GPU 上传后释放 CPU RGBA/mipmap 缓冲；侧栏缩略图改为 8 项 LRU 与 `DecodeBitmapScaled(640)`；空间会话、白板缓存与版本/合并模态引用在关闭时释放。
-- 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`），避免只回收位图而留下岛屿运行时。
+- 纯 Go `wazero` WebAssembly 插件沙箱与官方「云端同步」插件、Git 风格变更视图与 IDEA 式三栏合并、可导航文档思维导图、每空间附件目录与自动重链、原生 `<kbd>` 与原始 HTML/注释、侧栏多选批量管理。
+- 本包同时包含已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 中打包的上游 v0.2.1 / v0.2.2 / v0.2.3 / v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，以及内存生命周期修复等）。
 
-## 上游 v0.2.3 能力（仍纳入本包）
-
-
-- 纯 Go `wazero` WebAssembly 插件沙箱：权限确认（`document` / `space` / `network` / `secrets` / `ui:panel`）、隔离凭据存储、声明式设置表单、命令栏集成，以及本地 `.zip` 插件安装。
-- 官方「云端同步」插件（`dev.arcmd.cloud-sync`）：针对空间文档与附件，支持 S3（AWS S3、Cloudflare R2、阿里云 OSS、腾讯云 COS、Backblaze B2、MinIO）与 WebDAV（坚果云、Nextcloud、Alist/OpenList）的三路增量双向同步；保存后 15 秒防抖同步，并支持后台定期自动同步。
-- Git 风格变更视图与 IDEA 式三栏合并（Yours / Result / Theirs），用于并发编辑或云端冲突副本。
-- 可导航文档思维导图（⌥⌘M / Ctrl+Alt+M），以及每空间附件目录与自动重链。
-- 原生 `<kbd>` 键帽、原始 HTML 与 HTML 注释渲染；侧栏多选与批量文件管理。
-- Mermaid sequenceDiagram 列宽与矢量缩放、TeX `\tag` / `\tag*` 编号、保存时保留 Windows/Unix 硬链接、选中项行内重命名对比度，以及 macOS 上 ⌘W 关闭主窗口后应用仍留在 Dock。
-- 本包同时包含已在 0.2.4 / 0.2.5 / 0.2.6 中打包的上游 v0.2.1 / v0.2.2 / v0.2.3 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，以及 wazero 插件沙箱、云端同步、三栏合并、文档思维导图、附件目录与 `<kbd>` 等）。
-
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.7）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.8）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -31,7 +30,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.7 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.8 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -40,7 +39,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.6 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.7 ，不需要删除数据。
 
 ## 范围与安全
 
