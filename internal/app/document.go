@@ -49,6 +49,9 @@ type document struct {
 	board            *editor.Board
 	boardReadOnly    bool
 	boardBaseline    [32]byte
+	pdf              *editor.PDFViewer
+	pdfModNano       int64
+	pdfSize          int64
 	version          uint64
 	edited           time.Time
 	saveErr          error
@@ -125,6 +128,9 @@ type document struct {
 }
 
 func openDocument(sp *space.Space, rel, text string, preferSource bool) *document {
+	if vault.IsPDF(rel) {
+		return openPDFDocument(sp, rel, text)
+	}
 	d := &document{space: sp, rel: rel, diskText: text, source: preferSource}
 	if vault.IsWhiteboard(rel) {
 		scene, err := whiteboard.Decode(text)
@@ -166,6 +172,9 @@ func (d *document) title() string { return vault.Title(d.rel) }
 // Whiteboards serialize their scene; JSX projections are inverted so
 // island fences never land in the file.
 func (d *document) text() string {
+	if d.isPDF() {
+		return ""
+	}
 	if d.isWhiteboard() {
 		s, _ := encodeWhiteboardFile(d.rel, d.board.SceneSnapshot())
 		return s
@@ -191,7 +200,7 @@ func (d *document) ensureBodyParagraph() {
 // already dirty); other changes re-evaluate against the baseline once and
 // re-arm leaf-level tracking when the skeleton matches.
 func (d *document) dirty() bool {
-	if d.loadErr != nil {
+	if d.loadErr != nil || d.isPDF() {
 		return false
 	}
 	if d.isWhiteboard() {
@@ -436,6 +445,9 @@ type cachedImage struct {
 
 // changed hashes the document and compares it with the saved baseline.
 func (d *document) changed() bool {
+	if d.isPDF() {
+		return false
+	}
 	if d.isWhiteboard() {
 		return d.board.Scene.Digest() != d.boardBaseline
 	}
@@ -448,7 +460,7 @@ func (d *document) changed() bool {
 }
 
 func (d *document) toggleMode() {
-	if d.isWhiteboard() {
+	if d.isWhiteboard() || d.isPDF() {
 		return
 	}
 	d.ed.UnmarkText()
@@ -692,6 +704,9 @@ func (d *document) write(force bool) error {
 			return errMissing
 		}
 	}
+	if d.isPDF() {
+		return nil
+	}
 	if d.isWhiteboard() {
 		return d.writeWhiteboard(force)
 	}
@@ -813,6 +828,9 @@ func (d *document) writeWhiteboard(force bool) error {
 // key would make the view a new element, taking the focus and ending an
 // input method's composition mid-word.
 func (d *document) viewKey() string {
+	if d.isPDF() {
+		return fmt.Sprintf("pdf:%p", d.pdf)
+	}
 	if d.isWhiteboard() {
 		return fmt.Sprintf("board:%p", d.board)
 	}
@@ -822,6 +840,9 @@ func (d *document) viewKey() string {
 func (d *document) autosave(c *ui.Context) { d.autosaveWith(c, nil) }
 
 func (d *document) autosaveWith(c *ui.Context, post func(func())) {
+	if d.isPDF() {
+		return
+	}
 	d.pollAsyncSave()
 	ver := d.ed.Version()
 	if d.isWhiteboard() {
@@ -1059,6 +1080,9 @@ func (d *document) close() {
 	d.closeJSX()
 	clear(d.imgCache)
 	d.imgCache = nil
+	if d.pdf != nil {
+		d.pdf.Close()
+	}
 	if d.ed != nil {
 		d.ed.ClearImages()
 	}
