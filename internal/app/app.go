@@ -34,7 +34,7 @@ import (
 )
 
 // Version is ArcMD's version, which plugins' engines are checked against.
-const Version = "0.2.9"
+const Version = "0.2.10"
 
 // Config says where ArcMD keeps its files.
 type Config struct {

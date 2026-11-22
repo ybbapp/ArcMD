@@ -1,10 +1,18 @@
-# ArcMD 0.2.9 · ybbapp 主线版（上游官方 v0.2.6 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.10 · ybbapp 主线版（上游官方 v0.2.7 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.2.6](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.6)（ID 454343524，源码 `80ecf863cab63ed322f207e8258fa8ead43ab087`）。本 fork 已发布过 0.2.1–0.2.8，因此本包版本为 0.2.9，避免版本号冲突。
+本包对应上游官方 Release [v0.2.7](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7)（ID 454472957，源码 `bc40cf35b0a865340fbf9344918679e47d36acfb`）。本 fork 已发布过 0.2.1–0.2.9，因此本包版本为 0.2.10，避免版本号冲突。
 
-## 上游 v0.2.6 能力（已纳入本包）
+## 上游 v0.2.7 能力（已纳入本包）
+
+- 修复 macOS 空间内含损坏或异常 PDF 时启动闪退，以及纯 Go PDF 解析器的并发竞态（Ciao1019/ArcMD#57、#60）：`render_darwin.go` 在打开失败或 0 页 PDF 时不再返回带类型的 nil 接口，避免后台搜索索引和打开 PDF 时的 SIGSEGV；并为 rawPDF 解析缓存加锁，加固内容流/CMap 与交叉引用表边界。
+- 输入 `/` 后粘贴文本立即关闭斜杠菜单；当 `/`、`[[`、`:`、`@` 过滤无匹配结果时放行方向键与回车，单列过滤列表仍可用左右键移动查询光标（#58）。
+- 飞书 / Notion 风格全宽页面模式与右上角页面宽度切换（#41、#59）：可在文档右上角工具栏、专注模式顶栏、「⋯」更多菜单、「设置 › 外观」、命令栏与快捷键 ⌥⌘P（Windows / Linux 为 Ctrl+Alt+P）在窄（680）/ 标准（820）/ 较宽（1040）/ 全宽之间切换；全宽保留左侧块手柄安全留白并避让大纲按钮，再次按下可恢复进入全宽前的栏宽。
+- Linux KDE Wayland 将最小化、最大化/还原与关闭按钮融合进主窗口和独立文档窗口顶部工具栏（#56）；不影响 macOS、Windows 与其他 Linux 会话。本 fork 的 macOS Apple Silicon 包走非 Linux 窗口路径，构造上等价于原先的 `mygo.NewWindow`。
+- 以上 #56、#58、#59、#60 及版本提交 #61 均随本次同步首次进入本 fork main。
+
+## 上游 v0.2.6 及更早能力（仍纳入本包）
 
 - 原生零 CGO PDF 阅读器、文档内嵌 PDF 块、思维导图编辑与右键菜单，以及外部 `.md`/`.pdf` 拖拽导入（Ciao1019/ArcMD#36、#40、#44）：基于系统原生能力（macOS PDFKit / Linux Poppler / Windows WinRT）做零 CGO 渲染与大纲/文本/全文检索；思维导图支持节点右键菜单、分支聚焦、结构化增删移动并导出 PNG/SVG；可从访达/文件管理器拖入 `.md` 与 `.pdf` 到窗口或侧栏文件夹并支持撤销。
 - 打开 PDF 时，若平台后端已打开文档但页面几何不完整或大纲为空，则回退到纯 Go 解析结果填充页尺寸与大纲（#55）。此修复包含在官方 v0.2.6 标签提交中，但不在 #54 撰写的官方 Release 说明正文里。
@@ -22,9 +30,9 @@
 - 表格工具栏在行索引超出列数时不再崩溃（#34、#35）。
 - 空间问答的流式 Responses 与 Chat Completions 协议选择（#23）已在此前的 main 同步中合入，并包含在官方 v0.2.5 说明中。
 - 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
-- 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
+- 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
 
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.9）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.10）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -35,7 +43,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.9 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.10 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -44,7 +52,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.8 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.9 ，不需要删除数据。
 
 ## 范围与安全
 

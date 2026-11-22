@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.10
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.7](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7)（ID 454472957）。本 fork 自身已发布过 0.2.1–0.2.9，因此本包版本为 0.2.10，避免与既有 fork Release 冲突。官方 Release 标签指向 `bc40cf35b0a865340fbf9344918679e47d36acfb`。
+
+- 上游 0.2.7：修复 macOS 空间内含损坏/异常 PDF 时启动闪退及 PDF 解析器并发竞态（[#57](https://github.com/Ciao1019/ArcMD/issues/57)、[#60](https://github.com/Ciao1019/ArcMD/pull/60)）；输入 `/` 后粘贴或无匹配结果时方向键不再被斜杠/补全菜单拦截（[#58](https://github.com/Ciao1019/ArcMD/pull/58)）；新增飞书 / Notion 风格全宽页面模式与右上角页面宽度切换（[#41](https://github.com/Ciao1019/ArcMD/issues/41)、[#59](https://github.com/Ciao1019/ArcMD/pull/59)）；Linux KDE Wayland 将窗口控制按钮融合进顶部工具栏（[#56](https://github.com/Ciao1019/ArcMD/pull/56)）。这些提交均随本次同步首次进入本 fork main。详见下方「0.2.7 (upstream)」。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.2.9
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.6](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.6)（ID 454343524）。本 fork 自身已发布过 0.2.1–0.2.8，因此本包版本为 0.2.9，避免与既有 fork Release 冲突。官方 Release 标签指向 `80ecf863cab63ed322f207e8258fa8ead43ab087`（含 Release 说明提交 #54 之后的 pdfdoc 纯 Go 回退 #55）。
