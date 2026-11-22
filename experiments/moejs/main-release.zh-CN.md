@@ -1,25 +1,30 @@
-# ArcMD 0.2.8 · ybbapp 主线版（上游官方 v0.2.5 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.9 · ybbapp 主线版（上游官方 v0.2.6 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.2.5](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.5)（ID 453104529，源码 `cc5013ef3de866c74c1535378a3d3ada26acb04d`）。本 fork 已发布过 0.2.1–0.2.7，因此本包版本为 0.2.8，避免版本号冲突。
+本包对应上游官方 Release [v0.2.6](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.6)（ID 454343524，源码 `80ecf863cab63ed322f207e8258fa8ead43ab087`）。本 fork 已发布过 0.2.1–0.2.8，因此本包版本为 0.2.9，避免版本号冲突。
 
-## 上游 v0.2.5 能力（已纳入本包）
+## 上游 v0.2.6 能力（已纳入本包）
+
+- 原生零 CGO PDF 阅读器、文档内嵌 PDF 块、思维导图编辑与右键菜单，以及外部 `.md`/`.pdf` 拖拽导入（Ciao1019/ArcMD#36、#40、#44）：基于系统原生能力（macOS PDFKit / Linux Poppler / Windows WinRT）做零 CGO 渲染与大纲/文本/全文检索；思维导图支持节点右键菜单、分支聚焦、结构化增删移动并导出 PNG/SVG；可从访达/文件管理器拖入 `.md` 与 `.pdf` 到窗口或侧栏文件夹并支持撤销。
+- 打开 PDF 时，若平台后端已打开文档但页面几何不完整或大纲为空，则回退到纯 Go 解析结果填充页尺寸与大纲（#55）。此修复包含在官方 v0.2.6 标签提交中，但不在 #54 撰写的官方 Release 说明正文里。
+- 独立远程插件市场与官方「图床上传」插件（#45）：内置插件已拆到 [`Ciao1019/arcmd-plugins`](https://github.com/Ciao1019/arcmd-plugins)，可按需从 `catalog` Release 下载（SHA-256 校验）；图床插件支持粘贴/拖入图片自动上传到 S3 兼容存储或自定义 HTTP 图床并改写外链，失败回退本地并可单步撤销。
+- 长代码块与长图片可配置紧凑最大高度及块内滚动（#43、#46），阅读时也可点右上角展开/收起，不改写原始 `.md`，也不影响 PDF 打印。
+- HTML 网页导出补齐代码语法高亮，并将 Mermaid 渲染为跟随明暗主题的内联矢量 SVG（#51、#52）；复制到剪贴板的语义 HTML 仍保持纯文本代码与 Mermaid 源码。解析失败的 Mermaid 保留源码。
+- 体验修复：去掉侧栏文件缝隙悬停「+ 新建文档」按钮（#47）；正文左侧 `+` 按钮不再被裁切或拦截点击（#48）；白板自由画笔可无框连续绘制（#42、#49）；思维导图有序列表继承全文编号与缩进层级（#50）。
+- 其中 #44–#52 此前已同步进本 fork 的 main，并包含在本官方 Release 中。
+
+## 上游 v0.2.5 及更早能力（仍纳入本包）
 
 - 侧栏复制、粘贴与创建副本（Ciao1019/ArcMD#10、#39）：可在侧栏对文档、文件夹、多选和收藏磁贴使用右键或 ⌘C/⌘V（Windows/Linux 为 Ctrl），支持跨文件夹和跨空间粘贴，并保留或重定位附件/封面；副本进入行内重命名并打开到正文，撤销走回收站。
 - 更清晰的公式绘制、按内容宽度扩展的表格、窄窗口侧栏展开迟滞，以及设置/命令栏中的可选自动保存（#32）：关闭自动保存后，离开或关闭未保存文档会提示「保存 / 不保存 / 取消」。
 - 从表格、行内代码和正文复制时保留字面纯文本，不再带 Markdown 转义或对齐用 HTML 包裹；单词内部的下划线也不再被转义。
 - 表格工具栏在行索引超出列数时不再崩溃（#34、#35）。
-- 空间问答的流式 Responses 与 Chat Completions 协议选择（#23）已在此前的 main 同步中合入，并包含在本官方 v0.2.5 说明中。
+- 空间问答的流式 Responses 与 Chat Completions 协议选择（#23）已在此前的 main 同步中合入，并包含在官方 v0.2.5 说明中。
 - 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
+- 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
 
-## 上游 v0.2.4 及更早能力（仍纳入本包）
-
-- 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（Ciao1019/ArcMD#33）：关闭文档后回收编辑器与解码位图，限制后台图片解码并发为 4，并在 GPU 上传后释放 CPU RGBA/mipmap 缓冲；侧栏缩略图改为 8 项 LRU 与 `DecodeBitmapScaled(640)`；空间会话、白板缓存与版本/合并模态引用在关闭时释放。
-- 纯 Go `wazero` WebAssembly 插件沙箱与官方「云端同步」插件、Git 风格变更视图与 IDEA 式三栏合并、可导航文档思维导图、每空间附件目录与自动重链、原生 `<kbd>` 与原始 HTML/注释、侧栏多选批量管理。
-- 本包同时包含已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 中打包的上游 v0.2.1 / v0.2.2 / v0.2.3 / v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，以及内存生命周期修复等）。
-
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.8）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.9）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -30,7 +35,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.8 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.9 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -39,13 +44,13 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.7 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.8 ，不需要删除数据。
 
 ## 范围与安全
 
 不支持 import/exports 模块解析、文档共享作用域、用户组件模块、跨岛屿状态、dynamic import/import.meta/await，以及岛屿外标题/列表/引用中的行内MDX。空表达式仍有最小留白，完整MDX插件/引用上下文/资源解析没有实现；不是完整MDX支持。不改只读标题折叠。
 
-运行时通过内嵌 moejs 动态编译受支持的新文件，不是预编译示例冒充支持。开发者重新生成编译器/React资源和运行npm测试需要Node；普通Go构建用提交的资源，应用运行不需要Node。
+JSX 编译器定位：`@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1` 由 `internal/jsx/assets/mdx-compiler.js` 经 moejs 编译后 **go:embed 进 ArcMD 主程序**。运行时通过内嵌 moejs 动态编译受支持的新文件，不是预编译示例冒充支持。开发者重新生成编译器/React资源和运行npm测试需要Node；普通Go构建用提交的资源，应用运行不需要Node，也不把源码 fallback 当作 JSX 运行通过。
 
 可信编译器在moejs中只把文档作为文本解析，不执行文档表达式；无Go/OS/文件/网络API、无模块加载器或动态eval。保持5秒求值截止、256MiB JS分配、512KiB源文件、32岛屿、16MiB/200000节点返回限制；固定编译器初始解析在求值期限之前，这些不是进程总RSS限制。
 
