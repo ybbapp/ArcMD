@@ -1306,6 +1306,8 @@ func TestLeftPlusHandleNeverClipped(t *testing.T) {
 		{name: "narrow-640", width: 640, wantMin: 4},
 		{name: "narrow-760", width: 760, wantMin: 4},
 		{name: "wide-column-960", width: 960, opts: Options{Column: 1040}, wantMin: 4},
+		{name: "full-width-1500", width: 1500, opts: Options{FullWidth: true}, wantMin: 4},
+		{name: "full-width-outline-1500", width: 1500, opts: Options{FullWidth: true, Outline: true}, wantMin: 4},
 		{name: "outline-open-1100", width: 1100, opts: Options{Outline: true}, wantMin: 4},
 	}
 
@@ -1383,4 +1385,191 @@ func TestLeftPlusClickOnFoldableHeadingAndTable(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestFullWidthLayoutAndOutline(t *testing.T) {
+	md := "# Title\n\n## Section One\n\nParagraph text spanning across the full editor viewport.\n"
+	e := New(md)
+	var column float32
+	full := false
+	outline := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		w, _ := c.Size()
+		View(c, e, Options{
+			Width:      w,
+			Theme:      c.Theme(),
+			Column:     column,
+			FullWidth:  full,
+			Outline:    outline,
+			SetOutline: func(v bool) { outline = v },
+		})
+	}, 1500, 700)
+
+	tt.Frame()
+	stdBody, stdPad := e.BodyWidth(), e.Padding()
+
+	column = 1040
+	tt.Frame()
+	wideBody, widePad := e.BodyWidth(), e.Padding()
+	if wideBody <= stdBody || widePad >= stdPad {
+		t.Fatalf("wide should widen body and shrink padding: std=(%v,%v) wide=(%v,%v)", stdBody, stdPad, wideBody, widePad)
+	}
+
+	column, full = 0, true
+	tt.Frame()
+	fullBody, fullPad := e.BodyWidth(), e.Padding()
+	if fullPad != 80 {
+		t.Fatalf("full width left padding = %v; want 80", fullPad)
+	}
+	if fullBody <= wideBody {
+		t.Fatalf("full width should exceed wide column at 1500: wide=%v full=%v", wideBody, fullBody)
+	}
+	if e.outlineState.buttonTop != 12 {
+		t.Fatalf("collapsed outline toggle should sit above title in full width: buttonTop=%v", e.outlineState.buttonTop)
+	}
+
+	outline = true
+	tt.Frame()
+	if e.BodyWidth() >= fullBody {
+		t.Fatalf("opening outline beside full-width page should narrow body: before=%v after=%v", fullBody, e.BodyWidth())
+	}
+	if e.Padding() != 80 {
+		t.Fatalf("full width with outline left padding = %v; want 80", e.Padding())
+	}
+}
+
+func TestPageWidthSwitchResetsTableMotion(t *testing.T) {
+	md := "# Title\n\n" +
+		"A long paragraph that wraps differently between full width and narrow mode so blocks below it shift vertically.\n\n" +
+		"## Wide Table\n\n" +
+		"| Alpha | Beta | Gamma | Delta |\n" +
+		"| --- | --- | --- | --- |\n" +
+		"| one-long-cell-value | two-long-cell-value | three-long-cell-value | four-long-cell-value |\n" +
+		"| second-row-alpha | second-row-beta | second-row-gamma | second-row-delta |\n"
+	e := New(md)
+	var column float32
+	full := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		w, _ := c.Size()
+		View(c, e, Options{
+			Width:     w,
+			Theme:     c.Theme(),
+			Column:    column,
+			FullWidth: full,
+		})
+	}, 2000, 900)
+
+	tt.Frame()
+	// Switch from full width directly to narrow without changing the window width.
+	full = false
+	column = 680
+	tt.Frame()
+
+	if e.motion.moving {
+		t.Fatal("switching page width should snap layout immediately instead of gliding blocks/table cells out of alignment")
+	}
+	for id, b := range e.motion.blocks {
+		if b.dx != 0 || b.dy != 0 {
+			t.Fatalf("block %q retained motion offset (%v,%v) after page width switch", id, b.dx, b.dy)
+		}
+	}
+	for id, r := range e.motion.tableRows {
+		if r.dx != 0 || r.dy != 0 {
+			t.Fatalf("table row %q retained motion offset (%v,%v) after page width switch", id, r.dx, r.dy)
+		}
+	}
+	for id, col := range e.motion.tableCols {
+		if col.dx != 0 || col.dy != 0 {
+			t.Fatalf("table col %q retained motion offset (%v,%v) after page width switch", id, col.dx, col.dy)
+		}
+	}
+}
+
+func TestSlashMenuPasteAndEmptyResultsDoNotBlockArrows(t *testing.T) {
+	t.Run("paste-after-slash-dismisses-menu", func(t *testing.T) {
+		e, tt := newTester("")
+		focus(e, tt)
+		tt.Type("/")
+		if !e.slashOpen {
+			t.Fatal("expected slash menu after typing /")
+		}
+		tt.SetClipboard("hello world")
+		tt.Key(ui.Cmd, ui.KeyV)
+		tt.Frame()
+		if e.slashOpen {
+			t.Fatal("expected paste after / to dismiss slash menu")
+		}
+		if e.Text() != "/hello world" {
+			t.Fatalf("unexpected text after paste: %q", e.Text())
+		}
+		end := e.Caret
+		tt.Key(0, ui.KeyLeft)
+		if e.Caret != end-1 {
+			t.Fatalf("KeyLeft did not move caret: got %d want %d", e.Caret, end-1)
+		}
+		tt.Key(0, ui.KeyRight)
+		if e.Caret != end {
+			t.Fatalf("KeyRight did not move caret: got %d want %d", e.Caret, end)
+		}
+		tt.Key(0, ui.KeyEnter)
+		if len(e.Doc.Blocks) != 2 {
+			t.Fatalf("KeyEnter did not insert block: %d", len(e.Doc.Blocks))
+		}
+	})
+
+	t.Run("empty-slash-results-allow-arrows-and-enter", func(t *testing.T) {
+		e, tt := newTester("")
+		focus(e, tt)
+		tt.Type("/zzz")
+		if !e.slashOpen || len(e.slashEntries()) != 0 || !tt.HasText("未能找到相关结果") {
+			t.Fatalf("expected empty slash menu, open=%v len=%d", e.slashOpen, len(e.slashEntries()))
+		}
+		end := e.Caret
+		tt.Key(0, ui.KeyLeft)
+		if e.Caret != end-1 {
+			t.Fatalf("KeyLeft swallowed on empty slash results: got %d want %d", e.Caret, end-1)
+		}
+		tt.Key(0, ui.KeyRight)
+		if e.Caret != end {
+			t.Fatalf("KeyRight swallowed on empty slash results: got %d want %d", e.Caret, end)
+		}
+		tt.Key(0, ui.KeyEnter)
+		if len(e.Doc.Blocks) != 2 || e.slashOpen {
+			t.Fatalf("KeyEnter swallowed on empty slash results: blocks=%d open=%v", len(e.Doc.Blocks), e.slashOpen)
+		}
+	})
+
+	t.Run("filtered-slash-list-allows-horizontal-caret-move", func(t *testing.T) {
+		e, tt := newTester("")
+		focus(e, tt)
+		tt.Type("/bg")
+		entries := e.slashEntries()
+		if !e.slashOpen || len(entries) == 0 || entries[0].grid {
+			t.Fatalf("expected filtered non-grid slash list, open=%v len=%d", e.slashOpen, len(entries))
+		}
+		end := e.Caret
+		tt.Key(0, ui.KeyLeft)
+		if e.Caret != end-1 || !e.slashOpen {
+			t.Fatalf("KeyLeft inside filtered query: caret=%d want=%d open=%v", e.Caret, end-1, e.slashOpen)
+		}
+		tt.Key(0, ui.KeyLeft)
+		tt.Key(0, ui.KeyLeft) // now at 0, before '/'
+		tt.Frame()
+		if e.Caret != 0 || e.slashOpen {
+			t.Fatalf("moving before / should close slash menu: caret=%d open=%v", e.Caret, e.slashOpen)
+		}
+	})
+
+	t.Run("empty-slash-query-keeps-grid-horizontal-arrows", func(t *testing.T) {
+		e, tt := newTester("")
+		focus(e, tt)
+		tt.Type("/")
+		if !e.slashOpen || e.slashIndex != 0 || !e.slashEntries()[0].grid {
+			t.Fatalf("expected grid slash menu at index 0, open=%v idx=%d", e.slashOpen, e.slashIndex)
+		}
+		tt.Key(0, ui.KeyRight)
+		if e.slashIndex != 1 {
+			t.Fatalf("expected KeyRight in icon grid to move slashIndex to 1, got %d", e.slashIndex)
+		}
+	})
 }

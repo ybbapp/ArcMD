@@ -83,6 +83,7 @@ type App struct {
 
 	cfg                 Config
 	win                 *mygo.Window
+	testCaptionWindow   captionWindow
 	quitting            bool
 	hideAfterFullScreen bool
 	store               *space.Store
@@ -254,6 +255,9 @@ type App struct {
 	prefStore   prefs.Store
 	prefs       *prefs.Prefs
 	prefsBroken bool
+	// pageWidthBeforeFull remembers the last non-full page width so toggling
+	// full width off returns to what the reader used before (pagewidth.go).
+	pageWidthBeforeFull string
 	// recording is the command whose new key the settings wait for.
 	recording   string
 	recordFocus bool
@@ -486,7 +490,7 @@ func (a *App) Run() error {
 			{Role: mygo.RoleWindow, Submenu: windowItems},
 		}))
 		a.watchFiles = a.watchFolder
-		a.win = mygo.NewWindow(mygo.WindowOptions{
+		a.win = newAppWindow(mygo.WindowOptions{
 			Title:                "ArcMD",
 			Width:                1240,
 			Height:               800,
@@ -496,8 +500,7 @@ func (a *App) Run() error {
 			TitleBarStyle:        mygo.TitleBarHidden,
 			TrafficLightPosition: &mygo.Point{X: 18, Y: 20},
 			Vibrancy:             mygo.VibrancySidebar,
-			Content:              a.Content(),
-		})
+		}, a.View)
 		a.win.OnLeaveFullScreen(func() {
 			if a.hideAfterFullScreen {
 				a.hideAfterFullScreen = false
