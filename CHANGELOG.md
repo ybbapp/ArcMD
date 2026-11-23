@@ -1,8 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.11
 
-已将上游 main（标签 v0.2.8 / `3c94584def6aaa5e6406ae2e30dd76c2990cb165`，含 [#62](https://github.com/Ciao1019/ArcMD/issues/62)、[#63](https://github.com/Ciao1019/ArcMD/pull/63)、[#64](https://github.com/Ciao1019/ArcMD/issues/64)、[#66](https://github.com/Ciao1019/ArcMD/pull/66)）同步进 ybbapp/ArcMD main，保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。上游官方 GitHub Release v0.2.8 尚未发布，故未打包新的 fork Release，版本仍为 0.2.10。未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork。详见下方「0.2.8 (upstream)」。
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.8](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.8)（ID 455320913）。本 fork 自身已发布过 0.2.1–0.2.10，因此本包版本为 0.2.11，避免与既有 fork Release 冲突。官方 Release 标签指向 `3c94584def6aaa5e6406ae2e30dd76c2990cb165`。
+
+- 上游 0.2.8：新增 HTML 与 EPUB 原生阅读、文档内嵌预览与空间检索（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）；飞书风格有序列表编号值编辑（[#62](https://github.com/Ciao1019/ArcMD/issues/62)）；系统代理自动识别与插件市场失败重试；Arch Linux 原生 `.pkg.tar.zst` 安装包与 CI 自动构建（[#63](https://github.com/Ciao1019/ArcMD/pull/63)，感谢 `@Lyrecoul`）；彻底加固输入 `/` 后粘贴文本与修饰键下的浮层行为（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）；上下方向键跨块纵向导航；内嵌白板 / PDF / HTML / EPUB 块的选中删除体验。源码已于 2026-11-23 19:13 UTC+8 同步进本 fork main（合并提交 `1ca4ce4`）；当时官方 GitHub Release 尚未发布，现已发布（ID 455320913，published 19:19 UTC+8），故本次打包。详见下方「0.2.8 (upstream)」。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView；HTML/EPUB Untrusted WebView 与 JSX 岛屿生命周期并存。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。上游 Arch Linux 打包元数据已纳入源码，但本 fork Release 仍只提供 macOS Apple Silicon 包。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
 
 ## 0.2.10
 
