@@ -27,7 +27,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-en.svg" height="56" alt="Download ArcMD for Windows — x64 installer and ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-en.svg" height="56" alt="Download ArcMD for Linux — x64 and ARM64, DEB and TAR.GZ"></a>
 
-<sub>Source and the fork package both correspond to official upstream Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7">v0.2.7</a>. The buttons above still link to upstream multi-platform releases; the fork 0.2.10 macOS Apple Silicon package is on the <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10">fork release page</a>, or you can <a href="#build-from-source">build from source</a>.</sub>
+<sub>The fork package still corresponds to official upstream Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7">v0.2.7</a>; current source has been synced to upstream main (including the v0.2.8 tag commit). The buttons above still link to upstream multi-platform releases; the fork 0.2.10 macOS Apple Silicon package is on the <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10">fork release page</a>. Official upstream GitHub Release v0.2.8 has not been published yet, so no new fork package was built; or you can <a href="#build-from-source">build from source</a>.</sub>
 
 <br><br>
 
@@ -112,7 +112,7 @@ ArcMD edits and autosaves standard **`.md` Markdown** files (`.md`, `.markdown`,
 <a id="mdx-support"></a>
 ## Fork MDX 3.1.1 support (phase 1)
 
-The exact target is **`@mdx-js/mdx` 3.1.1**, host profile `arcmd-mdx3-phase1`, **not full MDX 3 conformance**. This phase ships on main, and the current formal release is 0.2.10 ([macOS Apple Silicon download](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10)), which also includes official upstream v0.2.7; these MDX additions have been present since 0.2.3. Credit and the native editor design remain with [upstream ArcMD](https://github.com/Ciao1019/ArcMD).
+The exact target is **`@mdx-js/mdx` 3.1.1**, host profile `arcmd-mdx3-phase1`, **not full MDX 3 conformance**. This phase ships on main, and the current formal release is 0.2.10 ([macOS Apple Silicon download](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10)), corresponding to official upstream v0.2.7; source has been synced to upstream main (including the v0.2.8 tag commit), and no new fork package was built because the official GitHub Release has not been published yet. These MDX additions have been present since 0.2.3. Credit and the native editor design remain with [upstream ArcMD](https://github.com/Ciao1019/ArcMD).
 
 | Capability | Current status |
 | --- | --- |
@@ -158,7 +158,7 @@ moejs executes only the trusted compiler; document expressions run only in Untru
 | **Expressive Blocks** | H1–H6 headings, nested lists & tasks, quotes, five-tone icon callouts, stateful incremental syntax highlighting across 17 languages (with per-block soft-wrap toggle), native Mermaid flowcharts & zoomable sequence diagrams, Excalidraw-compatible hand-drawn whiteboards (`.excalidraw.svg` / `.excalidraw` & `/` inline boards), `\boldsymbol` & `\tag` math formulas, native 3D `<kbd>` keycaps & inline/block HTML, `<details>` toggles, footnotes, superscript/subscript, `:sm` emoji search, `@` dates & page mentions, optional CJK–Latin auto-spacing. |
 | **Tables, Columns & Media** | CSV/TSV paste-to-table, row/column drag reorder, cell merge/split, 16 cell fills, natural column sort; adjustable two-column layouts; per-Space attachments folder with automatic relinking, non-destructive image crop (keeping originals) & inline GIF playback; multi-block marquee selection & outline section drag. |
 | **Splits, Command Bar & Templates** | Up to four side-by-side split panes or dedicated native windows; sidebar multi-select & batch move/folder creation; zero-blocking <kbd>⌘K</kbd> command bar (Pinyin/initials & multi-keyword full-text search with persistent disk cache, undoable <kbd>⇧⌘R</kbd> cross-document replace); Space templates (`{{date}}`, `{{time}}`, `{{weekday}}`, `{{title}}`) & <kbd>⌥⌘T</kbd> Daily Notes. |
-| **Mind Map, Links & Safety** | <kbd>⌥⌘M</kbd> navigable document mind map; `[[Wiki links]]` autocomplete across spaces, backlinks footer & rename sync, workspace `#tags`; <kbd>⇧⌘F</kbd> Focus Mode, paragraph afterglow dimming, typewriter scroll, word goals & per-pane reading lock; <kbd>⇧⌘M</kbd> synced Markdown preview, pure-Go vector PDF (Type 3 outlines, bookmarks & clickable links) & standalone HTML export; `.arcmd/history` named milestones, Git diff view & IDEA-style 3-Way Merge conflict resolution. |
+| **Mind Map, Links & Safety** | <kbd>⌃⌘M</kbd> navigable document mind map; `[[Wiki links]]` autocomplete across spaces, backlinks footer & rename sync, workspace `#tags`; <kbd>⇧⌘F</kbd> Focus Mode, paragraph afterglow dimming, typewriter scroll, word goals & per-pane reading lock; <kbd>⇧⌘M</kbd> synced Markdown preview, pure-Go vector PDF (Type 3 outlines, bookmarks & clickable links) & standalone HTML export; `.arcmd/history` named milestones, Git diff view & IDEA-style 3-Way Merge conflict resolution. |
 | **Space Q&A & Cloud Sync** | Press <kbd>⌘J</kbd> for a zero-index Space research panel streaming cited answers with inline monogram chips, gliding source previews, OpenAI / DeepSeek / OpenRouter / local Ollama presets, streaming Chat Completions & Responses protocol selection, and `arcmd ask -protocol` / `ARCMD_AI_PROTOCOL`; pure-Go `wazero` WASM plugin sandbox with the bundled official **Cloud Sync** plugin (S3 / R2 / OSS / COS / MinIO & WebDAV bidirectional incremental sync). |
 
 **Small core, extensible by design**: ArcMD builds in a read-only Space Q&A agent and a pure-Go `wazero` WASM plugin sandbox (with permission prompts, isolated secrets, local `.zip` install, and bundled Cloud Sync) so the core editor stays fast and lean. The remote marketplace index and `process` runtime are in active development. See the [plugin specification](docs/plugins.md).
@@ -212,7 +212,8 @@ Download prebuilt packages from [GitHub Releases](https://github.com/Ciao1019/Ar
 | --- | --- | --- |
 | macOS | Apple Silicon, Intel | `.dmg` (currently ad-hoc signed, not notarized) |
 | Windows | x64 | Installer `.exe`, portable `.zip` (currently unsigned) |
-| Linux | x64, ARM64 | `.deb`, `.tar.gz` |
+| Linux | x64 | `.deb`, `.tar.gz`, Arch Linux `.pkg.tar.zst` |
+| Linux | ARM64 | `.deb`, `.tar.gz` |
 
 ### Build from source
 

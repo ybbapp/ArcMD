@@ -11,12 +11,14 @@ import (
 	"path/filepath"
 
 	"github.com/Ciao1019/ArcMD/internal/app"
+	"github.com/Ciao1019/ArcMD/internal/sysproxy"
 )
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--jsx-check" {
 		os.Exit(jsxCheck(os.Args[2:]))
 	}
+	sysproxy.Install()
 	cfg, err := app.DefaultConfig()
 	if err != nil {
 		log.Fatal(err)

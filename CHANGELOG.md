@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+已将上游 main（标签 v0.2.8 / `3c94584def6aaa5e6406ae2e30dd76c2990cb165`，含 [#62](https://github.com/Ciao1019/ArcMD/issues/62)、[#63](https://github.com/Ciao1019/ArcMD/pull/63)、[#64](https://github.com/Ciao1019/ArcMD/issues/64)、[#66](https://github.com/Ciao1019/ArcMD/pull/66)）同步进 ybbapp/ArcMD main，保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。上游官方 GitHub Release v0.2.8 尚未发布，故未打包新的 fork Release，版本仍为 0.2.10。未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork。详见下方「0.2.8 (upstream)」。
+
 ## 0.2.10
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.2.7](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7)（ID 454472957）。本 fork 自身已发布过 0.2.1–0.2.9，因此本包版本为 0.2.10，避免与既有 fork Release 冲突。官方 Release 标签指向 `bc40cf35b0a865340fbf9344918679e47d36acfb`。
@@ -35,6 +39,32 @@ ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能�
 - 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
 - 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。
 - 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
+## 0.2.8 (upstream)
+
+本版本新增 **HTML 与 EPUB 原生阅读、文档内嵌预览与空间检索**（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）、**飞书风格有序列表编号值编辑**（[#62](https://github.com/Ciao1019/ArcMD/issues/62)）、**系统代理自动识别与插件市场失败重试**，以及 **Arch Linux 原生 `.pkg.tar.zst` 安装包与 CI 自动构建**（[#63](https://github.com/Ciao1019/ArcMD/pull/63)，感谢 `@Lyrecoul`）；同时彻底加固了 **输入 `/` 后粘贴文本与修饰键下的浮层行为**（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）、**上下方向键跨块纵向导航** 与 **内嵌白板 / PDF / HTML / EPUB 块的选中删除体验**。
+
+### 新功能与桌面体验
+
+- **HTML 与 EPUB 原生阅读、文档内嵌与空间检索（`internal/bookdoc`、`internal/editor/bookview.go`、`internal/editor/book_block.go`、`internal/app/bookviewer.go`、`internal/app/htmlwebview.go`）**：支持在空间侧边栏、外部打开与拖放导入中直接阅读 `.epub`、`.html` 与 `.htm` 文件。EPUB 纯 Go 解析 EPUB 2（NCX）/ EPUB 3（Nav）目录、封面与内嵌图片，支持章节切换、目录侧栏、跨章与页内查找、页面宽度调节、DRM 加密与损坏提示，以及将当前章节另存为 Markdown 笔记；HTML 支持字符编码自动探测、标题大纲提取、沙箱化原生 WebView 忠实渲染（`Untrusted` 隔离并限制同目录本地资源访问）、阅读/源码视图切换、在默认浏览器中打开与另存为 Markdown。同时支持通过 `/` 菜单、命令栏或拖放将 HTML / EPUB 内嵌至 Markdown 文档就地浏览或弹窗放大，并完整接入空间全文检索、悬停预览卡片、矢量 PDF 导出与空间问答 Agent（`⌘J`）检索及引用跳转（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）。
+- **有序列表编号值编辑（`internal/document`、`internal/editor/listnum.go`、`internal/editor/menus.go`、`internal/editor/markdown.go`、`internal/editor/mindmap.go`）**：文档模型升级至 v10，支持 `1–999999` 起始编号，键入任意 `N. ` 自动按 `N` 起始；支持点击有序列表序号弹出编号设置浮层，或从块手柄菜单进入「编号设置 ›」执行「继续之前的编号」、「开始新列表」与「修改编号值」（含完整撤销/重做），并在 Markdown 导入导出（自动切换 `.` / `)` 分隔符无损保留分段起始号）、HTML 导入导出与思维导图中保持一致（[#62](https://github.com/Ciao1019/ArcMD/issues/62)）。
+- **Arch Linux 原生打包与 CI 自动构建（`mygo.json`、`.github/workflows/build.yml`、`docs/building.md`）**：在 CI 的 `linux-amd64` 流程中通过固定镜像的离线 Arch Linux 容器自动构建 `.pkg.tar.zst` 安装包并生成 `SHA256SUMS` 校验，补全应用分类与运行时依赖（`hicolor-icon-theme`、`poppler-glib`）及本地 `makepkg` / `pacman -U` 安装文档（[#63](https://github.com/Ciao1019/ArcMD/pull/63)，感谢 `@Lyrecoul`）。
+- **系统代理自动识别与插件市场重试（`internal/sysproxy`、`cmd/arcmd/main.go`、`internal/app/plugins.go`）**：启动时自动为标准 HTTP 客户端接入代理：优先遵循 `HTTP_PROXY` / `HTTPS_PROXY` 环境变量，未配置时回退读取操作系统代理设置（macOS 通过 `scutil --proxy` 支持 HTTP / HTTPS / SOCKS5，Windows 读取注册表 `Internet Settings`，带 5 秒缓存与本地地址绕过），让插件市场、空间问答 Agent、云端同步与软件更新自动走系统代理；同时将插件市场目录请求超时放宽至 30 秒，并在加载失败时提供「重试」按钮。
+
+### 关键修复
+
+- **彻底修复输入 `/` 后粘贴文本及修饰键下的浮层方向键问题（`internal/editor/tools.go`、`internal/editor/input.go`、`internal/editor/csvpaste.go`、`internal/editor/complete.go`、`internal/editor/wikilinks.go`）**：将斜杠菜单关闭状态改为按块 ID 记录，普通粘贴（含多行或以 `/` 开头的文本）、无格式粘贴及 CSV/TSV 粘贴建表后统一收起斜杠、`[[` 双链与自动补全菜单，不再拦截方向键；放行带修饰键的方向键组合，且删除 `/` 后可正常重新唤出菜单（[#64](https://github.com/Ciao1019/ArcMD/issues/64)）。
+- **重写上下方向键纵向光标导航（`internal/editor/input.go`、`internal/editor/spatial.go`）**：基于空间索引实现 `moveVertical` 与 `nearestVertical`，按视觉行与块边界精确上下移动光标，修复跨标题、代码块、高亮块、表格列与图片/白板块时上下移动跳行或卡住的问题。
+- **统一内嵌白板、PDF、HTML/EPUB 与异常图片块的选中与删除体验（`internal/editor/board_block.go`、`internal/editor/input.go`、`internal/editor/images.go`、`internal/editor/pdf_block.go`、`internal/editor/selection_scroll.go`、`internal/document/engine.go`）**：支持点击聚焦边框高亮、跨块拖选整块覆盖、`Backspace` / `Delete` 直接删除、`⌘C` / `⌘X` 复制剪切与撤销；加载失败的图片占位框支持点击聚焦和右键菜单（重新选择、显示文件、删除），白板悬停操作栏改为原生按钮控件以提升点击稳定性。
+- **思维导图默认快捷键避让与工具栏角标对齐修复（`internal/app/keymap.go`、`internal/app/pdfviewer.go`、`internal/app/bookviewer.go`）**：将思维导图默认快捷键调整为 `⌃⌘M`（Windows / Linux `Ctrl+Alt+M`），并在 macOS 上将系统窗口快捷键 `⌘M` / `⌥⌘M` 设为保留组合；同时修复顶部工具栏中 PDF 页数与 EPUB 章节数角标垂直偏高的问题。
+
+### 贡献者
+
+- 特别感谢 **`@Lyrecoul`**（[#63](https://github.com/Ciao1019/ArcMD/pull/63)）对本版本的贡献！
+
+### 下载说明
+
+提供 macOS（Apple Silicon / Intel）、Windows x64 与 Linux（x64 `.deb` / `.tar.gz` / Arch Linux `.pkg.tar.zst`，ARM64 `.deb` / `.tar.gz`）原生安装包，可使用 `SHA256SUMS.txt` 校验完整性，已安装版本支持应用内签名自动更新。官方插件可在应用「设置 › 插件」按需从 [`Ciao1019/arcmd-plugins`](https://github.com/Ciao1019/arcmd-plugins) 下载或更新。
 
 ## 0.2.7 (upstream)
 
@@ -224,7 +254,6 @@ Document (`.md` and legacy `.arcmd` format **8**) and Space configuration (`spac
 Packages are available for macOS (Apple Silicon and Intel), Windows x64, and Linux (x64 and ARM64). Verify downloads against `SHA256SUMS.txt`. Signed update archives and manifests support in-app updates. The plugin marketplace and plugin execution runtimes remain unavailable.
 
 ## 0.2.1
-
 
 This release upgrades PDF export to a pure-Go vector pipeline with hierarchical outlines and clickable links, adds native Mermaid diagram rendering, `\boldsymbol` bold math fonts, and Obsidian `![[...]]` image embed compatibility, speeds up large-document editing and command-bar discovery with Pinyin/multi-keyword search and persistent caching, introduces named version milestones with grapheme-level inline diffs, and resolves Windows shortcut and path-handling issues.
 

@@ -27,7 +27,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-zh-CN.svg" height="56" alt="下载 ArcMD Windows 版：x64 安装程序与 ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-zh-CN.svg" height="56" alt="下载 ArcMD Linux 版：x64 与 ARM64，DEB 与 TAR.GZ"></a>
 
-<sub>当前源码与本 fork 安装包均对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7">v0.2.7</a>。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.10 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
+<sub>本 fork 安装包仍对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.7">v0.2.7</a>；当前源码已同步上游 main（含 v0.2.8 标签提交）。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.10 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10">fork Release</a>。上游官方 GitHub Release v0.2.8 尚未发布，故未打包新的 fork Release；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
 
 <br><br>
 
@@ -112,7 +112,7 @@ ArcMD 直接以标准 **`.md` Markdown** 作为主格式，编辑时在后台原
 <a id="mdx-support"></a>
 ## 本 fork 的 MDX 3.1.1 增强（第一阶段）
 
-目标精确锁定 **`@mdx-js/mdx` 3.1.1**，兼容配置为 `arcmd-mdx3-phase1`，不是“已完整兼容 MDX 3”。本阶段已合入主线，当前正式版为 0.2.10（[macOS Apple Silicon 下载](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10)），同时包含上游官方 v0.2.7；0.2.3 起具备下列 MDX 能力。保留 [上游 ArcMD](https://github.com/Ciao1019/ArcMD) 的归属与原生编辑器设计。
+目标精确锁定 **`@mdx-js/mdx` 3.1.1**，兼容配置为 `arcmd-mdx3-phase1`，不是“已完整兼容 MDX 3”。本阶段已合入主线，当前正式版为 0.2.10（[macOS Apple Silicon 下载](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10)），对应上游官方 v0.2.7；源码已同步上游 main（含 v0.2.8 标签提交），因官方 GitHub Release 尚未发布而未打包新版本。0.2.3 起具备下列 MDX 能力。保留 [上游 ArcMD](https://github.com/Ciao1019/ArcMD) 的归属与原生编辑器设计。
 
 | 能力 | 当前状态 |
 | --- | --- |
@@ -158,7 +158,7 @@ go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
 | **丰富内容块** | H1–H6 标题、嵌套列表与任务、引用、五色可换图标高亮块、17 种语言状态机增量高亮代码块（支持单块自动换行切换）、原生 Mermaid 流程图与可无损缩放时序图、Excalidraw 兼容手绘白板（`.excalidraw.svg` / `.excalidraw` 与 `/` 内嵌白板）、`\boldsymbol` 与 `\tag` 数学公式、原生 `<kbd>` 3D 键帽与常见行内/块级 HTML、`<details>` 折叠块、脚注、上下标、`:sm` 表情与 `@` 日期/文档提及、可选中英文自动加空格。 |
 | **表格、双栏与媒体** | CSV/TSV 粘贴建表、行列拖拽换位、跨格合并拆分、16 色底色、按列自然排序；可调比例双栏布局；空间自定义附件目录与移动自动重链、图片无损裁剪（保留原图）与页面内 GIF 播放；框选多块批量操作与目录拖拽移动整章。 |
 | **分屏、命令栏与模板** | 最多四分屏并排或拆分为独立原生窗口；侧边栏多选与批量移动/建夹；零阻塞 <kbd>⌘K</kbd> 命令栏（拼音/首字母与多关键词全文检索、持久化磁盘缓存、<kbd>⇧⌘R</kbd> 跨文档替换与一键撤销）；空间模板（`{{date}}` / `{{time}}` / `{{weekday}}` / `{{title}}`）与 <kbd>⌥⌘T</kbd> 今日笔记。 |
-| **导图、双链与守护** | <kbd>⌥⌘M</kbd> 原生可导航文档思维导图；`[[双链]]` 跨空间补全、反向链接聚合与改名自动同步，`#标签` 全局整理；<kbd>⇧⌘F</kbd> 专注模式、段落余晖淡化、打字机滚动、字数目标与分屏只读锁；<kbd>⇧⌘M</kbd> 同步位置 Markdown 预览、纯 Go 矢量 PDF（Type 3 字形、目录书签与可点击链接） / 独立 HTML 导出；`.arcmd/history` 命名里程碑、Git 差异视图与 IDEA 式三栏合并恢复。 |
+| **导图、双链与守护** | <kbd>⌃⌘M</kbd> 原生可导航文档思维导图；`[[双链]]` 跨空间补全、反向链接聚合与改名自动同步，`#标签` 全局整理；<kbd>⇧⌘F</kbd> 专注模式、段落余晖淡化、打字机滚动、字数目标与分屏只读锁；<kbd>⇧⌘M</kbd> 同步位置 Markdown 预览、纯 Go 矢量 PDF（Type 3 字形、目录书签与可点击链接） / 独立 HTML 导出；`.arcmd/history` 命名里程碑、Git 差异视图与 IDEA 式三栏合并恢复。 |
 | **空间问答与云端同步** | <kbd>⌘J</kbd> 打开只读空间问答面板（零向量库，流式内联引用胶囊、滑移预览与直达块定位，支持 OpenAI / DeepSeek / OpenRouter / 本地 Ollama、流式 Chat Completions 与 Responses 协议切换及终端 `arcmd ask -protocol` / `ARCMD_AI_PROTOCOL`）；纯 Go `wazero` WASM 插件沙箱与内置官方「云端同步」插件（支持 S3 / R2 / OSS / COS / MinIO 与坚果云 / Nextcloud / Alist WebDAV 三路增量同步）。 |
 
 **轻量核心，按需扩展**：核心内置只读的空间问答 Agent 与纯 Go `wazero` WASM 插件沙箱（支持权限确认、凭据隔离、本地 `.zip` 安装与内置「云端同步」插件），让编辑器核心始终纯粹轻快。远程插件市场索引与进程运行时正在建设中，详见[插件规范与路线图（英文）](docs/plugins.md)。
@@ -212,7 +212,8 @@ go run ./cmd/arcmd --jsx-check tools/mdx/example.mdx
 | --- | --- | --- |
 | macOS | Apple Silicon、Intel | `.dmg`（当前为临时 ad-hoc 签名，尚未公证） |
 | Windows | x64 | `.exe` 安装程序、`.zip` 便携包（尚未代码签名） |
-| Linux | x64、ARM64 | `.deb`、`.tar.gz` |
+| Linux | x64 | `.deb`、`.tar.gz`、Arch Linux `.pkg.tar.zst` |
+| Linux | ARM64 | `.deb`、`.tar.gz` |
 
 ### 从源码运行
 

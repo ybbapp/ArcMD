@@ -3,6 +3,7 @@
   "slug": "arcmd",
   "identifier": "org.ybbapp.arcmd",
   "version": "0.2.10",
+  "license": "MIT",
   "icon": "resources/icon.png",
   "main": "./cmd/arcmd",
   "out": "dist",
@@ -34,6 +35,12 @@
     "icon": "resources/icon.icns"
   },
   "linux": {
-    "webview": false
+    "webview": false,
+    "comment": "Native Markdown and rich-text editor",
+    "categories": ["Office"],
+    "command": "arcmd",
+    "depends": {
+      "arch": ["hicolor-icon-theme", "poppler-glib"]
+    }
   }
 }
