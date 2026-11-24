@@ -1,10 +1,19 @@
-# ArcMD 0.2.11 · ybbapp 主线版（上游官方 v0.2.8 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.12 · ybbapp 主线版（上游官方 v0.3.0 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.2.8](https://github.com/Ciao1019/ArcMD/releases/tag/v0.2.8)（ID 455320913，源码 `3c94584def6aaa5e6406ae2e30dd76c2990cb165`）。本 fork 已发布过 0.2.1–0.2.10，因此本包版本为 0.2.11，避免版本号冲突。
+本包对应上游官方 Release [v0.3.0](https://github.com/Ciao1019/ArcMD/releases/tag/v0.3.0)（ID 456903018，源码 `3509072d2f7f867f905ea5aedf7fe0a2f0a6fe1e`）。本 fork 已发布过 0.2.1–0.2.11，因此本包版本为 0.2.12，避免版本号冲突。
 
-## 上游 v0.2.8 能力（已纳入本包）
+## 上游 v0.3.0 能力（已纳入本包）
+
+- 纯 Go 原生两栖多维数据库引擎（Ciao1019/ArcMD#71）：记录源支持文件夹与内联行；18 种属性类型（含 Relation、Rollup、Formula 2.0）；多层筛选/排序/分组、列统计、条件着色、记录模板、撤销重做，以及 CSV / Notion ZIP 导入与 CSV / Markdown 导出。数据库文件为 `.db.md`，记录为带 YAML Frontmatter 的标准 `.md`，并自带可离线阅读的 GFM 表格快照。
+- 9 种纯 Go 原生视图与 120 Hz 微交互（`internal/dbview`）：表格、看板、日历、甘特时间轴、列表、画廊、图表、动态流与表单；遵守系统 `ReduceMotion`。
+- 文档内嵌 Linked View 两栖块与三模式记录预览：可通过 `/` 菜单或命令栏嵌入已有数据库视图并调节高度，支持侧边预览抽屉 / 居中弹窗 / 整页打开。本 fork 中该块与既有 JSX 岛屿、HTML/EPUB Untrusted WebView 生命周期并存；测高跳过嵌入的 JSX 岛屿与数据库块；导出与 `text()` 在数据库文件之外仍经 `RestoreSource` 还原 JSX/MDX 原文。
+- 统一新建向导与空间生态打通：侧边栏与命令栏可一站式创建文档、数据库、白板、文件夹、套用模板或导入 CSV / Notion；Schema 与记录 Frontmatter 接入全文检索、空间问答与侧边栏重命名/移动。
+- 修复排序后表格自动滚到底部，以及整页打开数据库记录时侧边栏伴随文件夹无法收起的问题；补全中英文翻译与第三方归属。
+- 源码已于 2026-11-24 22:19 UTC+8 同步进本 fork main（合并提交 `9b61fc3`）；当时官方 GitHub Release 尚未发布。现已发布（ID 456903018，published 22:47 UTC+8），本次据此打包。未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork。官方多平台安装包与签名自动更新仅适用于上游发行；本 fork Release 仍只提供 macOS Apple Silicon（arm64）。
+
+## 上游 v0.2.8 及更早能力（仍纳入本包）
 
 - HTML 与 EPUB 原生阅读、文档内嵌预览与空间检索（Ciao1019/ArcMD#64）：可在空间侧边栏、外部打开与拖放导入中直接阅读 `.epub`、`.html` 与 `.htm`。EPUB 由纯 Go 解析目录、封面与内嵌图片；HTML 以沙箱化 Untrusted WebView 渲染并限制同目录本地资源。支持将 HTML/EPUB 内嵌到 Markdown 就地浏览，并接入空间检索、悬停预览、PDF 导出与问答引用跳转。本 fork 中该书档 WebView 与既有 JSX 岛屿生命周期并存，互不替代。
 - 飞书风格有序列表编号值编辑（#62）：文档模型升级至 v10，支持 1–999999 起始编号，可从序号浮层或块手柄菜单继续编号、开始新列表或修改编号值，并在 Markdown/HTML/思维导图导入导出中保持一致。
@@ -41,7 +50,7 @@
 - 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
 - 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
 
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.11）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.12）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -52,7 +61,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.11 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.12 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 / 0.2.11 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -61,7 +70,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落请让agent或外部编辑器改原文件，再回应用重载；源码视图仍是只读导出预览。先保存/解决原生编辑，再重载。保存还原岛屿原文，不写回HTML；岛屿外Markdown仍可能被原生序列化规范化。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.10 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.11 ，不需要删除数据。
 
 ## 范围与安全
 

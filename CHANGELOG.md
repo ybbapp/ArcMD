@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.2.12
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.3.0](https://github.com/Ciao1019/ArcMD/releases/tag/v0.3.0)（ID 456903018）。本 fork 自身已发布过 0.2.1–0.2.11，因此本包版本为 0.2.12，避免与既有 fork Release 冲突。官方 Release 标签指向 `3509072d2f7f867f905ea5aedf7fe0a2f0a6fe1e`。
+
+- 上游 0.3.0：正式推出纯 Go 原生两栖多维数据库引擎（`.db.md`）与 9 种高帧交互视图（表格、看板、日历、甘特、列表、画廊、图表、动态流、表单），以及统一新建向导、文档内嵌 Linked View 两栖块、侧边预览 / 居中弹窗 / 整页打开三模式。详见下方「0.3.0 (upstream)」。源码已于 2026-11-24 22:19 UTC+8 同步进本 fork main（合并提交 `9b61fc3`）；当时官方 GitHub Release 尚未发布，现已发布（ID 456903018，published 22:47 UTC+8），故本次打包。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView；HTML/EPUB Untrusted WebView、数据库 Linked View 与 JSX 岛屿生命周期并存。导出与 `text()` 在数据库文件之外仍经 `RestoreSource` 还原 JSX/MDX 原文；测高跳过嵌入的 JSX 岛屿与数据库块。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。上游多平台安装包与应用内签名更新说明仅适用于官方发行；本 fork Release 仍只提供 macOS Apple Silicon 包。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.3.0 (upstream)
 
-本 fork 已将上游 v0.3.0 标签提交 3509072 合入 main。官方 GitHub Release API 此时尚未发布该版本（latest 仍为 v0.2.8 / 455320913），故本次只同步源码，不打包、不发布新的 fork Release。已发布的 fork 安装包仍为 0.2.11。
+本 fork 已将上游 v0.3.0 标签提交 3509072 合入 main。官方 GitHub Release 已于 2026-11-24 22:47 UTC+8 发布（ID 456903018，标签 `3509072d2f7f867f905ea5aedf7fe0a2f0a6fe1e`）。本 fork 据此打包 0.2.12。
 
 本版本正式推出 **纯 Go 原生两栖多维数据库引擎（`.db.md`）与 9 种高帧交互视图**，将 Notion / 飞书多维表格风格的结构化数据管理完整融入本地纯文本 Markdown 工作流——每条记录都是标准 `.md` 文件（YAML Frontmatter 双向同步属性），数据库文件自带可离线阅读的 GFM Markdown 表格快照；同时引入 **统一新建向导弹窗**、**文档内嵌数据库 Linked View 两栖块**、**侧边预览 / 居中弹窗 / 整页打开三模式**，以及对齐编辑器手感的 **120 Hz 弹簧微动效与悬浮拖拽落位引擎**。
 
