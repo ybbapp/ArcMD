@@ -2175,4 +2175,5 @@ var en = map[string]string{
 	"查找…":                                      "Find...",
 	"缩小 (⌘-)":                                  "Zoom Out (⌘-)",
 	"放大 (⌘+)":                                  "Zoom In (⌘+)",
+	"清除样式":                                     "Clear Formatting",
 }
