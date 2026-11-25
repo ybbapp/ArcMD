@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.2.13
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.4.0](https://github.com/Ciao1019/ArcMD/releases/tag/v0.4.0)（ID 458111160）。本 fork 自身已发布过 0.2.1–0.2.12，因此本包版本为 0.2.13，避免与既有 fork Release 冲突。官方 Release 标签指向 `1e7a6f9a6676db0c8c3c9b33b4bb0f104f6327fa`。
+
+- 上游 0.4.0：正式推出本地编码 Agent 协同（`arcmd mcp` 原生 MCP 服务、CLI 控制子命令、活动窗口实时 IPC 与一键安装 SKILL.md），并合入整页等比缩放、一键清除样式、侧边栏三档行高密度、安静单色文件类型图标、看板拖拽重构、EPUB 键盘翻章，以及帧循环/缓存/句柄/沙箱等稳定性加固。详见下方「0.4.0 (upstream)」。源码已于 2026-11-25 21:14 UTC+8 合入本 fork main（合并提交 `d3df507`）；官方 GitHub Release 已于 20:53 UTC+8 发布（ID 458111160），故本次打包。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView；HTML/EPUB Untrusted WebView、数据库 Linked View 与 JSX 岛屿生命周期并存。导出与 `text()` 在数据库文件之外仍经 `RestoreSource` 还原 JSX/MDX 原文；测高跳过嵌入的 JSX 岛屿与数据库块。内联 JSX 岛屿不视为 HasZoomModal，非 100% 页缩放下其 WebView 尺寸仍跟随测得内容高度，不会被额外缩放。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。CLI 仍先处理 `--jsx-check`，再进入上游 `dispatchCLI`。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。上游多平台安装包与应用内签名更新说明仅适用于官方发行；本 fork Release 仍只提供 macOS Apple Silicon 包。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.4.0 (upstream)
 
-本 fork 已将上游 v0.4.0 标签提交 1e7a6f9 合入 main。官方 GitHub Release 已于 2026-11-25 20:53 UTC+8 发布（ID 458111160，标签 `1e7a6f9a6676db0c8c3c9b33b4bb0f104f6327fa`）。已发布的 fork 安装包仍为 0.2.12；本次随后将据此打包 0.2.13。
+本 fork 已将上游 v0.4.0 标签提交 1e7a6f9 合入 main。官方 GitHub Release 已于 2026-11-25 20:53 UTC+8 发布（ID 458111160，标签 `1e7a6f9a6676db0c8c3c9b33b4bb0f104f6327fa`）。本 fork 据此打包 0.2.13。
 
 本版本正式推出 **本地编码 Agent 协同体系（`arcmd mcp` 原生 MCP 服务、全功能 CLI 控制子命令、活动窗口实时 IPC 桥接与一键安装 `SKILL.md`）**，让 Claude Code、Codex、Gemini CLI、Cursor、Antigravity 等本机 Agent 直接协同读写空间、富文本笔记、手绘白板与多维数据库，并在桌面窗口中实时同步且完整保留 `⌘Z` 撤销栈；同时合入 **整页等比缩放（`50%–200%`）**（[#12](https://github.com/Ciao1019/ArcMD/issues/12)、[#74](https://github.com/Ciao1019/ArcMD/pull/74)，感谢 `@tajiaoyezi`）与 **一键清除样式（`⇧⌘\`）**（[#69](https://github.com/Ciao1019/ArcMD/issues/69)、[#72](https://github.com/Ciao1019/ArcMD/pull/72)，感谢 `@tajiaoyezi`），带来 **侧边栏三档行高密度、安静单色文件类型图标、看板 120 Hz 弹簧拖拽重构与 EPUB 键盘翻章滚动**，并集中完成了 **120 Hz 帧循环零磁盘阻塞、数据库封面纹理缓存、跨平台句柄释放与 WASM 插件沙箱加固** 等 30 余项稳定性优化。
 
