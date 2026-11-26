@@ -13,9 +13,10 @@
 <a href="https://github.com/egoist/mygo"><img src="https://img.shields.io/badge/built%20with-Go%20%2B%20MyGo-00ADD8?logo=go&amp;logoColor=white" alt="使用 Go 与 MyGo 原生开发"></a>
 <a href=".github/workflows/build.yml"><img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088ff?logo=githubactions&amp;logoColor=white" alt="CI 工作流配置"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-C912D6" alt="MIT 许可证"></a>
-<img src="https://img.shields.io/badge/status-preview-F2410F" alt="预览版">
 
 [![Listed on Awesome MyGo](https://awesomemygo.dev/badge.svg)](https://awesomemygo.dev/apps/arcmd)
+
+<a href="https://trendshift.io/repositories/347199?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-347199" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/347199/daily?language=Go" alt="Ciao1019%2FArcMD | Trendshift" width="250" height="55"/></a>
 
 <br>
 
@@ -27,11 +28,11 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-zh-CN.svg" height="56" alt="下载 ArcMD Windows 版：x64 安装程序与 ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-zh-CN.svg" height="56" alt="下载 ArcMD Linux 版：x64 与 ARM64，DEB 与 TAR.GZ"></a>
 
-<sub>当前源码与本 fork 安装包均对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.4.0">v0.4.0</a>。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.13 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.13">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
+<sub>当前源码已合入上游 v0.5.0 标签提交（8e62d8d），但官方 GitHub Release 尚未发布。本 fork 已发布安装包仍对应官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.4.0">v0.4.0</a> 的 0.2.13。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.13 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.13">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
 
 <br><br>
 
-[书写交互](#行云流水的书写交互) · [空间与阅读](#空间与阅读亮点) · [原生 Markdown](#原生-markdown不绑架你的文件) · [功能全景](#功能全景) · [常用快捷键](#常用快捷键) · [性能](#性能) · [从源码运行](#从源码运行) · [参与贡献](#参与贡献)
+[书写交互](#行云流水的书写交互) · [空间与阅读](#空间与阅读亮点) · [原生 Markdown](#原生-markdown不绑架你的文件) · [功能全景](#功能全景) · [常用快捷键](#常用快捷键) · [性能](#性能) · [从源码运行](#从源码运行) · [参与贡献](#参与贡献) · [路线图](https://github.com/Ciao1019/ArcMD/issues/80)
 
 </div>
 
@@ -47,9 +48,6 @@ ArcMD 将熟悉的 Markdown 写作流带入细腻跟手的原生富文本画布�
 > **致敬与起源**
 >
 > The Browser Company 宣布 Arc 步入维护模式的那天，X 上无数人都在惋惜一款如此充满审美、手感与灵魂的软件走向终局。作为一个 Arc 的长期拥趸，我不舍得那些彻底改变了我工作流的竖向侧栏、多色彩 Space、全局收藏以及安静克制的呼吸感。既然 Arc 停下了脚步，那我们就用纯 Go 与原生 UI，在文档编辑的世界里把它延续下去——献给每一个依然相信「软件应该有审美与触感」的创作者。
-
-> [!NOTE]
-> **ArcMD 仍处于早期预览阶段**，不少细节仍在持续打磨迭代。如果你也喜欢这个方向，欢迎在 [Issues](https://github.com/Ciao1019/ArcMD/issues) 分享反馈与想法，或直接提交 Pull Request 一起构建。
 
 ---
 
@@ -243,7 +241,7 @@ CGO_ENABLED=0 go run github.com/egoist/mygo/cmd/mygo@v0.10.0 build
 
 ## 参与贡献
 
-欢迎通过 [GitHub Issues](https://github.com/Ciao1019/ArcMD/issues) 提交问题与建议，或直接发起 Pull Request。动手前请先阅读[架构说明（英文）](docs/architecture.md)与[贡献约定](AGENTS.md)。
+欢迎在[功能路线图（#80）](https://github.com/Ciao1019/ArcMD/issues/80)查看后续规划与参与投票，或通过 [GitHub Issues](https://github.com/Ciao1019/ArcMD/issues) 提交问题与建议、直接发起 Pull Request。动手前请先阅读[架构说明（英文）](docs/architecture.md)与[贡献约定](AGENTS.md)。
 
 提交改动前请确保以下检查通过：
 

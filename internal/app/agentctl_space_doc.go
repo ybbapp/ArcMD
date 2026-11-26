@@ -440,6 +440,8 @@ func docKind(rel string) string {
 		return "pdf"
 	case vault.IsBook(rel):
 		return "book"
+	case vault.IsMDZ(rel):
+		return "mdz"
 	default:
 		return "markdown"
 	}
@@ -642,7 +644,7 @@ func (a *App) ctlDocRead(raw []byte) (any, error) {
 			"snapshot":    snap,
 		}, nil
 
-	case "pdf", "book":
+	case "pdf", "book", "mdz":
 		vfs := a.qaSpace(sp.ID)
 		if vfs == nil {
 			return nil, errors.New("space reader unavailable")
@@ -737,7 +739,7 @@ func sliceTextLines(text string, startLine, endLine int, number bool) (total int
 }
 
 func (a *App) readMarkdownForControl(sp *space.Space, rel string) (text string, dirty bool, err error) {
-	if res := a.residentDocument(sp.ID, rel); res != nil && res.loadErr == nil && !res.isWhiteboard() && !res.isDatabase() && !res.isPDF() && !res.isBook() {
+	if res := a.residentDocument(sp.ID, rel); res != nil && res.loadErr == nil && !res.isWhiteboard() && !res.isDatabase() && !res.isPDF() && !res.isBook() && !res.isMDZ() {
 		return editor.ExportMarkdown(res.ed.Committed()), res.dirty(), nil
 	}
 	raw, err := readDocSource(sp, rel)
@@ -820,8 +822,8 @@ func (a *App) ctlDocCreate(raw []byte) (any, error) {
 			return nil, errors.New("use whiteboard_write / 'arcmd board write' to create .excalidraw.svg whiteboards")
 		case vault.IsDatabase(rawPath):
 			return nil, errors.New("use database_schema / 'arcmd db create' to create .db.md databases")
-		case vault.IsPDF(rawPath) || vault.IsBook(rawPath) || strings.HasSuffix(lowerPath, ".pdf") ||
-			strings.HasSuffix(lowerPath, ".epub") || strings.HasSuffix(lowerPath, ".html") || strings.HasSuffix(lowerPath, ".htm"):
+		case vault.IsPDF(rawPath) || vault.IsBook(rawPath) || vault.IsMDZ(rawPath) || strings.HasSuffix(lowerPath, ".pdf") ||
+			strings.HasSuffix(lowerPath, ".epub") || strings.HasSuffix(lowerPath, ".html") || strings.HasSuffix(lowerPath, ".htm") || strings.HasSuffix(lowerPath, ".mdz"):
 			return nil, fmt.Errorf("%s cannot be created with doc_create; only Markdown documents are supported", rawPath)
 		}
 	}
@@ -1124,7 +1126,7 @@ func (a *App) ctlDocEdit(raw []byte) (any, error) {
 	if vault.IsDatabase(rel) {
 		return nil, errors.New("use database_schema / database_records / 'arcmd db' to edit .db.md databases")
 	}
-	if vault.IsPDF(rel) || vault.IsBook(rel) {
+	if vault.IsPDF(rel) || vault.IsBook(rel) || vault.IsMDZ(rel) {
 		return nil, fmt.Errorf("%s is a read-only document", rel)
 	}
 
@@ -1348,13 +1350,16 @@ func parseATXHeading(trimmed string) (level int, title string, ok bool) {
 // open in the GUI editor, it applies the edit as one undoable Engine step and
 // flushes cleanly without triggering external-change conflict banners.
 func (a *App) commitMarkdownForControl(sp *space.Space, rel, nextText string) error {
-	if res := a.residentDocument(sp.ID, rel); res != nil && res.loadErr == nil && !res.isWhiteboard() && !res.isDatabase() && !res.isPDF() && !res.isBook() {
+	if res := a.residentDocument(sp.ID, rel); res != nil && res.loadErr == nil && !res.isWhiteboard() && !res.isDatabase() && !res.isPDF() && !res.isBook() && !res.isMDZ() {
 		res.waitAsyncSave()
 		res.ed.UnmarkText()
 		wasRO := res.ed.ReadOnly
 		res.ed.ReadOnly = false
 		res.ed.Engine.ReplaceDocument(editor.ImportMarkdown(nextText))
 		res.ed.ReadOnly = wasRO
+		if res.source {
+			res.refreshSourceFromModel()
+		}
 		if err := res.write(true); err != nil {
 			return err
 		}

@@ -40,7 +40,7 @@ func (a *App) printDoc()  { a.startPDF(true) }
 
 func (a *App) startPDF(printing bool) {
 	d := a.doc
-	if d == nil || d.loadErr != nil || d.isPDF() || d.isBook() || d.isDatabase() || a.pdfExport != nil {
+	if d == nil || d.loadErr != nil || d.isPDF() || d.isBook() || d.isMDZ() || d.isDatabase() || a.pdfExport != nil {
 		return
 	}
 	if d.isWhiteboard() {
@@ -74,7 +74,7 @@ func (a *App) startPDF(printing bool) {
 		w.RegisterFontData(pdf.FontMathItalic, false, true, it)
 		w.RegisterFontData(pdf.FontMathItalic, true, true, boldIt)
 	}
-	a.pdfExport = &pdfExport{source: source, title: d.title(), ed: editor.FromDocument(d.ed.Committed()), file: file,
+	a.pdfExport = &pdfExport{source: source, title: d.title(), ed: editor.FromDocument(d.committedForRead()), file: file,
 		writer: w, open: true, printing: printing, next: a.now.Add(time.Millisecond)}
 }
 

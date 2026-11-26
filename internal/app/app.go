@@ -515,7 +515,7 @@ func (a *App) Run() error {
 			{Role: mygo.RoleFileMenu},
 			{Role: mygo.RoleEditMenu},
 			a.formatMenu(),
-			{Role: mygo.RoleViewMenu},
+			a.viewMenu(),
 			{Role: mygo.RoleWindow, Submenu: windowItems},
 		}))
 		a.watchFiles = a.watchFolder
@@ -669,6 +669,22 @@ func (a *App) formatMenu() *mygo.MenuItem {
 			{Role: mygo.RoleItalic},
 			{Role: mygo.RoleUnderline},
 			{Role: mygo.RoleStrikethrough},
+		},
+	}
+}
+
+// viewMenu is the View menu without MyGo's webview reload and zoom roles:
+// native UI windows ignore those roles in performRole, yet their NSMenu
+// key equivalents (Cmd+R, Shift+Cmd+R, Cmd+0, Cmd++ / hidden Cmd+=, and
+// Cmd+-) would otherwise intercept ArcMD's reload, global replace, and
+// zoom shortcuts before key events reach the window.
+func (a *App) viewMenu() *mygo.MenuItem {
+	return &mygo.MenuItem{
+		Role: mygo.RoleViewMenu,
+		Submenu: []*mygo.MenuItem{
+			{Role: mygo.RoleToggleDevTools},
+			mygo.Separator(),
+			{Role: mygo.RoleToggleFullScreen},
 		},
 	}
 }
@@ -1039,12 +1055,17 @@ func (a *App) showIn(sp *space.Space, rel string) bool {
 				replacement.book.GoToChapter(resident.book.CurrentChapter, true)
 				replacement.book.SidebarOpen = resident.book.SidebarOpen
 				replacement.book.ShowSource = resident.book.ShowSource
+			} else if resident.isMDZ() && replacement.isMDZ() {
+				replacement.mdz.preserveFrom(resident.mdz)
 			} else if resident.isDatabase() && replacement.isDatabase() {
 				if v := resident.dbView.Store.Database().ActiveView; v != "" {
 					replacement.dbView.SetActiveView(v)
 				}
 			} else {
 				replacement.ed.Scroll = resident.ed.Scroll
+				if resident.source {
+					replacement.previewScroll = resident.previewScroll
+				}
 			}
 			a.replaceReferences(resident, replacement)
 			resident = replacement
@@ -1089,6 +1110,8 @@ func (a *App) showIn(sp *space.Space, rel string) bool {
 			a.doc.pdf.RequestFocus = true
 		} else if a.doc.isBook() {
 			a.doc.book.RequestFocus = true
+		} else if a.doc.isMDZ() {
+			a.doc.mdz.requestFocus = true
 		} else if a.doc.isWhiteboard() {
 			a.doc.board.RequestFocus = true
 		} else if a.doc.isDatabase() {
@@ -1215,6 +1238,8 @@ func (a *App) reload() {
 		next.book.GoToChapter(a.doc.book.CurrentChapter, true)
 		next.book.SidebarOpen = a.doc.book.SidebarOpen
 		next.book.ShowSource = a.doc.book.ShowSource
+	} else if a.doc.isMDZ() && next.isMDZ() {
+		next.mdz.preserveFrom(a.doc.mdz)
 	}
 	a.search.writeSeq++
 	next.savedSeq = a.search.writeSeq
@@ -1316,7 +1341,10 @@ func isUntitled(name string) bool {
 // by hand keeps its name. A title taken by another file is numbered.
 func (a *App) followTitle() {
 	d := a.doc
-	if d == nil || d.isWhiteboard() || d.isPDF() || d.isBook() || d.isDatabase() || d.space.IsExternal() || d.loadErr != nil || d.conflict || d.missing || !vault.IsDocument(d.rel) || d.dirty() {
+	if d == nil || d.isWhiteboard() || d.isPDF() || d.isBook() || d.isMDZ() || d.isDatabase() || d.space.IsExternal() || d.loadErr != nil || d.conflict || d.missing || !vault.IsDocument(d.rel) || d.dirty() {
+		return
+	}
+	if d.source && d.sourceComposing {
 		return
 	}
 	if _, composing := d.ed.MarkedRange(); composing {
@@ -1326,7 +1354,7 @@ func (a *App) followTitle() {
 	if !isUntitled(name) && name != d.named {
 		return
 	}
-	title := docTitle(d.ed.Doc)
+	title := docTitle(d.committedForRead())
 	if title == "" || title == name || title == d.namedFor && name == d.named {
 		return // nothing to do, or done for this title already
 	}
@@ -1356,7 +1384,11 @@ func (a *App) followTitle() {
 				a.relink(name, vault.Title(to), sources)
 			}
 		}
-		d.ed.RequestFocus = focus
+		if d.source {
+			d.sourceFocusPending = true
+		} else {
+			d.ed.RequestFocus = focus
+		}
 		return
 	}
 }
@@ -1477,7 +1509,7 @@ func (a *App) finishRename(openDuplicated bool) {
 	}
 	if openPending && sp == a.state.ActiveSpace() && vault.IsDocument(to) {
 		a.open(to)
-		if d := a.doc; d != nil && d.space == sp && d.rel == to && d.loadErr == nil && !d.isWhiteboard() && !d.isPDF() && !d.isBook() && !d.isDatabase() {
+		if d := a.doc; d != nil && d.space == sp && d.rel == to && d.loadErr == nil && !d.isWhiteboard() && !d.isPDF() && !d.isBook() && !d.isMDZ() && !d.isDatabase() {
 			d.ensureBodyParagraph()
 			leaves := d.ed.Doc.Leaves()
 			pos := 0
@@ -1751,7 +1783,7 @@ ArcMD is a calm place for writing, in the spirit of Arc and Zen. Documents save 
 
 - **Spaces** keep separate worlds apart: each is a folder of local documents with its own color. Switch with the icons at the foot of the sidebar, or ⌘1…⌘9.
 - **The command bar** (⌘K) finds documents and runs commands; click the address above to open it.
-- **⌘N** makes a document, **⌘\\** folds the sidebar away (point at the window's left edge to peek at it), **⇧⌘M** opens the Markdown export preview.
+- **⌘N** makes a document, **⌘\\** folds the sidebar away (point at the window's left edge to peek at it), **⇧⌘M** switches to Markdown source mode.
 - [ ] Drag a document onto a folder to move it
 - [ ] Right-click a name and choose Rename to rename it
 
@@ -1777,7 +1809,7 @@ func writeNative(root, rel, markdown string) error {
 }
 
 func (a *App) exportMarkdown() {
-	if a.doc == nil || a.doc.loadErr != nil || a.doc.isWhiteboard() || a.doc.isPDF() || a.doc.isBook() || a.doc.isDatabase() {
+	if a.doc == nil || a.doc.loadErr != nil || a.doc.isWhiteboard() || a.doc.isPDF() || a.doc.isBook() || a.doc.isMDZ() || a.doc.isDatabase() {
 		return
 	}
 	a.doc.ed.UnmarkText()

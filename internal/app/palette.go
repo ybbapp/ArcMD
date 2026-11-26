@@ -303,7 +303,14 @@ func (a *App) actions() []action {
 		}
 		cmd(outline, a.keyLabel("outline"), a.toggleOutline)
 	}
-	if a.doc != nil && !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isDatabase() && a.doc.loadErr == nil && !a.doc.source {
+	if a.doc != nil && a.doc.isMDZ() && a.doc.mdz.hasActivePage() {
+		outline := i18n.T("展开目录")
+		if a.outlineOpen() {
+			outline = i18n.T("收起目录")
+		}
+		cmd(outline, a.keyLabel("outline"), a.toggleOutline)
+	}
+	if a.doc != nil && !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isMDZ() && !a.doc.isDatabase() && a.doc.loadErr == nil && !a.doc.source {
 		outline := i18n.T("展开目录")
 		if a.outlineOpen() {
 			outline = i18n.T("收起目录")
@@ -486,6 +493,27 @@ func (a *App) actions() []action {
 				cmd(i18n.T("HTML：在默认浏览器中打开"), "", func() { a.openBookInBrowserFor(a.doc, "") })
 				cmd(i18n.T("HTML：另存为 Markdown 笔记"), "", func() { a.saveBookAsMarkdown(a.doc) })
 			}
+		} else if a.doc.isMDZ() {
+			mdzDoc := a.doc
+			if mdzDoc.mdz.hasActivePage() {
+				cmd(i18n.T("在文档中查找…"), a.keyLabel("find"), func() {
+					if ed := mdzDoc.mdz.activeEditor(); ed != nil {
+						ed.OpenFind(false)
+					}
+				})
+				if len(mdzDoc.mdz.pages) > 1 {
+					railLabel := i18n.T("MDZip：展开包内文件")
+					if mdzDoc.mdz.sidebarOpen {
+						railLabel = i18n.T("MDZip：收起包内文件")
+					}
+					cmd(railLabel, "", func() { mdzDoc.mdz.sidebarOpen = !mdzDoc.mdz.sidebarOpen })
+					cmd(i18n.T("MDZip：上一页"), "", func() { mdzDoc.mdz.stepPage(-1) })
+					cmd(i18n.T("MDZip：下一页"), "", func() { mdzDoc.mdz.stepPage(1) })
+				}
+			}
+			if mdzDoc.mdz.archive != nil && len(mdzDoc.mdz.pages) > 0 {
+				cmd(i18n.T("MDZip：解包另存为文档"), "", func() { a.unpackMDZAsDocument(mdzDoc) })
+			}
 		} else if a.doc.isWhiteboard() {
 			cmd(i18n.T("导出 SVG 文件"), "", func() { a.exportWhiteboardSVG(a.doc) })
 			cmd(i18n.T("适应画布"), "", func() { a.doc.board.FitToContent(ui.Rect{}) })
@@ -517,13 +545,24 @@ func (a *App) actions() []action {
 				})
 			}
 		} else {
-			mode := i18n.T("预览 Markdown 导出")
+			mode := i18n.T("Markdown 源码模式")
 			if a.doc.source {
 				mode = i18n.T("返回富文本编辑")
 			}
 			cmd(mode, a.keyLabel("source"), a.toggleSource)
+			if a.doc.source {
+				splitCmd := i18n.T("源码模式：开启分栏预览")
+				if a.doc.sourceSplit {
+					splitCmd = i18n.T("源码模式：关闭分栏预览")
+				}
+				docRef := a.doc
+				cmd(splitCmd, "", func() { a.toggleSourceSplit(docRef) })
+				if a.doc.sourceSplit {
+					cmd(i18n.T("源码模式：对调左右分栏"), "", a.swapSourceSplit)
+				}
+			}
 		}
-		if !a.doc.isPDF() && !a.doc.isBook() {
+		if !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isMDZ() {
 			cmd(i18n.T("版本历史…"), a.keyLabel("history"), a.openVersions)
 			if !a.doc.isDatabase() {
 				cmd(i18n.T("导出 PDF"), a.keyLabel("export-pdf"), a.exportPDF)
@@ -558,13 +597,14 @@ func (a *App) actions() []action {
 				cmd(i18n.T("重置页面缩放"), a.keyLabel("zoom-reset"), a.resetPageZoom)
 			}
 		}
-		if a.doc.loadErr == nil && !a.doc.source && !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isDatabase() {
+		if a.doc.loadErr == nil && !a.doc.source && !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isMDZ() && !a.doc.isDatabase() {
 			a.editorActions(cmd)
 		}
-		if !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isDatabase() {
+		if !a.doc.isWhiteboard() && !a.doc.isPDF() && !a.doc.isBook() && !a.doc.isMDZ() && !a.doc.isDatabase() {
 			cmd(i18n.T("导出 Markdown 文件"), "", a.exportMarkdown)
 			cmd(i18n.T("将当前文档存为模板"), "", a.saveAsTemplate)
 			cmd(i18n.T("导出 HTML 网页"), "", a.exportHTML)
+			cmd(i18n.T("导出 MDZip (.mdz)"), "", a.exportMDZ)
 		}
 		cmd(i18n.T("在新窗口中打开当前文档"), "", func() { a.openInWindow(sp, rel) })
 		cmd(i18n.T("在访达中显示文档"), "", func() { a.revealIn(sp, rel) })
@@ -582,7 +622,7 @@ func (a *App) actions() []action {
 					continue
 				}
 			case "selection":
-				if a.doc == nil || a.doc.loadErr != nil || a.doc.isWhiteboard() || a.doc.isPDF() || a.doc.isBook() || a.doc.isDatabase() || a.doc.ed == nil {
+				if a.doc == nil || a.doc.loadErr != nil || a.doc.isWhiteboard() || a.doc.isPDF() || a.doc.isBook() || a.doc.isMDZ() || a.doc.isDatabase() || a.doc.ed == nil {
 					continue
 				}
 				s, e := a.doc.ed.Positions()
@@ -898,6 +938,19 @@ func (a *App) editorActions(cmd func(string, string, func())) {
 	} else {
 		cmd(i18n.T("更换封面"), "", ed.EditCover)
 		cmd(i18n.T("移除封面"), "", after(func() { ed.Engine.SetCover("") }))
+	}
+	hasDB := false
+	if a.doc != nil {
+		store, _, _, _ := a.owningDatabaseFor(a.doc)
+		hasDB = store != nil
+	}
+	if !hasDB {
+		if strings.TrimSpace(ed.Doc.Frontmatter) == "" {
+			cmd(i18n.T("添加元数据"), "", ed.EditFrontmatter)
+		} else {
+			cmd(i18n.T("编辑元数据"), "", ed.EditFrontmatter)
+			cmd(i18n.T("移除元数据"), "", after(func() { ed.Engine.SetFrontmatter("") }))
+		}
 	}
 	cmd(i18n.T("章节上移"), "", after(func() { ed.MoveSectionAtCaret(-1) }))
 	cmd(i18n.T("章节下移"), "", after(func() { ed.MoveSectionAtCaret(1) }))

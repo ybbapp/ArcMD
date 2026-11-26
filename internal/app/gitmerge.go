@@ -369,7 +369,7 @@ func (a *App) currentDocumentText(sp *space.Space, rel string) (string, bool) {
 // findConflictForDoc returns a Cloud Sync conflict or orphan "(冲突副本 ...)"
 // match for the given document if one exists.
 func (a *App) findConflictForDoc(d *document) (persistedConflict, bool) {
-	if d == nil || d.space == nil || d.space.IsExternal() || d.isWhiteboard() || d.isPDF() || d.isBook() || d.isDatabase() {
+	if d == nil || d.space == nil || d.space.IsExternal() || d.isWhiteboard() || d.isPDF() || d.isBook() || d.isMDZ() || d.isDatabase() {
 		return persistedConflict{}, false
 	}
 	for _, it := range a.loadPersistedConflicts() {
@@ -789,6 +789,9 @@ func (a *App) commitThreeWayMerge() {
 		if !d.isWhiteboard() && !d.isDatabase() && d.ed != nil {
 			doc := editor.ImportMarkdown(mergedText)
 			d.ed.Engine.ReplaceDocument(doc)
+			if d.source {
+				d.refreshSourceFromModel()
+			}
 		} else if d.isDatabase() {
 			reloaded := openDatabaseDocument(d.space, d.rel, mergedText)
 			d.dbView = reloaded.dbView
@@ -834,6 +837,9 @@ func (a *App) commitThreeWayMerge() {
 			} else {
 				doc := editor.ImportMarkdown(mergedText)
 				openTarget.ed.Engine.ReplaceDocument(doc)
+				if openTarget.source {
+					openTarget.refreshSourceFromModel()
+				}
 				_ = openTarget.write(true)
 			}
 		})

@@ -38,6 +38,12 @@ const replaceLimit = 500
 func (a *App) openReplaceAll() {
 	a.replace.open = true
 	if d := a.doc; d != nil && d.loadErr == nil {
+		if d.source && d.sourceInit {
+			if sel := runeSlice(d.preview, d.sourceSelStart, d.sourceSelEnd); sel != "" && !strings.ContainsAny(sel, "\n\r") && utf8.RuneCountInString(sel) <= 80 {
+				a.replace.find = sel
+			}
+			return
+		}
 		if sel := d.ed.Selection().Range; sel.Start != sel.End {
 			if text, _ := d.ed.TextForRange(sel); !strings.ContainsAny(text, "\n ") && utf8.RuneCountInString(text) <= 80 {
 				a.replace.find = text
@@ -133,12 +139,12 @@ func (a *App) replaceEverywhere() {
 			n += k
 			return out
 		}
-		if vault.IsPDF(h.Path) || vault.IsBook(h.Path) {
+		if vault.IsPDF(h.Path) || vault.IsBook(h.Path) || vault.IsMDZ(h.Path) {
 			skipped++
 			continue
 		}
 		if d := resident[place{h.Space, h.Path}]; d != nil {
-			if d.isPDF() || d.isBook() || d.isDatabase() {
+			if d.isPDF() || d.isBook() || d.isMDZ() || d.isDatabase() {
 				skipped++
 				continue
 			}
@@ -157,7 +163,13 @@ func (a *App) replaceEverywhere() {
 				skipped++
 				continue
 			}
+			if d.sourceHasPendingEdits() {
+				d.syncSourceToModel()
+			}
 			if d.ed.Engine.MapText(change) {
+				if d.source {
+					d.refreshSourceFromModel()
+				}
 				count, docs = count+n, docs+1
 				edited = append(edited, d)
 			}
@@ -220,6 +232,9 @@ func (a *App) undoReplace(files []replacedFile, edited []*document) {
 			d.board.Undo()
 		} else {
 			d.ed.Undo()
+			if d.source {
+				d.refreshSourceFromModel()
+			}
 		}
 	}
 	kept := 0

@@ -205,7 +205,7 @@ func (a *App) moveWithResources(src *space.Space, rel string, dst *space.Space, 
 		if d.live == nil {
 			continue
 		}
-		if d.live.isWhiteboard() || d.live.isPDF() || d.live.isBook() || d.live.isDatabase() {
+		if d.live.isWhiteboard() || d.live.isPDF() || d.live.isBook() || d.live.isMDZ() || d.live.isDatabase() {
 			if d.live.isWhiteboard() || d.live.isDatabase() {
 				d.live.diskText = d.original
 			}
@@ -217,7 +217,7 @@ func (a *App) moveWithResources(src *space.Space, rel string, dst *space.Space, 
 		d.live.baseline, _ = d.live.ed.Committed().Digest()
 		d.live.rememberBaseline(d.live.ed.Committed())
 		if d.live.source {
-			d.live.preview = d.live.text()
+			d.live.refreshSourceFromModel()
 		}
 	}
 	if cleanupErr := history.Forget(src.Root, rel); cleanupErr != nil {
@@ -255,7 +255,7 @@ func (a *App) movingDocuments(sp *space.Space, rel string) ([]*movingDocument, e
 		if live != nil {
 			live.waitAsyncSave()
 		}
-		if vault.IsPDF(p.Path) || vault.IsBook(p.Path) {
+		if vault.IsPDF(p.Path) || vault.IsBook(p.Path) || vault.IsMDZ(p.Path) {
 			docs = append(docs, &movingDocument{rel: p.Path, urls: map[string]string{}, live: live})
 			continue
 		}
@@ -303,7 +303,7 @@ func (a *App) movingDocuments(sp *space.Space, rel string) ([]*movingDocument, e
 }
 
 func imageDocument(rel, text string) (*model.Document, error) {
-	if vault.IsWhiteboard(rel) || vault.IsPDF(rel) || vault.IsBook(rel) {
+	if vault.IsWhiteboard(rel) || vault.IsPDF(rel) || vault.IsBook(rel) || vault.IsMDZ(rel) {
 		return model.New(), nil
 	}
 	if vault.IsMarkdown(rel) {
@@ -318,7 +318,7 @@ func imageDocument(rel, text string) (*model.Document, error) {
 }
 
 func relocateText(rel, text string, urls map[string]string) (string, error) {
-	if vault.IsWhiteboard(rel) || vault.IsPDF(rel) || vault.IsBook(rel) || vault.IsDatabase(rel) {
+	if vault.IsWhiteboard(rel) || vault.IsPDF(rel) || vault.IsBook(rel) || vault.IsMDZ(rel) || vault.IsDatabase(rel) {
 		return text, nil
 	}
 	changed := false
