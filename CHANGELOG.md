@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.2.14
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.5.0](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.0)（ID 459523665）。本 fork 自身已发布过 0.2.1–0.2.13，因此本包版本为 0.2.14，避免与既有 fork Release 冲突。官方 Release 标签指向 `8e62d8dcb591c114a126291a40b05df80ad42810`。
+
+- 上游 0.5.0：正式推出 MDZip（`.mdz`）v1.2.0 单文件打包导出与原地只读阅读（#79、#85，感谢 `@tajiaoyezi`）、原生可编辑 Markdown 源码模式（语法高亮、查找替换与分栏实时预览，#37）、YAML Frontmatter 可视化卡片（#83）、资料库点击切换空间与跨空间拖拽移动（#81），并扩展 LaTeX 兼容与大纲标题公式渲染（#78），修复超 800 块长文档目录跳转闪退（#76）、菜单悬停穿透编辑区（#77）以及 macOS 视图菜单快捷键拦截缩放/重载等。详见下方「0.5.0 (upstream)」。源码已于 2026-11-26 22:24 UTC+8 合入本 fork main（合并提交 `dbe2ae1`）；官方 GitHub Release 已于 22:29 UTC+8 发布（ID 459523665），故本次打包。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView；HTML/EPUB Untrusted WebView、数据库 Linked View、MDZip 只读归档与 JSX 岛屿生命周期并存。进入源码模式时在 ExportMarkdown 之后经 `RestoreSource` 还原 JSX/MDX 原文；从源码写回前会 `closeJSX` 并 `projectJSX`，再 `ReplaceDocument`。导出与 `text()` 在源码缓冲已初始化时使用源码预览，否则在数据库文件之外仍经 `RestoreSource` 还原 JSX/MDX 原文；测高跳过嵌入的 JSX 岛屿与数据库块。内联 JSX 岛屿不视为 HasZoomModal，非 100% 页缩放下其 WebView 尺寸仍跟随测得内容高度，不会被额外缩放。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。CLI 仍先处理 `--jsx-check`，再进入上游 `dispatchCLI`。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。已保留上游新增的 `.mdz` 文件关联，identifier 仍为 org.ybbapp.arcmd。上游多平台安装包与应用内签名更新说明仅适用于官方发行；本 fork Release 仍只提供 macOS Apple Silicon 包。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.5.0 (upstream)
 
-本 fork 已将上游 v0.5.0 标签提交 8e62d8d 合入 main。截至本次同步，官方 GitHub Release 尚未发布（最新官方 Release 仍为 v0.4.0 / 458111160），故只同步源码、不打包新的 fork Release。当前已发布的 fork 包仍为 0.2.13。
+本 fork 已将上游 v0.5.0 标签提交 8e62d8d 合入 main。官方 GitHub Release 已于 2026-11-26 22:29 UTC+8 发布（ID 459523665，标签 `8e62d8dcb591c114a126291a40b05df80ad42810`）。本 fork 据此打包 0.2.14。
 
 本版本正式推出 **MDZip（`.mdz`）v1.2.0 单文件打包导出与原地只读阅读**（[#79](https://github.com/Ciao1019/ArcMD/issues/79)、[#85](https://github.com/Ciao1019/ArcMD/pull/85)，感谢 `@tajiaoyezi`）、**原生 Markdown 源码编辑模式（带语法高亮、查找替换与分栏实时预览）**（[#37](https://github.com/Ciao1019/ArcMD/issues/37)）、**YAML Frontmatter 元数据头可视化卡片**（[#83](https://github.com/Ciao1019/ArcMD/issues/83)）以及 **资料库点击切换空间与跨空间拖拽移动**（[#81](https://github.com/Ciao1019/ArcMD/issues/81)）；同时扩展了 **LaTeX 数学公式语法兼容与大纲标题公式渲染**（[#78](https://github.com/Ciao1019/ArcMD/issues/78)），并修复了 **超 800 块长文档目录跳转闪退**（[#76](https://github.com/Ciao1019/ArcMD/issues/76)）、**菜单弹窗鼠标悬停穿透编辑区**（[#77](https://github.com/Ciao1019/ArcMD/issues/77)）与 **macOS 视图菜单快捷键拦截缩放/重载** 等核心体验问题。
 
@@ -28,7 +37,7 @@
 
 提供 macOS（Apple Silicon / Intel）、Windows x64 与 Linux（x64 `.deb` / `.tar.gz` / Arch Linux `.pkg.tar.zst`，ARM64 `.deb` / `.tar.gz`）原生安装包，可使用 `SHA256SUMS.txt` 校验完整性，已安装版本支持应用内签名自动更新。官方插件可在应用「设置 › 插件」按需从 [`Ciao1019/arcmd-plugins`](https://github.com/Ciao1019/arcmd-plugins) 下载或更新。
 
-上述多平台安装包与应用内签名更新仅适用于官方发行；本 fork 尚未针对 v0.5.0 打包，已发布包仍为 0.2.13。
+上述多平台安装包与应用内签名更新仅适用于官方发行；本 fork 据此打包 0.2.14，Release 仍只提供 macOS Apple Silicon 包。
 
 ## 0.2.13
 

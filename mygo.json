@@ -2,7 +2,7 @@
   "name": "ArcMD",
   "slug": "arcmd",
   "identifier": "org.ybbapp.arcmd",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "license": "MIT",
   "icon": "resources/icon.png",
   "main": "./cmd/arcmd",
