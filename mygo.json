@@ -4,12 +4,17 @@
   "identifier": "org.ybbapp.arcmd",
   "version": "0.2.14",
   "license": "MIT",
+  "copyright": "Copyright (c) 2026 ArcMD contributors",
   "icon": "resources/icon.png",
   "main": "./cmd/arcmd",
   "out": "dist",
   "resources": [
     "LICENSE",
     "third_party"
+  ],
+  "resourcesExclude": [
+    "icon.icns",
+    "icon.png"
   ],
   "fileAssociations": [
     {
@@ -31,31 +36,42 @@
       "role": "Editor"
     },
     {
-      "ext": ["excalidraw"],
+      "ext": [
+        "excalidraw"
+      ],
       "name": "Excalidraw Whiteboard",
       "mimeType": "application/vnd.excalidraw+json",
       "role": "Editor"
     },
     {
-      "ext": ["pdf"],
+      "ext": [
+        "pdf"
+      ],
       "name": "PDF Document",
       "mimeType": "application/pdf",
       "role": "Viewer"
     },
     {
-      "ext": ["epub"],
+      "ext": [
+        "epub"
+      ],
       "name": "EPUB Book",
       "mimeType": "application/epub+zip",
       "role": "Viewer"
     },
     {
-      "ext": ["html", "htm"],
+      "ext": [
+        "html",
+        "htm"
+      ],
       "name": "HTML Document",
       "mimeType": "text/html",
       "role": "Viewer"
     },
     {
-      "ext": ["mdz"],
+      "ext": [
+        "mdz"
+      ],
       "name": "MDZip Document",
       "mimeType": "application/vnd.mdzip",
       "role": "Viewer"
@@ -67,10 +83,15 @@
   "linux": {
     "webview": false,
     "comment": "Native Markdown and rich-text editor",
-    "categories": ["Office"],
+    "categories": [
+      "Office"
+    ],
     "command": "arcmd",
     "depends": {
-      "arch": ["hicolor-icon-theme", "poppler-glib"]
+      "arch": [
+        "hicolor-icon-theme",
+        "poppler-glib"
+      ]
     }
   }
 }

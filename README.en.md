@@ -29,7 +29,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-en.svg" height="56" alt="Download ArcMD for Windows — x64 installer and ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-en.svg" height="56" alt="Download ArcMD for Linux — x64 and ARM64, DEB and TAR.GZ"></a>
 
-<sub>Source and the fork package both correspond to official upstream Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.0">v0.5.0</a>. The buttons above still link to upstream multi-platform releases; the fork 0.2.14 macOS Apple Silicon package is on the <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.14">fork release page</a>, or you can <a href="#build-from-source">build from source</a>.</sub>
+<sub>Source now includes official upstream Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1">v0.5.1</a> (e62e05a / ID 460661231). The published fork package is still 0.2.14, corresponding to official Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.0">v0.5.0</a>. The buttons above still link to upstream multi-platform releases; the fork 0.2.14 macOS Apple Silicon package is on the <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.14">fork release page</a>, or you can <a href="#build-from-source">build from source</a>.</sub>
 
 <br><br>
 
