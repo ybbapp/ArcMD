@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.2.15
+
+ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231）。本 fork 自身已发布过 0.2.1–0.2.14，因此本包版本为 0.2.15，避免与既有 fork Release 冲突。官方 Release 标签指向 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`。
+
+- 上游 0.5.1：冷启动提速与默认空间目录迁移至 `~/.arcmd/spaces`（#82）、原生 Mermaid 状态图（`stateDiagram` / `stateDiagram-v2`，#89）、正文两侧空白区点击失焦并保留左侧拖拽框选（#87）、数字开头及紧邻字面 `$` 时的行内公式渲染与保存往返修复（#91）、电子表格复制粘贴优先还原原生 HTML/TSV 表格，以及此前已合入的外部空间失效文件一键清理（#84、#86，感谢 `@tajiaoyezi`）。详见下方「0.5.1 (upstream)」。源码已于 2026-11-27 22:08 UTC+8 合入本 fork main（合并提交 `0629907`）；官方 GitHub Release 已于 21:51 UTC+8 发布（ID 460661231），故本次打包。
+- 保留既有 JSX/MDX 岛屿集成（主题跟随、内容测高、安全隔离、原始 MDX 保存）。关闭已退场文档时同时销毁 JSX WebView；HTML/EPUB Untrusted WebView、数据库 Linked View、MDZip 只读归档与 JSX 岛屿生命周期并存。进入源码模式时在 ExportMarkdown 之后经 `RestoreSource` 还原 JSX/MDX 原文；从源码写回前会 `closeJSX` 并 `projectJSX`，再 `ReplaceDocument`。导出与 `text()` 在源码缓冲已初始化时使用源码预览，否则在数据库文件之外仍经 `RestoreSource` 还原 JSX/MDX 原文；测高跳过嵌入的 JSX 岛屿与数据库块。内联 JSX 岛屿不视为 HasZoomModal，非 100% 页缩放下其 WebView 尺寸仍跟随测得内容高度，不会被额外缩放。编译器仍精确锁定 `@mdx-js/mdx` 3.1.1 / `arcmd-mdx3-phase1`，不是完整 MDX 3。CLI 仍先处理 `--jsx-check`，再进入上游单实例锁与 `dispatchCLI`。
+- 未把上游 `mygo.json` 中指向 Ciao1019/ArcMD 的应用内更新源写入本 fork，避免安装包被更新到不含 JSX 集成的上游构建。已纳入上游版权声明与 `resourcesExclude`，identifier 仍为 org.ybbapp.arcmd。上游多平台安装包与应用内签名更新说明仅适用于官方发行；本 fork Release 仍只提供 macOS Apple Silicon 包。
+- 本包仅提供 macOS Apple Silicon（arm64），全包 ad-hoc 签名；未在真实 Mac 上再次验收。
+
 ## 0.5.1 (upstream)
 
-本 fork 已将上游 v0.5.1 标签提交 e62e05a 合入 main。官方 GitHub Release 已于 2026-11-27 21:51 UTC+8 发布（ID 460661231，标签 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`）。当前已发布的 fork 包仍为 0.2.14，0.2.15 将在本次随后打包。
+本 fork 已将上游 v0.5.1 标签提交 e62e05a 合入 main。官方 GitHub Release 已于 2026-11-27 21:51 UTC+8 发布（ID 460661231，标签 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`）。本 fork 据此打包 0.2.15。
 
 ### 新功能与桌面体验
 
@@ -25,7 +34,7 @@
 
 提供 macOS（Apple Silicon / Intel）、Windows x64 与 Linux（x64 `.deb` / `.tar.gz` / Arch Linux `.pkg.tar.zst`，ARM64 `.deb` / `.tar.gz`）原生安装包，可使用 `SHA256SUMS.txt` 校验完整性，已安装版本支持应用内签名自动更新。官方插件可在应用「设置 › 插件」按需从 [`Ciao1019/arcmd-plugins`](https://github.com/Ciao1019/arcmd-plugins) 下载或更新。
 
-上述多平台安装包与应用内签名更新仅适用于官方发行；本 fork 尚未针对 v0.5.1 打包，已发布包仍为 0.2.14。
+上述多平台安装包与应用内签名更新仅适用于官方发行；本 fork 据此打包 0.2.15，Release 仍只提供 macOS Apple Silicon 包。
 
 ## 0.2.14
 

@@ -1,10 +1,21 @@
-# ArcMD 0.2.14 · ybbapp 主线版（上游官方 v0.5.0 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.15 · ybbapp 主线版（上游官方 v0.5.1 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.5.0](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.0)（ID 459523665，源码 `8e62d8dcb591c114a126291a40b05df80ad42810`）。本 fork 已发布过 0.2.1–0.2.13，因此本包版本为 0.2.14，避免版本号冲突。
+本包对应上游官方 Release [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231，源码 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`）。本 fork 已发布过 0.2.1–0.2.14，因此本包版本为 0.2.15，避免版本号冲突。
 
-## 上游 v0.5.0 能力（已纳入本包）
+## 上游 v0.5.1 能力（已纳入本包）
+
+- 冷启动提速与默认空间目录迁移（Ciao1019/ArcMD#82）：将默认空间从 `~/Documents/ArcMD` 迁至 `~/.arcmd/spaces`，避开 macOS 文稿目录权限检查与 iCloud 同步造成的冷启动卡顿（启动时自动迁移既有非外部空间并给出提示）；延迟初始化 WASM 插件宿主至首次调用、延迟恢复非活动空间的分屏会话、消除文件树与增量搜索中的重复 `os.Stat`、压缩内嵌动画 PNG，并在初始化应用前先获取单实例锁。本 fork 的 `--jsx-check` 仍在获取单实例锁和 `app.New()` 之前处理。
+- 原生 Mermaid 状态图（#89）：纯 Go 排版与绘制 `stateDiagram` / `stateDiagram-v2`，支持起止态、状态说明、嵌套复合状态、并发分区、分支/汇合/选择/备注节点及带标签转移边；已接入编辑器实时预览、转入白板、`/` 菜单、命令栏以及矢量 PDF 与 HTML 导出。
+- 外部空间失效文件一键清理（#84、#86，感谢 `@tajiaoyezi`）：侧边栏、资料库卡片与命令栏可提示并一键清理已被外部删除的引用；清理前后同步资料库缓存、保护未保存/正在落盘文档，并收口分屏与独立窗口中的失效文档。该能力此前已随 2026-11-27 19:19 UTC+8 的 main 同步（`0dd7154`）进入本 fork，现随官方 v0.5.1 一并打包。
+- 电子表格复制粘贴优先还原原生表格：从 Excel、WPS、Numbers 与 LibreOffice Calc 复制单元格并粘贴时，优先解析剪贴板里的原生 HTML / TSV 而非回退为截屏图片（单个单元格展开为文本），同时保留浏览器「复制图片」直接粘贴原图。
+- 正文两侧空白区点击失焦（#87）：点击编辑区左右空白边距可取消正文聚焦与光标选区，同时保留在左侧空白处按住并拖动超过阈值时触发多块框选。失焦路径仍会提交 frontmatter 编辑。
+- 修复行内数学公式渲染与保存往返异常（#91）：修复以数字开头的行内公式导入失败并与后继公式错配的问题，并隔离行内代码、键帽、链接与字面转义 `$` 对后续公式扫描的干扰。
+- 完善安装包构建元数据（`mygo.json`）：补充版权声明并在打包资源中排除重复图标。本 fork identifier 仍为 org.ybbapp.arcmd；未把上游指向 Ciao1019/ArcMD 的应用内更新源写入本 fork。
+- 源码已于 2026-11-27 22:08 UTC+8 合入本 fork main（合并提交 `0629907`）；官方 GitHub Release 已于 21:51 UTC+8 发布（ID 460661231，标签 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`），本次据此打包。官方多平台安装包与签名自动更新仅适用于上游发行；本 fork Release 仍只提供 macOS Apple Silicon（arm64）。
+
+## 上游 v0.5.0 及更早能力（仍纳入本包）
 
 - MDZip（`.mdz`）v1.2.0 单文件打包导出、原地只读阅读与一键解包（Ciao1019/ArcMD#79、#85，感谢 `@tajiaoyezi`）：纯 Go（零 cgo、零磁盘临时解压）编解码 MDZip v1.2.0。可通过「⋯ › 导出 › 导出 MDZip (.mdz)」或命令栏，把当前文档连同封面、本地图片、内嵌白板/PDF/书籍及本地非 Markdown 附件打成单个 `.mdz`；也可直接只读打开、在多页 project 模式中浏览包内文件，并一键解包另存为文档。已接入系统文件关联、拖放导入、悬停预览、空间检索、空间问答与本地 MCP/CLI `doc_read`。本 fork 中 MDZip 只读归档与既有 JSX 岛屿、HTML/EPUB Untrusted WebView、数据库 Linked View 生命周期并存。`mygo.json` 保留上游新增的 `.mdz` 关联，identifier 仍为 org.ybbapp.arcmd。
 - 原生可编辑 Markdown 源码模式（#37）：将原只读导出预览升级为可编辑源码模式（⇧⌘M /「⋯」菜单 / 命令栏），支持语法高亮、页内查找替换、Tab 缩进/反缩进，以及可拖拽比例、可左右对调的「源码 + 富文本实时预览」分栏，并可将原始 Markdown 文本直接保存（修改不兼容语法时不被富文本重排改写）。本 fork 进入源码时在 ExportMarkdown 之后经 `RestoreSource` 还原 JSX/MDX 原文；从源码写回前会 `closeJSX` 并 `projectJSX`，再 `ReplaceDocument`。导出与 `text()` 在源码缓冲已初始化时使用源码预览，否则在数据库文件之外仍经 `RestoreSource` 还原原文。源码 fallback 不能当作 JSX 运行通过。
@@ -68,7 +79,7 @@
 - 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
 - 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
 
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.14）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.15）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -79,7 +90,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.14 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 / 0.2.11 / 0.2.12 / 0.2.13 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.15 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 / 0.2.11 / 0.2.12 / 0.2.13 / 0.2.14 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -88,7 +99,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落仍建议让 agent 或外部编辑器改原文件，再回应用重载，以便走内嵌编译器动态编译。本包已纳入上游可编辑 Markdown 源码模式（⇧⌘M /「⋯」菜单 / 命令栏）：进入源码时在 ExportMarkdown 之后经 RestoreSource 还原 JSX/MDX 原文再编辑；从源码写回前会 closeJSX 并 projectJSX，再 ReplaceDocument。源码模式支持语法高亮、查找替换、Tab 缩进与可拖拽分栏实时预览，并可将原始 Markdown 文本直接保存（避免不兼容语法被富文本重排改写）。保存还原岛屿原文，不写回 HTML；岛屿外 Markdown 在非源码保存路径上仍可能被原生序列化规范化。源码 fallback 不是 JSX 运行通过。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.13 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.14 ，不需要删除数据。
 
 ## 范围与安全
 
