@@ -996,11 +996,10 @@ func (a *App) showIn(sp *space.Space, rel string) bool {
 	restoring := a.doc == nil && sp.LastOpen == rel
 	text, err := readDocSource(sp, rel)
 	if err != nil {
+		if a.noteMissingExternal(sp, rel, err) {
+			return false
+		}
 		if errors.Is(err, os.ErrNotExist) {
-			if sp.IsExternal() {
-				a.notify("文件已被移动或删除：%s", sp.ExternalFiles[rel])
-				return false
-			}
 			a.forgetCopied(sp.ID, rel)
 			a.state.Forget(sp.ID, rel)
 			a.saveState()
