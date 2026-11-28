@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.2 (upstream, 官方 GitHub Release 尚未发布)
+
+本 fork 已将上游 main 同步至 `077c6d3634ee8673c2c40eaad7aca91aa86d8625`（git 标签 `v0.5.2`）。上游仓库已有该标签与「release: ArcMD v0.5.2」提交，但截至同步时官方 GitHub Release API 最新仍为 [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231），因此按既定规则只同步 main，不新增 fork 安装包。本 fork 正式安装包仍为 [arcmd-v0.2.15](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15)。
+
+本版本正式推出 **浏览器剪藏宿主（Web Clipper Native Messaging Host）与全链路剪藏接入**（[#65](https://github.com/Ciao1019/ArcMD/issues/65)、[#95](https://github.com/Ciao1019/ArcMD/pull/95)，感谢 `@tajiaoyezi`），搭配官方扩展 [`Ciao1019/arcmd-clipper`](https://github.com/Ciao1019/arcmd-clipper) 即可将网页正文、4 色高亮批注与防盗链图片一键剪藏至本地空间或多维数据库；同时围绕个性化写作体验带来 **5 档内置浅/深纸面配色预设与 `style.json` 实时样式定制**、**可自定义文档右上角快捷工具栏**、**正文与 1–6 级标题快捷键自定义（含 Typora `⌘1–⌘6` 预设）** 以及 **首块原生 H2–H6 标题与默认一级标题开关**（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
+
+### 新功能与桌面体验
+
+- **浏览器剪藏宿主与全链路剪藏接入（`internal/clipper`、`internal/app/clipper.go`、`cmd/arcmd/control.go`、`internal/app/agentctl*.go`、`internal/app/qasettings.go`）**：纯 Go 零常驻端口实现标准 Chrome Native Messaging 4-byte 帧协议（`com.cizai.arcmd.clipper`，入站 16 MiB / 出站 900 KiB 上限，自动识别 `chrome-extension://` 启动参数，不弹窗口、无 macOS Dock 跳动），支持在「设置 › AI › 浏览器剪藏」或通过 `arcmd clipper [status|install|uninstall]` 免管理员权限一键为用户态 Chrome、Arc、Edge、Brave、Vivaldi 与 Chromium 注册连接；提供 `clip.ping`、`clip.context`、`clip.check_url`、`clip.upload_asset`、`clip.save` 与后台非阻塞 `clip.ai` 六项控制端点，搭配 [`Ciao1019/arcmd-clipper`](https://github.com/Ciao1019/arcmd-clipper) 支持网页正文、划选内容、网页高亮批注与防盗链图片（魔数栅格图像校验与同目录字节级去重复用）写入新建文档、今日笔记、追加文档或 `.db.md` 多维数据库（含类型化字段与记录封面写入），支持跨空间 URL 归一化查重与 AI 摘要/标签生成，窗口打开时实时同步并保留 `⌘Z` 撤销栈，关闭时静默直写磁盘（[#65](https://github.com/Ciao1019/ArcMD/issues/65)、[#95](https://github.com/Ciao1019/ArcMD/pull/95)，感谢 `@tajiaoyezi`）。
+- **5 档内置浅/深纸面配色预设与 `style.json` 实时样式定制（`internal/prefs/style.go`、`internal/app/stylecfg.go`、`internal/app/theme.go`、`internal/editor/style.go`、`internal/editor/view.go`）**：「设置 › 外观 › 纸面配色」与命令栏新增 **默认 / 暖米（`warm`）/ 宣纸（`sepia`）/ 竹青（`sage`）/ 雾灰（`slate`）** 5 档浅色与深色成对纸面配色，外观预览卡与正文实时同步；同时支持在配置目录通过 `style.json` 在预设之上精细覆盖浅/深纸面色板（纸面、正文、次要文字、代码块底色、引用竖线、表头底色、表格边框与斑马纹）、标题与粗体字重、表格与表头默认对齐方式及默认荧光笔高亮色，每 1.5s 按修改时间自动热重载，配置有误时保留上次有效样式并给出提示，支持从设置页或命令栏一键创建/打开与重新载入（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
+- **可自定义文档右上角快捷工具栏（`internal/app/custom_toolbar.go`、`internal/editor/quickactions.go`、`internal/prefs/prefs.go`、`internal/app/view.go`）**：支持在文档右上角工具栏按自定义顺序放置常用写作按钮（涵盖表格、代码块、链接、图片、公式块、行内公式、高亮块、任务/无序/有序列表、引用、折叠块、分隔线、双栏、Mermaid、白板、粗斜体、下划线、删除线、行内代码、手绘标注与源码模式共 23 项），窄窗自动折叠避让，只读与非 Markdown 视图自动隐藏编辑项；可从右上角 `T` 更多格式菜单、工具栏右键菜单、`⌘K` 命令栏或「设置 › 通用 › 写作」打开自定义弹窗，一键套用「常用写作工具」或自由增删调序，实时生效并持久化至 `prefs.json`（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
+- **正文与 1–6 级标题快捷键自定义及 Typora `⌘1–⌘6` 预设（`internal/app/keymap.go`、`internal/app/settings.go`、`internal/editor/commands.go`、`internal/editor/keys.go`、`internal/document/engine.go`）**：「设置 › 键盘快捷键」新增「正文」与「标题 1–6」快捷键绑定，放开 `⌘1–⌘6`（Windows / Linux `Ctrl+1–Ctrl+6`）供标题绑定并在冲突时自动让出空间切换（`⌃1–⌃9` 始终可用），提供一键「Typora 标题键」预设；支持对当前块、跨多块选区及块选状态一键切换正文或各级标题并单步撤销（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
+- **首块原生支持 H2–H6 标题与默认一级标题开关（`internal/document/page.go`、`internal/editor/starter.go`、`internal/editor/input.go`、`internal/editor/view.go`、`internal/app/settings.go`）**：允许文档首块（`Blocks[0]`）直接作为二级至六级标题（按 26/22/20/18/16px 正常级别渲染，不再强制放大为 34px 页面标题），空首块可直接输入 `## `、通过块手柄菜单、斜杠菜单、退格键或标题快捷键转为 H2–H6 或正文，文档无 H1 时自动回退提取首个 H2 作为未命名建议标题；「设置 › 通用 › 写作」新增「新建文档默认使用一级标题」开关，关闭后新建空白文档直接从空正文开始（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
+
+### 贡献者
+
+- 特别感谢 **`@tajiaoyezi`**（[#95](https://github.com/Ciao1019/ArcMD/pull/95)）对本版本的贡献！
+
+### 下载说明
+
+上游文档称将提供 macOS（Apple Silicon / Intel）、Windows x64 与 Linux（x64 `.deb` / `.tar.gz` / Arch Linux `.pkg.tar.zst`，ARM64 `.deb` / `.tar.gz`）原生安装包，并支持应用内签名自动更新。截至本次同步，官方尚未发布 GitHub Release v0.5.2，因此上述安装包与自动更新说明尚不适用于此次源码同步；官方插件说明仅适用于官方发行。本 fork 未因此次同步打包新版本，identifier 仍为 org.ybbapp.arcmd，版本仍为 0.2.15，且未写入指向 Ciao1019/ArcMD 的应用内更新源。
+
+
 ## 0.2.15
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231）。本 fork 自身已发布过 0.2.1–0.2.14，因此本包版本为 0.2.15，避免与既有 fork Release 冲突。官方 Release 标签指向 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`。

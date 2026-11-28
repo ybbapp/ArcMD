@@ -29,7 +29,7 @@
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-windows-zh-CN.svg" height="56" alt="下载 ArcMD Windows 版：x64 安装程序与 ZIP"></a>
 <a href="https://github.com/Ciao1019/ArcMD/releases"><img src="docs/images/download-linux-zh-CN.svg" height="56" alt="下载 ArcMD Linux 版：x64 与 ARM64，DEB 与 TAR.GZ"></a>
 
-<sub>当前源码与本 fork 安装包均对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1">v0.5.1</a>。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.15 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
+<sub>本 fork 安装包 0.2.15 对应上游官方 Release <a href="https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1">v0.5.1</a>。当前源码已同步上游 main（含 git 标签 v0.5.2 的提交），但官方尚未发布 GitHub Release v0.5.2，故未新增 fork 安装包。以上按钮仍指向上游多平台发布页；本 fork 的 0.2.15 macOS Apple Silicon 包见 <a href="https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15">fork Release</a>；也可以直接<a href="#从源码运行">从源码运行</a>。</sub>
 
 <br><br>
 
