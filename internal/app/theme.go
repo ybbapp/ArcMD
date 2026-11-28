@@ -809,6 +809,12 @@ func pageStyleWith(dark bool, cfg *prefs.StyleConfig) editor.Page {
 	if col, ok := styleColor(pal.InlineCodeText); ok {
 		p.InlineText = col
 	}
+	if col, ok := styleColor(pal.InlineTexFill); ok {
+		p.InlineTexFill = col
+	}
+	if col, ok := styleColor(pal.TexBlockFill); ok {
+		p.TexBlockFill = col
+	}
 	if col, ok := styleColor(pal.QuoteBar); ok {
 		p.QuoteBar = col
 	}
@@ -958,8 +964,8 @@ func darkPageStyle() editor.Page {
 		Caption:      ui.Hex("#A2A5AB"),
 		Placeholder:  ui.Hex("#61646B"),
 		TaskBorder:   ui.Hex("#FFFFFF4D"),
-		TaskDone:     ui.Hex("#A2A5ABB3"),
-		QuoteBar:     ui.Hex("#5A5D63"),
+		TaskDone:     ui.Hex("#BCC0C7"),
+		QuoteBar:     ui.Hex("#9A9FA8"),
 		Rule:         ui.Hex("#FFFFFF26"),
 		CodeFill:     ui.Hex("#27282C"),
 		CodeBorder:   ui.Hex("#36383D"),

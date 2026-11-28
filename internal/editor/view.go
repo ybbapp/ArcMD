@@ -93,6 +93,7 @@ type Editor struct {
 	cacheClock                                     uint64
 	heightHints                                    map[string]heightHint
 	images                                         map[string]ImageResource
+	loadImage                                      func(string) ImageResource
 	imageCaptionID                                 string
 	imageViewer                                    imageViewer
 	width, height, viewport, padding, rightPadding float32
@@ -156,6 +157,9 @@ type Editor struct {
 	linkOpen                  bool
 	linkURL                   string
 	linkText                  string
+	linkImage                 bool
+	linkImageAt               int
+	linkHasInlineImage        bool
 	linkRange                 ui.TextInputRange
 	linkOpened                bool
 	pendingLink               linkSpan
@@ -330,8 +334,9 @@ type Editor struct {
 	column float32
 	// complete is the list of emoji and mentions being typed (complete.go);
 	// autoSpace puts a space between Chinese and Latin text as it is typed.
-	complete  completion
-	autoSpace bool
+	complete      completion
+	autoSpace     bool
+	copyPlainText bool
 	// goalEditing shows the box that takes a word goal of the writer's own.
 	goalEditing bool
 	goalText    string
@@ -443,8 +448,10 @@ type decoration struct {
 	table        ui.Rect
 	right, below bool
 	label        string
-	// tone is a callout's color.
-	tone string
+	// tone is a callout's or cell's color; bg is a text block's background color.
+	tone     string
+	bg       string
+	inColumn bool
 	// id is the block of a code block or table, whose hover controls act
 	// on it.
 	id      string
@@ -472,6 +479,53 @@ type decoration struct {
 	bookURL        string
 	dbEmbed        bool
 	yApplied       float64
+}
+
+// blockBackgroundRect returns the tight text-body rectangle for a block's
+// background decoration while keeping rect.Y >= y for incremental shifting.
+func blockBackgroundRect(b *document.Block, x, y, w, top, bottom, total, gap, z float32) ui.Rect {
+	bx, bw := x, w
+	switch b.Kind {
+	case "bullet", "numbered", "task":
+		if b.Indent > 0 {
+			off := min(float32(b.Indent)*24*z, max(0, w-24))
+			bx += off
+			bw -= off
+		}
+	case "toggle":
+		if b.Indent > 0 {
+			off := min(float32(b.Indent)*20*z, max(0, w-24))
+			bx += off
+			bw -= off
+		}
+	}
+	by := y
+	bh := max(0, total-gap)
+	switch b.Kind {
+	case "heading":
+		by = y + top
+		bh = max(0, total-top-bottom)
+	case "footnote":
+		by = y + top
+		bh = max(0, total-top-gap)
+	}
+	return ui.Rect{X: bx, Y: by, W: bw, H: bh}
+}
+
+// blockBackgroundPaintRect expands a block's tight decoration rect outward by a
+// subtle breathing margin without altering text alignment or line wrapping.
+func blockBackgroundPaintRect(r ui.Rect, z float32, inColumn bool) (ui.Rect, float32) {
+	padX := 8 * z
+	if inColumn {
+		padX = min(padX, columnInset-2)
+	}
+	padY := 3 * z
+	return ui.Rect{
+		X: r.X - padX,
+		Y: r.Y - padY,
+		W: r.W + 2*padX,
+		H: r.H + 2*padY,
+	}, 6 * z
 }
 
 // hovered reports whether the pointer is over r, with slack around it for
@@ -712,8 +766,13 @@ type Options struct {
 	EmojiSuggest func(typed string) []EmojiItem
 	// AutoSpace puts a space between Chinese and Latin letters or digits
 	// as they are typed next to each other.
-	AutoSpace   bool
-	PreviewWiki func(name string) WikiPreview
+	AutoSpace bool
+	// CopyPlainText puts stripped plain text (without Markdown syntax) on the
+	// clipboard during standard copy and omits external HTML/Markdown formats
+	// so external apps paste plain text while ArcMD keeps fragmentFormat for
+	// in-app rich paste.
+	CopyPlainText bool
+	PreviewWiki   func(name string) WikiPreview
 	// Footer, when set, draws below the document, in the page's text
 	// column: the host's backlinks.
 	Footer func(c *ui.Context)
@@ -878,7 +937,7 @@ func View(c *ui.Context, e *Editor, o Options) ui.Element {
 		e.windowResize.pending = true
 		o.Resizing = true
 	}
-	e.noAutoPair, e.autoSpace, e.codeNoWrap = o.NoAutoPair, o.AutoSpace, o.CodeNoWrap
+	e.noAutoPair, e.autoSpace, e.copyPlainText, e.codeNoWrap = o.NoAutoPair, o.AutoSpace, o.CopyPlainText, o.CodeNoWrap
 	e.codeMaxHeight, e.imageMaxHeight = o.CodeMaxHeight, o.ImageMaxHeight
 	if e.ReadOnly {
 		o.Attach = nil
@@ -1082,8 +1141,14 @@ func View(c *ui.Context, e *Editor, o Options) ui.Element {
 					}
 				}
 				hoveredDirectLink := false
-				if e.ReadOnly && e.directLinks && inside {
-					_, hoveredDirectLink = e.linkAtPoint(px, py, false)
+				if inside {
+					if e.ReadOnly && e.directLinks {
+						if span, ok := e.linkAtPoint(px, py, false); ok && safeLinkURL(span.url) {
+							hoveredDirectLink = true
+						}
+					} else if obj, _, ok := e.inlineImageAtPoint(px, py); ok && safeLinkURL(obj.imageLink) {
+						hoveredDirectLink = true
+					}
 				}
 				_, hoveredGap := e.hoveredGap()
 				switch {
@@ -1179,6 +1244,14 @@ func (e *Editor) buildContextMenu(menu *ui.Menu, read func() string, write func(
 	}
 	if menu.Item(i18n.T("复制")).Shortcut(ui.Cmd, ui.KeyC).Disabled(!hasSelection).Chosen() {
 		e.command("copy", read, write)
+		e.RequestFocus = true
+	}
+	copyPlainItem := menu.Item(i18n.T("复制为纯文本")).Disabled(!hasSelection)
+	if combo := e.binding("copy-plain"); combo.Valid() {
+		copyPlainItem.Shortcut(combo.Mods, combo.Key)
+	}
+	if copyPlainItem.Chosen() {
+		e.command("copyPlain", read, write)
 		e.RequestFocus = true
 	}
 	if !e.ReadOnly {
@@ -1282,6 +1355,9 @@ func (e *Editor) layout(o Options) {
 		e.page = pageOf(o.Page, o.Theme)
 	}
 	e.collectNotes()
+	if o.LoadImage != nil {
+		e.loadImage = o.LoadImage
+	}
 	e.readingSize, e.readingLine, e.fontFamily = o.FontSize, o.LineHeight, o.FontFamily
 	e.pageZoom = clampPageZoom(o.Zoom)
 	z := e.zoomFactor()
@@ -1477,8 +1553,8 @@ func (e *Editor) layout(o Options) {
 				hx = fx - 28
 			}
 		}
-		if b.Kind == "heading" && b.Text() != "" {
-			e.outline = append(e.outline, outlineItem{b.ID, b.Text(), b.Level, y, 0})
+		if b.Kind == "heading" && b.VisibleText() != "" {
+			e.outline = append(e.outline, outlineItem{b.ID, b.VisibleText(), b.Level, y, 0})
 		}
 		e.handles = append(e.handles, blockHandle{
 			id:    b.ID,
@@ -1574,6 +1650,7 @@ func (e *Editor) layoutOptions() Options {
 		CodeNoWrap:     e.codeNoWrap,
 		CodeMaxHeight:  e.codeMaxHeight,
 		ImageMaxHeight: e.imageMaxHeight,
+		LoadImage:      e.loadImage,
 		LoadWhiteboard: e.loadWhiteboard,
 	}
 }
@@ -1693,7 +1770,19 @@ func (e *Editor) blockLayouter(o Options, leafOf func(string) document.Leaf, hid
 					if b.Kind == "callout" {
 						d.tone, d.id, d.label = b.Color, b.ID, b.Emoji
 					}
+					if b.Kind == "quote" && b.Background != "" {
+						d.bg, d.inColumn = b.Background, leaf.Owner != "" && leaf.Owner != b.ID
+					}
 					e.decorations = append(e.decorations, d)
+				} else if b.Background != "" && document.AllowsBlockBackground(b.Kind) {
+					e.decorations = append(e.decorations, decoration{
+						kind:     "block-bg",
+						id:       b.ID,
+						ownerID:  leaf.Owner,
+						rect:     blockBackgroundRect(b, x, y, w, top, bottom, total, gap, e.zoomFactor()),
+						bg:       b.Background,
+						inColumn: leaf.Owner != "" && leaf.Owner != b.ID,
+					})
 				}
 				return total
 			}
@@ -1782,7 +1871,19 @@ func (e *Editor) blockLayouter(o Options, leafOf func(string) document.Leaf, hid
 			if b.Kind == "callout" {
 				d.tone, d.id, d.label = b.Color, b.ID, b.Emoji
 			}
+			if b.Kind == "quote" && b.Background != "" {
+				d.bg, d.inColumn = b.Background, leaf.Owner != "" && leaf.Owner != b.ID
+			}
 			e.decorations = append(e.decorations, d)
+		} else if b.Background != "" && document.AllowsBlockBackground(b.Kind) {
+			e.decorations = append(e.decorations, decoration{
+				kind:     "block-bg",
+				id:       b.ID,
+				ownerID:  leaf.Owner,
+				rect:     blockBackgroundRect(b, x, y, w, top, bottom, total, gap, e.zoomFactor()),
+				bg:       b.Background,
+				inColumn: leaf.Owner != "" && leaf.Owner != b.ID,
+			})
 		}
 		return total
 	}
@@ -1962,7 +2063,7 @@ func (e *Editor) paint(p *ui.Painter, bounds ui.Rect, t *ui.Theme, caret bool) {
 		p.Fill(slot, t.Accent.Alpha(0.055), 8)
 		p.StrokeDashed(slot, t.Accent.Alpha(0.65), 8, 1.25)
 	}
-	decSlack := float32(1)
+	decSlack := max(float32(8), 4*e.zoomFactor())
 	if e.motion.moving || plan.active || e.tableDrag.active || e.tableColDrag.active {
 		decSlack = 160
 	}
@@ -2005,6 +2106,25 @@ func (e *Editor) paint(p *ui.Painter, bounds ui.Rect, t *ui.Theme, caret bool) {
 				}
 			case "mermaid":
 				e.paintMermaidDecoration(p, bounds, d, ddx, ddy, t)
+			case "math":
+				if e.hasTexBlockFill() {
+					if ri, ok := e.rowIDs[d.id]; ok {
+						mr := e.indexedRow(ri)
+						if mr.mathHidden && mr.math != nil {
+							fill := e.page.TexBlockFill
+							border := e.page.MathBorder
+							if !e.reduceMotion && e.motion.foldFade != nil {
+								if op, ok := e.motion.foldFade[d.ownerID]; ok && op < 1 {
+									fill = fill.Alpha(float32(fill.A) / 255 * op)
+									border = border.Alpha(float32(border.A) / 255 * op)
+								}
+							}
+							frame := ui.Rect{X: r.X, Y: r.Y + mathMargin/2, W: r.W, H: max(0, mr.rect.H-mathMargin)}
+							p.Fill(frame, fill, 8)
+							p.Stroke(frame, border, 8, 1)
+						}
+					}
+				}
 			case "callout":
 				look := e.page.Callouts[d.tone]
 				if !e.printing && !e.reduceMotion && e.motion.callouts != nil {
@@ -2028,7 +2148,18 @@ func (e *Editor) paint(p *ui.Painter, bounds ui.Rect, t *ui.Theme, caret bool) {
 				} else {
 					p.Icon(calloutIcon(d.tone), ui.Rect{X: icon.X + 3*cz, Y: icon.Y + 3*cz, W: 18 * cz, H: 18 * cz}, look.Icon)
 				}
+			case "block-bg":
+				if fill, ok := e.page.CellFills[d.bg]; ok && fill.A > 0 {
+					bgRect, rad := blockBackgroundPaintRect(r, e.zoomFactor(), d.inColumn)
+					p.Fill(bgRect, fill, rad)
+				}
 			case "quote":
+				if d.bg != "" {
+					if fill, ok := e.page.CellFills[d.bg]; ok && fill.A > 0 {
+						bgRect, rad := blockBackgroundPaintRect(r, e.zoomFactor(), d.inColumn)
+						p.Fill(bgRect, fill, rad)
+					}
+				}
 				p.Fill(ui.Rect{X: r.X, Y: r.Y, W: 2, H: r.H}, e.page.QuoteBar, 1)
 			case "rule":
 				p.Line(r.X, r.Y+12.5, r.X+r.W, r.Y+12.5, 1, e.page.Rule)
@@ -2069,6 +2200,23 @@ func (e *Editor) paint(p *ui.Painter, bounds ui.Rect, t *ui.Theme, caret bool) {
 		}
 	}
 	paintDecorationPass(false)
+	if !e.printing && e.page.InlineTexFill.A != 0 {
+		rowSlack := float32(40)
+		if e.motion.moving || plan.active || e.tableDrag.active || e.tableColDrag.active {
+			rowSlack = 200
+		}
+		for i := range e.visibleRows(rowSlack) {
+			r := *e.indexedRow(i)
+			if r.layout == nil || r.rect.Y+r.rect.H < e.Scroll.Y-rowSlack || r.rect.Y > e.Scroll.Y+e.viewport+rowSlack {
+				continue
+			}
+			if plan.active && e.isDraggedOwner(r.leaf.Owner, plan) {
+				continue
+			}
+			dx, dy := e.visualOffset(r)
+			e.paintInlineTexBackgrounds(p, ui.Rect{X: bounds.X + dx, Y: bounds.Y + dy, W: bounds.W, H: bounds.H}, r)
+		}
+	}
 	e.paintBlockSelection(p, bounds, t)
 	if !e.printing {
 		e.paintHoverControls(p, bounds, t)
@@ -2112,6 +2260,9 @@ func (e *Editor) paint(p *ui.Painter, bounds ui.Rect, t *ui.Theme, caret bool) {
 			e.paintMarker(p, bounds, r, t)
 			paintRowBody := func(scrollX, scrollY float32) {
 				shiftedBounds := ui.Rect{X: bounds.X + dx - scrollX, Y: bounds.Y + dy - scrollY, W: bounds.W, H: bounds.H}
+				if draggedOnly {
+					e.paintInlineTexBackgrounds(p, shiftedBounds, r)
+				}
 				e.paintKeycaps(p, shiftedBounds, r)
 				if e.focused && len(e.blocks.ids) == 0 && selection.End > r.leaf.Start && selection.Start < r.leaf.End && e.inlineMath.blockID != r.leaf.Block.ID {
 					if r.mathHidden && r.math != nil {

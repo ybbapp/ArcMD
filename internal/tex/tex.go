@@ -25,10 +25,10 @@ type Measure func(text string, size float32, italic, bold bool) (w, ascent, desc
 // Op is one thing a formula draws, in DIPs from the origin of its box, the
 // left end of its baseline, y growing downwards.
 type Op struct {
-	// Kind is "text", "rule" (a filled rectangle) or "path" (a polyline).
+	// Kind is "text", "rule" (a filled rectangle), "frame" (an outline), or "path" (a polyline).
 	Kind string
-	// X and Y place text by its baseline's left end, and a rule by its top
-	// left corner.
+	// X and Y place text by its baseline's left end, and a rule or frame by
+	// its top left corner.
 	X, Y   float32
 	Text   string
 	Size   float32
@@ -36,9 +36,9 @@ type Op struct {
 	Bold   bool
 	// Error marks text TeX did not understand, drawn as a warning.
 	Error bool
-	// W and H are a rule's size.
+	// W and H are a rule's or frame's size.
 	W, H float32
-	// Points are a path's, Width its stroke.
+	// Points are a path's; Width is the stroke width of a path or frame.
 	Points [][2]float32
 	Width  float32
 }
@@ -124,10 +124,21 @@ type parsedLine struct {
 	gapAfter float32
 }
 
+const maxNestingDepth = 64
+
 type parser struct {
 	src       string
 	pos       int
+	depth     int
 	lastBreak float32
+}
+
+func (p *parser) enter() error {
+	if p.depth >= maxNestingDepth {
+		return errors.New("tex: expression nested too deeply")
+	}
+	p.depth++
+	return nil
 }
 
 func (p *parser) peek() byte {
@@ -338,8 +349,12 @@ func (p *parser) list() ([]*node, string, error) {
 			}
 			out = append(out, n)
 		case '{':
+			if err := p.enter(); err != nil {
+				return nil, "", err
+			}
 			p.pos++
 			inner, end, err := p.list()
+			p.depth--
 			if err != nil {
 				return nil, "", err
 			}
@@ -361,6 +376,10 @@ func (p *parser) argument() ([]*node, error) {
 	if p.pos >= len(p.src) {
 		return nil, errors.New("tex: missing argument")
 	}
+	if err := p.enter(); err != nil {
+		return nil, err
+	}
+	defer func() { p.depth-- }()
 	switch c := p.peek(); c {
 	case '{':
 		p.pos++
@@ -508,6 +527,12 @@ func (p *parser) commandNode(name string) (*node, error) {
 		return n, nil
 	case "tag":
 		return p.tagNode()
+	case "boxed":
+		body, err := p.argument()
+		if err != nil {
+			return nil, err
+		}
+		return &node{kind: "boxed", args: [][]*node{body}}, nil
 	case "frac", "dfrac", "tfrac", "binom", "cfrac":
 		num, err := p.argument()
 		if err != nil {
@@ -526,12 +551,15 @@ func (p *parser) commandNode(name string) (*node, error) {
 		var index []*node
 		p.skipSpace()
 		if p.peek() == '[' {
+			if p.depth >= maxNestingDepth {
+				return nil, errors.New("tex: expression nested too deeply")
+			}
 			p.pos++
 			end := strings.IndexByte(p.src[p.pos:], ']')
 			if end < 0 {
 				return nil, errors.New("tex: unclosed [")
 			}
-			sub := &parser{src: p.src[p.pos : p.pos+end]}
+			sub := &parser{src: p.src[p.pos : p.pos+end], depth: p.depth + 1}
 			var err error
 			if index, _, err = sub.list(); err != nil {
 				return nil, err
@@ -561,6 +589,10 @@ func (p *parser) commandNode(name string) (*node, error) {
 		}
 		return n, nil
 	case "left":
+		if err := p.enter(); err != nil {
+			return nil, err
+		}
+		defer func() { p.depth-- }()
 		open, err := p.delimiter()
 		if err != nil {
 			return nil, err
@@ -614,6 +646,10 @@ func (p *parser) commandNode(name string) (*node, error) {
 		}
 		return &node{kind: "ord", text: d}, nil
 	case "begin":
+		if err := p.enter(); err != nil {
+			return nil, err
+		}
+		defer func() { p.depth-- }()
 		env, err := p.rawArgument()
 		if err != nil {
 			return nil, err
@@ -693,9 +729,12 @@ func (p *parser) optionalBracketArg() ([]*node, bool, error) {
 		case ']':
 			if brace == 0 {
 				if depth == 0 {
+					if p.depth >= maxNestingDepth {
+						return nil, false, errors.New("tex: expression nested too deeply")
+					}
 					inner := p.src[start:p.pos]
 					p.pos++
-					sub := &parser{src: inner}
+					sub := &parser{src: inner, depth: p.depth + 1}
 					nodes, end, err := sub.list()
 					if err != nil {
 						return nil, false, err

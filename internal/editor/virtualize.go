@@ -37,6 +37,10 @@ func makeRunsStamp(runs []document.Run) runsStamp {
 		r := &runs[i]
 		lo = fnvMixStyle(lo, r.Style)
 		lo = fnvMixString(lo, r.Text)
+		if !r.Image.IsZero() {
+			lo = fnvMixInlineImage(lo, r.Image)
+			hi ^= fnvMixInlineImage(hi, r.Image)
+		}
 		hi = (hi^uint64(len(r.Text)))*prime2 + uint64(i+1)
 		if r.Style != (document.Style{}) {
 			hi ^= fnvMixStyle(hi, r.Style)
@@ -720,6 +724,10 @@ func (e *Editor) blockSpans(b *document.Block, font ui.Font, header bool, theme 
 	}
 	var spans []ui.Span
 	for _, run := range b.Runs {
+		if run.IsImage() {
+			spans = append(spans, ui.Span{Text: run.Text})
+			continue
+		}
 		style := run.Style
 		span := ui.Span{Text: run.Text, Italic: style.Italic, Underline: style.Underline, Strikethrough: style.Strike}
 		if style.Script != "" {
@@ -876,6 +884,26 @@ func (e *Editor) estimateBlockHeight(b *document.Block, font ui.Font, shapeWidth
 	baseMono := font.Family == "monospace"
 	for i := range b.Runs {
 		run := &b.Runs[i]
+		if run.IsImage() {
+			imgW := run.Image.Width
+			if imgW <= 0 {
+				imgW = max(24, font.Size*4)
+			}
+			imgW = min(avail, imgW*e.zoomFactor())
+			if !noWrap && curW+imgW > avail && curW > 0 {
+				lines++
+				curW = imgW
+			} else {
+				curW += imgW
+			}
+			if run.Image.Height > 0 {
+				extraLines := int(math.Ceil(float64(run.Image.Height * e.zoomFactor() / max(1, lineH))))
+				if extraLines > 1 {
+					lines += extraLines - 1
+				}
+			}
+			continue
+		}
 		size := font.Size
 		mono := baseMono || run.Style.Code
 		if run.Style.Code {
@@ -1201,7 +1229,11 @@ func (e *Editor) materializeRows(targets []int, theme *ui.Theme) int {
 		decStart, decEnd := -1, -1
 		if di, hasDec := e.decorationIDs[b.ID]; hasDec {
 			dc := e.indexedDecoration(di)
-			dc.rect.H = newH - m.gap
+			if dc.kind == "block-bg" {
+				dc.rect = blockBackgroundRect(b, r.rect.X, origY, r.rect.W, m.top, m.bottom, newH, m.gap, e.zoomFactor())
+			} else {
+				dc.rect.H = newH - m.gap
+			}
 			if isWhiteboardBlock(b) {
 				dc.boardEditing = r.boardEditing
 				dc.rect = r.boardRect

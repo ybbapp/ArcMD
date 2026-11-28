@@ -3,7 +3,6 @@ package editor
 import (
 	"fmt"
 	"html"
-	"net/url"
 	"strings"
 
 	"github.com/Ciao1019/ArcMD/internal/document"
@@ -27,16 +26,72 @@ func isSafeLangClass(lang string) bool {
 	return true
 }
 
+func hasURLControlChars(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] < 0x20 || s[i] == 0x7f {
+			return true
+		}
+	}
+	return false
+}
+
+func extractURIScheme(s string) (string, bool) {
+	if len(s) == 0 {
+		return "", false
+	}
+	c0 := s[0]
+	if !((c0 >= 'a' && c0 <= 'z') || (c0 >= 'A' && c0 <= 'Z')) {
+		return "", false
+	}
+	i := 1
+	for i < len(s) {
+		c := s[i]
+		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.' {
+			i++
+			continue
+		}
+		if c == ':' {
+			return strings.ToLower(s[:i]), true
+		}
+		return "", false
+	}
+	return "", false
+}
+
 func safeHTMLURL(s string) bool {
-	u, err := url.Parse(strings.TrimSpace(s))
-	if err != nil {
+	trimmed := strings.TrimSpace(s)
+	if hasURLControlChars(trimmed) {
 		return false
 	}
-	switch strings.ToLower(u.Scheme) {
-	case "", "http", "https", "mailto", "file", "tel":
+	if trimmed == "" {
+		return true
+	}
+	scheme, hasScheme := extractURIScheme(trimmed)
+	if !hasScheme {
+		return true
+	}
+	switch scheme {
+	case "http", "https", "mailto", "tel":
 		return true
 	}
 	return false
+}
+
+func safeLinkURL(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	return trimmed != "" && safeHTMLURL(trimmed)
+}
+
+func safeImageURL(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	if trimmed == "" || hasURLControlChars(trimmed) {
+		return false
+	}
+	scheme, hasScheme := extractURIScheme(trimmed)
+	if !hasScheme {
+		return true
+	}
+	return scheme == "http" || scheme == "https"
 }
 
 // ExportHTML supplies semantic clipboard content without depending on a web
@@ -110,7 +165,12 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 							break
 						}
 						firstAtDepth = false
-						out.WriteString("<li>")
+						hasChildren := i+1 < len(bs) && isHTMLList(bs[i+1]) && bs[i+1].Indent > depth
+						if hasChildren && item.Background != "" {
+							out.WriteString("<li><div" + blockBgAttrString(item.Background, theme) + ">")
+						} else {
+							out.WriteString("<li" + blockBgAttrString(item.Background, theme) + ">")
+						}
 						if item.Kind == "task" {
 							if item.Checked {
 								out.WriteString("☑ ")
@@ -119,6 +179,9 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 							}
 						}
 						out.WriteString(runs(item.Runs))
+						if hasChildren && item.Background != "" {
+							out.WriteString("</div>")
+						}
 						i++
 						for i < len(bs) && isHTMLList(bs[i]) && bs[i].Indent > depth {
 							list(bs[i].Indent)
@@ -165,7 +228,7 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 				if !b.Folded {
 					open = " open"
 				}
-				out.WriteString("<details" + open + "><summary>" + body + "</summary>" + blocks(inner) + "</details>")
+				out.WriteString("<details" + open + "><summary" + blockBgAttrString(b.Background, theme) + ">" + body + "</summary>" + blocks(inner) + "</details>")
 				continue
 			case "raw":
 				if spec, snapMD, ok := ParseDatabaseEmbed(b.Text()); ok {
@@ -184,7 +247,7 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 				out.WriteString("<hr>")
 				continue
 			case "image":
-				if safeHTMLURL(b.URL) {
+				if safeImageURL(b.URL) {
 					if IsPDFURL(b.URL) {
 						h := float32(480)
 						out.WriteString(`<figure class="arcmd-pdf"><object data="` + html.EscapeString(b.URL) + `" type="application/pdf" width="100%" height="` + fmt.Sprintf("%.0f", h) + `"><a href="` + html.EscapeString(b.URL) + `">` + html.EscapeString(imageName(b.URL)) + `</a></object></figure>`)
@@ -197,6 +260,12 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 					out.WriteString("<img src=\"" + html.EscapeString(b.URL) + "\" alt=\"" + html.EscapeString(b.Text()) + "\"")
 					if b.ImageWidth > 0 {
 						fmt.Fprintf(&out, " width=\"%.0f\"", b.ImageWidth)
+					}
+					if b.ImageHeight > 0 {
+						fmt.Fprintf(&out, " height=\"%.0f\"", b.ImageHeight)
+					}
+					if b.Align == "left" || b.Align == "right" {
+						out.WriteString(` align="` + b.Align + `"`)
 					}
 					out.WriteString(">")
 				}
@@ -271,9 +340,21 @@ func exportHTML(doc *document.Document, theme *HTMLTheme) string {
 			if b.Kind == "heading" && theme != nil && theme.Light.Page.HeadingWeight > 0 {
 				styles = append(styles, fmt.Sprintf("font-weight:%d", theme.Light.Page.HeadingWeight))
 			}
-			attrs := ""
+			var attrParts []string
+			if b.Background != "" && document.AllowsBlockBackground(b.Kind) && cellFillHex[b.Background] != "" {
+				if theme != nil {
+					attrParts = append(attrParts, `class="arcmd-bg arcmd-bg-`+b.Background+`"`)
+				} else if hex := cellFillHex[b.Background]; hex != "" {
+					styles = append(styles, "background-color:"+hex)
+				}
+				attrParts = append(attrParts, `data-bg="`+b.Background+`"`)
+			}
 			if len(styles) > 0 {
-				attrs = ` style="` + strings.Join(styles, ";") + `"`
+				attrParts = append(attrParts, `style="`+strings.Join(styles, ";")+`"`)
+			}
+			attrs := ""
+			if len(attrParts) > 0 {
+				attrs = " " + strings.Join(attrParts, " ")
 			}
 			out.WriteString("<" + tag + attrs + ">" + body + "</" + tag + ">")
 		}
@@ -333,6 +414,33 @@ func htmlTokenClass(c ui.Color) string {
 		return "arcmd-tok-function"
 	}
 	return ""
+}
+
+func blockBgAttrString(bg string, theme *HTMLTheme) string {
+	if bg == "" || cellFillHex[bg] == "" {
+		return ""
+	}
+	var parts []string
+	if theme != nil {
+		parts = append(parts, `class="arcmd-bg arcmd-bg-`+bg+`"`)
+	} else if hex := cellFillHex[bg]; hex != "" {
+		parts = append(parts, `style="background-color:`+hex+`"`)
+	}
+	parts = append(parts, `data-bg="`+bg+`"`)
+	return " " + strings.Join(parts, " ")
+}
+
+// BlockBackgroundCSS writes the CSS rules that color .arcmd-bg-<name> elements
+// emitted by ExportHTMLPage, using the paper theme's CellFills palette so
+// exported pages follow the reader's light or dark system appearance.
+func BlockBackgroundCSS(fills map[string]ui.Color) string {
+	var b strings.Builder
+	for _, name := range document.TextHighlights {
+		if c, ok := fills[name]; ok && c.A > 0 {
+			fmt.Fprintf(&b, ".arcmd-bg-%s { background-color: %s; }\n", name, cssColor(c))
+		}
+	}
+	return b.String()
 }
 
 // CodeTokenCSS writes the rules that color the token classes htmlCode emits,

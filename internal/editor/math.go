@@ -11,7 +11,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// Display math renders as an unboxed formula at rest, and while editing opens
+// Display math renders as a centered formula at rest, and while editing opens
 // a unified card with the live centered formula on top and a rounded monospace
 // TeX input bar directly below.
 const (
@@ -148,7 +148,7 @@ func (e *Editor) mathRow(r *row, textH float32) float32 {
 	previewH := float32(26) * z
 	if src != "" {
 		width := r.rect.W
-		if !r.mathHidden {
+		if !r.mathHidden || e.hasTexBlockFill() {
 			width = max(24, width-2*mathPaddingX)
 		}
 		lineW := width
@@ -185,6 +185,32 @@ func (e *Editor) mathRow(r *row, textH float32) float32 {
 	wellH := mathFenceH + mathPaddingY + textH + mathPaddingY
 	r.mathPanel = (wellTop - mathMargin) + wellH + 10
 	return mathMargin + r.mathPanel + mathMargin
+}
+
+func (e *Editor) hasTexBlockFill() bool {
+	return !e.printing && e.page.TexBlockFill.A != 0
+}
+
+func (e *Editor) paintInlineTexBackgrounds(p *ui.Painter, bounds ui.Rect, r row) {
+	if e.printing || e.page.InlineTexFill.A == 0 || r.layout == nil {
+		return
+	}
+	fill := e.page.InlineTexFill
+	if !e.reduceMotion && e.motion.foldFade != nil {
+		if op, ok := e.motion.foldFade[r.leaf.Owner]; ok && op < 1 {
+			fill = fill.Alpha(float32(fill.A) / 255 * op)
+		}
+	}
+	for _, obj := range r.layout.objects {
+		if obj.box == nil || obj.editing || obj.rect.W <= 0 || obj.rect.H <= 0 {
+			continue
+		}
+		frame := obj.rect
+		frame.X += bounds.X + r.x
+		frame.Y += bounds.Y + r.y - 1
+		frame.H += 2
+		p.Fill(frame, fill, 4)
+	}
 }
 
 // paintMath draws a math block's formula and unified editing card, reporting
@@ -276,6 +302,8 @@ func (e *Editor) paintFormulaScaled(p *ui.Painter, box tex.Box, x, y, scale floa
 				h = max(min(op.H, 0.85), h)
 			}
 			p.Fill(ui.Rect{X: x + op.X*scale, Y: y + op.Y*scale, W: op.W * scale, H: h}, t.Text, 0)
+		case "frame":
+			p.Stroke(ui.Rect{X: x + op.X*scale, Y: y + op.Y*scale, W: op.W * scale, H: op.H * scale}, t.Text, 0, op.Width*scale)
 		case "path":
 			pts := make([][2]float32, len(op.Points))
 			for i, pt := range op.Points {

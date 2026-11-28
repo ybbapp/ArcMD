@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"path"
 	"strconv"
 	"strings"
 
@@ -90,6 +91,7 @@ type htmlImporter struct {
 	level   int
 	indent  int
 	align   string
+	bg      string
 	checked *bool
 	// lists are the kinds of the lists the text is in, innermost last.
 	lists     []string
@@ -588,7 +590,11 @@ func (h *htmlImporter) text(s string, style document.Style) {
 		if kind == "paragraph" || kind == "heading" {
 			align = h.align
 		}
-		h.cur = &document.Block{ID: document.NewID(), Kind: kind, Level: h.level, Indent: h.indent, Align: align}
+		bg := ""
+		if document.AllowsBlockBackground(kind) {
+			bg = h.bg
+		}
+		h.cur = &document.Block{ID: document.NewID(), Kind: kind, Level: h.level, Indent: h.indent, Align: align, Background: bg}
 		if h.checked != nil {
 			h.cur.Kind, h.cur.Checked = "task", *h.checked
 		}
@@ -615,6 +621,17 @@ func (h *htmlImporter) withAlign(align string, explicit bool, inside func()) {
 	h.align = align
 	inside()
 	h.align = saved
+}
+
+func (h *htmlImporter) withBg(bg string, inside func()) {
+	if bg == "" {
+		inside()
+		return
+	}
+	saved := h.bg
+	h.bg = bg
+	inside()
+	h.bg = saved
 }
 
 func attr(n *html.Node, name string) string {
@@ -660,6 +677,16 @@ func (h *htmlImporter) children(n *html.Node, style document.Style) {
 	}
 }
 
+func isHTMLContainerElement(a atom.Atom) bool {
+	switch a {
+	case atom.Details, atom.Section, atom.Article, atom.Header, atom.Footer,
+		atom.Main, atom.Aside, atom.Nav, atom.Figure, atom.Ul, atom.Ol,
+		atom.Menu, atom.Dl, atom.Table, atom.Thead, atom.Tbody, atom.Tfoot, atom.Tr:
+		return true
+	}
+	return false
+}
+
 func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 	switch n.Type {
 	case html.TextNode:
@@ -679,7 +706,22 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 	if n.DataAtom == atom.A {
 		h.recordID(attr(n, "name"))
 	}
-	if h.inTableCell {
+	nodeBg := ""
+	if !h.inTableCell {
+		switch n.DataAtom {
+		case atom.P, atom.H1, atom.H2, atom.H3, atom.H4, atom.H5, atom.H6, atom.Blockquote, atom.Li, atom.Summary, atom.Dt:
+			nodeBg = parseBlockBackground(n)
+		case atom.Div, atom.Center:
+			if bg := attr(n, "data-bg"); validStyleName(bg, document.TextHighlights) {
+				nodeBg = bg
+			}
+		}
+		prevHighlight := style.Highlight
+		style = applyNodeRichStyle(n, styled(n, style))
+		if (nodeBg != "" || isHTMLContainerElement(n.DataAtom)) && n.DataAtom != atom.Mark && attr(n, "data-highlight") == "" {
+			style.Highlight = prevHighlight
+		}
+	} else {
 		props := mergedNodeCSSProps(n, h.classes)
 		style = applyCSSPropsStyle(props, attr(n, "data-mark") != "", true, style)
 		if n.DataAtom == atom.Font {
@@ -692,8 +734,6 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 			}
 		}
 		style = applyNodeRichStyle(n, style)
-	} else {
-		style = applyNodeRichStyle(n, styled(n, style))
 	}
 	switch n.DataAtom {
 	case atom.Head:
@@ -746,7 +786,7 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 		h.text("”", style)
 		return
 	case atom.A:
-		if href := attr(n, "href"); href != "" && !strings.HasPrefix(strings.ToLower(href), "javascript:") {
+		if href := strings.TrimSpace(attr(n, "href")); safeLinkURL(href) {
 			style.Link = href
 		}
 	case atom.Br:
@@ -761,11 +801,35 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 	case atom.H1, atom.H2, atom.H3, atom.H4, atom.H5, atom.H6:
 		level := int(n.Data[1] - '0')
 		align, explicit := parseBlockAlignExplicit(n)
-		h.withAlign(align, explicit, func() {
-			h.block("heading", level, func() { h.children(n, style) })
+		h.withBg(nodeBg, func() {
+			h.withAlign(align, explicit, func() {
+				h.block("heading", level, func() { h.children(n, style) })
+			})
 		})
 		return
-	case atom.P, atom.Div, atom.Section, atom.Article, atom.Header, atom.Footer, atom.Main, atom.Aside, atom.Nav, atom.Figure, atom.Figcaption, atom.Dt, atom.Dd, atom.Address, atom.Center, atom.Details, atom.Summary, atom.Dl:
+	case atom.Details:
+		if h.pre {
+			if h.cur != nil && len(h.cur.Runs) > 0 && !strings.HasSuffix(h.cur.Text(), "\n") {
+				h.text("\n", document.Style{})
+			}
+			h.children(n, document.Style{})
+			return
+		}
+		detailsBg := parseBlockBackground(n)
+		align, explicit := parseBlockAlignExplicit(n)
+		h.withAlign(align, explicit, func() {
+			h.flush()
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				if c.Type == html.ElementNode && c.DataAtom == atom.Summary && detailsBg != "" {
+					h.withBg(detailsBg, func() { h.walk(c, style) })
+				} else {
+					h.walk(c, style)
+				}
+			}
+			h.flush()
+		})
+		return
+	case atom.P, atom.Div, atom.Section, atom.Article, atom.Header, atom.Footer, atom.Main, atom.Aside, atom.Nav, atom.Figure, atom.Figcaption, atom.Dt, atom.Dd, atom.Address, atom.Center, atom.Summary, atom.Dl:
 		if h.pre {
 			if h.cur != nil && len(h.cur.Runs) > 0 && !strings.HasSuffix(h.cur.Text(), "\n") {
 				h.text("\n", document.Style{})
@@ -778,26 +842,32 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 			case atom.Figcaption:
 				capStyle := style
 				capStyle.Italic = true
-				h.withAlign("center", true, func() {
-					h.block("paragraph", 0, func() { h.children(n, capStyle) })
+				h.withBg(nodeBg, func() {
+					h.withAlign("center", true, func() {
+						h.block("paragraph", 0, func() { h.children(n, capStyle) })
+					})
 				})
 				return
 			case atom.Dt, atom.Summary:
 				dtStyle := style
 				dtStyle.Bold = true
-				h.block("paragraph", 0, func() { h.children(n, dtStyle) })
+				h.withBg(nodeBg, func() {
+					h.block("paragraph", 0, func() { h.children(n, dtStyle) })
+				})
 				return
 			case atom.Dd:
 				savedIndent := h.indent
 				h.indent = min(12, h.indent+1)
-				h.block("paragraph", 0, func() { h.children(n, style) })
+				h.withBg(nodeBg, func() {
+					h.block("paragraph", 0, func() { h.children(n, style) })
+				})
 				h.indent = savedIndent
 				return
 			}
 		}
 		if n.DataAtom == atom.Div && hasHTMLClass(n, "arcmd-columns") {
 			h.flush()
-			if cols := columnsOfHTML(n); cols != nil {
+			if cols := columnsOfHTML(n, h.classes); cols != nil {
 				h.appendBlock(cols)
 				return
 			}
@@ -816,19 +886,23 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 		if n.DataAtom == atom.Center {
 			align, explicit = "center", true
 		}
-		h.withAlign(align, explicit, func() {
-			if h.kind == "quote" || h.kind == "bullet" || h.kind == "numbered" {
-				// Paragraphs inside a quote or a list item stay what they are in.
-				h.flush()
-				h.children(n, style)
-				h.flush()
-				return
-			}
-			h.block(h.kind, h.level, func() { h.children(n, style) })
+		h.withBg(nodeBg, func() {
+			h.withAlign(align, explicit, func() {
+				if h.kind == "quote" || h.kind == "bullet" || h.kind == "numbered" {
+					// Paragraphs inside a quote or a list item stay what they are in.
+					h.flush()
+					h.children(n, style)
+					h.flush()
+					return
+				}
+				h.block(h.kind, h.level, func() { h.children(n, style) })
+			})
 		})
 		return
 	case atom.Blockquote:
-		h.block("quote", 0, func() { h.children(n, style) })
+		h.withBg(nodeBg, func() {
+			h.block("quote", 0, func() { h.children(n, style) })
+		})
 		return
 	case atom.Pre:
 		h.flush()
@@ -860,7 +934,7 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 				return
 			}
 		}
-		if src == "" || strings.HasPrefix(src, "data:") {
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "data:") || !safeLinkURL(src) {
 			if alt := attr(n, "alt"); alt != "" {
 				h.text(alt, style)
 			}
@@ -935,7 +1009,9 @@ func (h *htmlImporter) walk(n *html.Node, style document.Style) {
 		saved, savedChecked, savedListStart := h.kind, h.checked, h.listStart
 		h.kind, h.checked, h.listStart = kind, taskState(n), 0
 		beforeLen := len(h.blocks)
-		h.children(n, style)
+		h.withBg(nodeBg, func() {
+			h.children(n, style)
+		})
 		h.flush()
 		h.kind, h.checked, h.listStart = saved, savedChecked, savedListStart
 		if liStart > 0 && len(h.blocks) > beforeLen {
@@ -1024,17 +1100,19 @@ func isTinyTrackingPixel(img *html.Node) bool {
 }
 
 func safeImageEmbedURL(src string) bool {
-	low := strings.ToLower(strings.TrimSpace(src))
-	if low == "" {
+	trimmed := strings.TrimSpace(src)
+	if trimmed == "" || hasURLControlChars(trimmed) {
 		return false
 	}
-	if strings.HasPrefix(low, "javascript:") || strings.HasPrefix(low, "vbscript:") {
-		return false
-	}
+	low := strings.ToLower(trimmed)
 	if strings.HasPrefix(low, "data:") {
 		return strings.HasPrefix(low, "data:image/")
 	}
-	return true
+	scheme, hasScheme := extractURIScheme(trimmed)
+	if !hasScheme {
+		return true
+	}
+	return scheme == "http" || scheme == "https" || scheme == "epub"
 }
 
 func (h *htmlImporter) emitTableCaption(table *html.Node, style document.Style) {
@@ -1101,13 +1179,13 @@ func hasHTMLClass(n *html.Node, want string) bool {
 	return false
 }
 
-func columnsOfHTML(n *html.Node) *document.Block {
+func columnsOfHTML(n *html.Node, classes map[string]map[string]string) *document.Block {
 	var cols []*document.Block
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		if c.Type != html.ElementNode || c.DataAtom != atom.Div {
 			continue
 		}
-		inner := &htmlImporter{}
+		inner := &htmlImporter{classes: classes}
 		inner.children(c, document.Style{})
 		inner.flush()
 		children := inner.blocks
@@ -1354,10 +1432,10 @@ func parseSpanAttr(val string) int {
 	return min(64, n)
 }
 
-func parseHTMLWidth(n *html.Node) float32 {
-	raw := strings.TrimSpace(attr(n, "width"))
+func parseHTMLDimension(n *html.Node, prop string) float32 {
+	raw := strings.TrimSpace(attr(n, prop))
 	if raw == "" {
-		raw = parseCSSProps(attr(n, "style"))["width"]
+		raw = parseCSSProps(attr(n, "style"))[prop]
 	}
 	raw = strings.TrimSuffix(strings.ToLower(strings.TrimSpace(raw)), "px")
 	if raw == "" || strings.HasSuffix(raw, "%") {
@@ -1368,6 +1446,136 @@ func parseHTMLWidth(n *html.Node) float32 {
 		return 0
 	}
 	return float32(v)
+}
+
+func parseHTMLWidth(n *html.Node) float32 {
+	return parseHTMLDimension(n, "width")
+}
+
+func parseHTMLHeight(n *html.Node) float32 {
+	return parseHTMLDimension(n, "height")
+}
+
+// parseImageAlign extracts an image's explicit horizontal alignment, keeping
+// "left" distinct from "" because block images default to centered.
+func parseImageAlign(n *html.Node) string {
+	a := strings.ToLower(strings.TrimSpace(attr(n, "align")))
+	if a == "" {
+		props := parseCSSProps(attr(n, "style"))
+		a = strings.ToLower(strings.TrimSpace(props["float"]))
+	}
+	switch a {
+	case "left", "center", "right":
+		return a
+	}
+	return ""
+}
+
+func validImportedImageSrc(src string) bool {
+	return safeImageURL(src)
+}
+
+func parseHTMLInlineImage(img *html.Node) (document.InlineImage, string, bool) {
+	if img == nil || img.Type != html.ElementNode || img.DataAtom != atom.Img {
+		return document.InlineImage{}, "", false
+	}
+	src := strings.TrimSpace(attr(img, "src"))
+	if !validImportedImageSrc(src) {
+		return document.InlineImage{}, "", false
+	}
+	return document.InlineImage{
+		URL:    src,
+		Alt:    attr(img, "alt"),
+		Width:  parseHTMLWidth(img),
+		Height: parseHTMLHeight(img),
+	}, parseImageAlign(img), true
+}
+
+func parseSrcsetFirstURL(srcset string) string {
+	for _, cand := range strings.Split(srcset, ",") {
+		fields := strings.Fields(strings.TrimSpace(cand))
+		if len(fields) == 0 {
+			continue
+		}
+		if validImportedImageSrc(fields[0]) {
+			return fields[0]
+		}
+	}
+	return ""
+}
+
+func supportedPictureSourceType(typ, url string) bool {
+	if typ != "" {
+		t := strings.ToLower(strings.TrimSpace(strings.Split(typ, ";")[0]))
+		switch t {
+		case "image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/bmp", "image/svg+xml":
+			return true
+		default:
+			return false
+		}
+	}
+	base, _, _ := strings.Cut(strings.ToLower(strings.TrimSpace(url)), "?")
+	base, _, _ = strings.Cut(base, "#")
+	switch strings.ToLower(path.Ext(base)) {
+	case "", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg":
+		return true
+	default:
+		return false
+	}
+}
+
+func parsePictureInlineImage(pic *html.Node) (document.InlineImage, string, bool) {
+	if pic == nil || pic.Type != html.ElementNode || pic.DataAtom != atom.Picture {
+		return document.InlineImage{}, "", false
+	}
+	var imgNode *html.Node
+	var sources []*html.Node
+	for c := pic.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type != html.ElementNode {
+			continue
+		}
+		switch c.DataAtom {
+		case atom.Img:
+			if imgNode == nil {
+				imgNode = c
+			}
+		case atom.Source:
+			sources = append(sources, c)
+		}
+	}
+	if imgNode != nil {
+		if img, align, ok := parseHTMLInlineImage(imgNode); ok {
+			return img, align, true
+		}
+	}
+	pickSource := func(requireNoMedia bool) string {
+		for _, s := range sources {
+			if requireNoMedia && strings.TrimSpace(attr(s, "media")) != "" {
+				continue
+			}
+			u := parseSrcsetFirstURL(attr(s, "srcset"))
+			if u != "" && supportedPictureSourceType(attr(s, "type"), u) {
+				return u
+			}
+		}
+		return ""
+	}
+	src := pickSource(true)
+	if src == "" {
+		src = pickSource(false)
+	}
+	if src == "" {
+		return document.InlineImage{}, "", false
+	}
+	out := document.InlineImage{URL: src}
+	align := ""
+	if imgNode != nil {
+		out.Alt = attr(imgNode, "alt")
+		out.Width = parseHTMLWidth(imgNode)
+		out.Height = parseHTMLHeight(imgNode)
+		align = parseImageAlign(imgNode)
+	}
+	return out, align, true
 }
 
 func parseBlockAlignExplicit(n *html.Node) (string, bool) {

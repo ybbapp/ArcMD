@@ -111,6 +111,7 @@ func dropStrayColors(blocks []*Block) {
 	for _, b := range blocks {
 		if b.Kind != "image" {
 			b.ImageWidth = 0
+			b.ImageHeight = 0
 		}
 		if b.Kind != "numbered" {
 			b.Start = 0
@@ -121,6 +122,9 @@ func dropStrayColors(blocks []*Block) {
 		if b.Kind != "callout" {
 			b.Color, b.Emoji = "", ""
 		}
+		if b.Background != "" && !AllowsBackground(b.Kind) {
+			b.Background = ""
+		}
 		if b.Kind != "heading" && !isListKind(b.Kind) && b.Kind != "toggle" {
 			b.Folded = false
 		}
@@ -129,6 +133,28 @@ func dropStrayColors(blocks []*Block) {
 		}
 		if len(b.Comments) > 0 && (len(b.Children) > 0 || b.Kind == "code" || b.Kind == "raw" || b.Kind == "math" || b.Kind == "rule" || b.Kind == "image") {
 			b.Comments = nil
+		}
+		if len(b.Children) > 0 || !AllowsInlineComments(b.Kind) {
+			hasInlineImg := false
+			for _, r := range b.Runs {
+				if !r.Image.IsZero() {
+					hasInlineImg = true
+					break
+				}
+			}
+			if hasInlineImg {
+				cleaned := make([]Run, 0, len(b.Runs))
+				for _, r := range b.Runs {
+					if !r.Image.IsZero() {
+						if r.Image.Alt != "" {
+							cleaned = append(cleaned, Run{Text: r.Image.Alt, Style: r.Style})
+						}
+						continue
+					}
+					cleaned = append(cleaned, r)
+				}
+				b.Runs = Compact(cleaned)
+			}
 		}
 		dropStrayColors(b.Children)
 	}
@@ -146,6 +172,23 @@ func (e *Engine) SetColor(id, color string) {
 	e.Edit(func() {
 		if parent, index := e.find(id); parent != nil && (*parent)[index].Kind == "callout" {
 			(*parent)[index].Color = color
+		}
+	})
+}
+
+// SetBlockBackground fills the text block id (or the caret's block when id is
+// empty) with a color from TextHighlights, or clears it when background is "".
+// Table cells use SetCellBackground instead.
+func (e *Engine) SetBlockBackground(id, background string) {
+	if background != "" && !oneOf(background, TextHighlights) {
+		return
+	}
+	if id == "" {
+		id = e.LeafAt(e.Caret).Block.ID
+	}
+	e.Edit(func() {
+		if parent, index := e.find(id); parent != nil && AllowsBlockBackground((*parent)[index].Kind) {
+			(*parent)[index].Background = background
 		}
 	})
 }
@@ -207,7 +250,7 @@ func styleAtRange(runs []Run, start, a, z int) Style {
 			if a == z && s.Link != "" {
 				atLinkStart := at == runStart && (i == 0 || runs[i-1].Style.Link != s.Link)
 				atLinkEnd := at == position && (i+1 >= len(runs) || runs[i+1].Style.Link != s.Link)
-				if atLinkStart || atLinkEnd {
+				if !run.Image.IsZero() || atLinkStart || atLinkEnd {
 					s.Link = ""
 				}
 			}
@@ -304,7 +347,7 @@ func (e *Engine) replace(a, z int, text string) {
 		if first.Block != last.Block && a == first.Start && (isRule(first.Block) || isMedia(first.Block) || isWhiteboardBlockLang(first.Block)) {
 			// A rule or attachment selected whole goes with the selection
 			// rather than taking the text after it.
-			first.Block.Kind, first.Block.URL, first.Block.Language, first.Block.ImageWidth = "paragraph", "", "", 0
+			first.Block.Kind, first.Block.URL, first.Block.Language, first.Block.ImageWidth, first.Block.ImageHeight = "paragraph", "", "", 0, 0
 		}
 		first.Block.Runs = runs
 		first.Block.Comments = mergedComments
@@ -328,6 +371,9 @@ func (e *Engine) replace(a, z int, text string) {
 					block.ID = NewID()
 					block.Checked = false
 					block.Start = 0
+					if first.Block.Kind == "heading" || !runsHasText(lineRuns) {
+						block.Background = ""
+					}
 					if block.Kind != "bullet" && block.Kind != "numbered" && block.Kind != "task" && block.Kind != "quote" {
 						block.Kind, block.Level = "paragraph", 0
 					}
@@ -395,6 +441,10 @@ func splitRunsByNewline(runs []Run) [][]Run {
 	var out [][]Run
 	var cur []Run
 	for _, run := range runs {
+		if !run.Image.IsZero() {
+			cur = append(cur, run)
+			continue
+		}
 		rest := run.Text
 		for {
 			idx := strings.IndexByte(rest, '\n')
@@ -484,7 +534,7 @@ func (e *Engine) autoformat(inserted string) {
 		return
 	}
 	for _, r := range SliceRuns(b.Runs, 0, prefixUnits) {
-		if r.Style.Code || r.Style.Kbd || r.Style.Link != "" {
+		if r.Style.Code || r.Style.Kbd || r.Style.Link != "" || !r.Image.IsZero() {
 			return
 		}
 	}
@@ -538,6 +588,10 @@ func (e *Engine) autoformat(inserted string) {
 	if kind == "code" || kind == "math" {
 		var plain strings.Builder
 		for _, r := range rest {
+			if !r.Image.IsZero() {
+				plain.WriteString(r.Image.Alt)
+				continue
+			}
 			plain.WriteString(r.Text)
 		}
 		if s := plain.String(); s != "" {
@@ -716,7 +770,7 @@ func (e *Engine) Fragment() *Document {
 		b.Comments = SliceComments(leaf.Block.Comments, max(0, a-leaf.Start), min(z, leaf.End)-leaf.Start)
 		if b.Kind == "cell" || a > leaf.Start || z < leaf.End {
 			b.Kind = "paragraph"
-			b.Level, b.NoteLabel, b.ImageWidth, b.URL = 0, "", 0, ""
+			b.Level, b.NoteLabel, b.ImageWidth, b.ImageHeight, b.URL = 0, "", 0, 0, ""
 			b.Background, b.ColSpan, b.RowSpan = "", 0, 0
 			b.Align, b.Indent, b.Checked, b.Language, b.MapList = "", 0, false, "", nil
 		}
@@ -738,6 +792,10 @@ func (e *Engine) Paste(fragment *Document) {
 		// A formula remains a block even when it is the only copied item.
 		if len(fragment.Blocks) == 1 && len(fragment.Blocks[0].Children) == 0 && (fragment.Blocks[0].Kind == "paragraph" || isVerbatim(leaf.Block) || leaf.Block.Kind == "cell") {
 			insert := fragment.Blocks[0]
+			if isVerbatim(leaf.Block) && slices.ContainsFunc(insert.Runs, Run.IsImage) {
+				e.replace(a, z, insert.VisibleText())
+				return
+			}
 			replaceWhole := leaf.Block.Kind == "paragraph" && a == leaf.Start && z == leaf.End
 			e.replace(a, z, insert.Text())
 			for _, target := range e.Doc.Leaves() {
@@ -751,6 +809,9 @@ func (e *Engine) Paste(fragment *Document) {
 				if replaceWhole && insert.Align != "" && target.Block.Kind == "paragraph" {
 					target.Block.Align = insert.Align
 				}
+				if replaceWhole && insert.Background != "" && target.Block.Kind == "paragraph" {
+					target.Block.Background = insert.Background
+				}
 				if len(insert.Comments) > 0 {
 					midC := SliceComments(insert.Comments, start-a, end-a)
 					if len(midC) > 0 {
@@ -761,7 +822,7 @@ func (e *Engine) Paste(fragment *Document) {
 			return
 		}
 		if leaf.Block.Kind == "cell" {
-			e.replace(a, z, fragment.PlainText())
+			e.replace(a, z, fragment.VisiblePlainText())
 			return
 		}
 		e.replace(a, z, "")

@@ -29,7 +29,30 @@ func (e *Editor) copySelection(write func(string)) {
 	e.writeClipboard(fragment, data, text)
 }
 
+func (e *Editor) copyPlainSelection(write func(string)) {
+	r := e.Selection().Range
+	if r.Start == r.End {
+		return
+	}
+	slice := strings.ReplaceAll(e.slice(r.Start, r.End), "\u2028", "\n")
+	fragment := e.Engine.Fragment()
+	fragment.ImportSource = ""
+	e.writePlainClipboard(e.selectionPlainText(r, fragment, slice), write)
+}
+
+func runsPlainText(runs []document.Run) string {
+	return strings.ReplaceAll(document.RunsVisibleText(runs), "\u2028", "\n")
+}
+
+func (e *Editor) slicePlainText(r ui.TextInputRange, a document.Leaf) string {
+	sub := document.SliceRuns(a.Block.Runs, max(0, r.Start-a.Start), max(0, min(a.End, r.End)-a.Start))
+	return runsPlainText(sub)
+}
+
 func (e *Editor) clipboardPlainText(r ui.TextInputRange, fragment *document.Document, slice string) string {
+	if e.copyPlainText {
+		return e.selectionPlainText(r, fragment, slice)
+	}
 	a, z := e.LeafAt(r.Start), e.LeafAt(r.End)
 	if literalBlock(a.Block.Kind) {
 		return slice
@@ -39,7 +62,7 @@ func (e *Editor) clipboardPlainText(r ui.TextInputRange, fragment *document.Docu
 	// and commands paste into chat apps, terminals, and login inputs without
 	// Markdown backslash escapes or wrapper markup.
 	if a.Block == z.Block && (a.Block.Kind == "cell" || inlineLiteralRuns(a.Block, r.Start-a.Start, r.End-a.Start)) {
-		return slice
+		return e.slicePlainText(r, a)
 	}
 	if tableID, cr, ok := e.cellRange(); ok && !(len(fragment.Blocks) == 1 && fragment.Blocks[0].Kind == "table") {
 		if table := e.blockByID(tableID); table != nil {
@@ -48,11 +71,108 @@ func (e *Editor) clipboardPlainText(r ui.TextInputRange, fragment *document.Docu
 	}
 	if !rich(fragment) {
 		if a.Block == z.Block {
-			return slice
+			return e.slicePlainText(r, a)
 		}
 		return plainFragmentText(fragment)
 	}
 	return trimNewline(ExportMarkdown(fragment))
+}
+
+func (e *Editor) selectionPlainText(r ui.TextInputRange, fragment *document.Document, slice string) string {
+	a, z := e.LeafAt(r.Start), e.LeafAt(r.End)
+	if a.Block == z.Block && a.Block.Kind != "rule" && !isAtomicVisualBlock(a.Block) {
+		if literalBlock(a.Block.Kind) {
+			return slice
+		}
+		return e.slicePlainText(r, a)
+	}
+	if tableID, cr, ok := e.cellRange(); ok && !(len(fragment.Blocks) == 1 && fragment.Blocks[0].Kind == "table") {
+		if table := e.blockByID(tableID); table != nil {
+			return exportCellRangePlainText(table, cr)
+		}
+	}
+	return exportFragmentPlainText(fragment)
+}
+
+type plainTextItem struct {
+	text   string
+	isList bool
+}
+
+func exportFragmentPlainText(doc *document.Document) string {
+	if doc == nil {
+		return ""
+	}
+	var items []plainTextItem
+	collectPlainTextBlocks(doc.Blocks, &items)
+	var out strings.Builder
+	for i, it := range items {
+		if i > 0 {
+			if items[i-1].isList && it.isList {
+				out.WriteByte('\n')
+			} else {
+				out.WriteString("\n\n")
+			}
+		}
+		out.WriteString(it.text)
+	}
+	return out.String()
+}
+
+func collectPlainTextBlocks(blocks []*document.Block, out *[]plainTextItem) {
+	for _, b := range blocks {
+		if b == nil || b.Kind == "rule" || isAtomicVisualBlock(b) {
+			continue
+		}
+		switch b.Kind {
+		case "table":
+			if len(b.Children) == 0 {
+				continue
+			}
+			maxCols := 0
+			for _, row := range b.Children {
+				if len(row.Children) > maxCols {
+					maxCols = len(row.Children)
+				}
+			}
+			if maxCols == 0 {
+				continue
+			}
+			t := exportCellRangePlainText(b, document.CellRange{
+				Row0: 0, Col0: 0,
+				Row1: len(b.Children) - 1, Col1: maxCols - 1,
+			})
+			if t != "" {
+				*out = append(*out, plainTextItem{text: t})
+			}
+		case "columns":
+			for _, col := range b.Children {
+				collectPlainTextBlocks(col.Children, out)
+			}
+		case "image":
+			if alt := strings.ReplaceAll(b.Text(), "\u2028", "\n"); alt != "" {
+				*out = append(*out, plainTextItem{text: alt})
+			}
+		default:
+			isList := b.Kind == "bullet" || b.Kind == "numbered" || b.Kind == "task"
+			*out = append(*out, plainTextItem{
+				text:   runsPlainText(b.Runs),
+				isList: isList,
+			})
+		}
+	}
+}
+
+func (e *Editor) writePlainClipboard(text string, write func(string)) {
+	if e.services != (ui.Services{}) {
+		e.services.WriteClipboardData(transfer.New(transfer.NewItem(
+			transfer.Bytes(transfer.Text, []byte(text)),
+		)))
+		return
+	}
+	if write != nil {
+		write(text)
+	}
 }
 
 func inlineLiteralRuns(b *document.Block, from, to int) bool {
@@ -71,7 +191,7 @@ func inlineLiteralRuns(b *document.Block, from, to int) bool {
 func plainFragmentText(doc *document.Document) string {
 	parts := make([]string, 0, len(doc.Blocks))
 	for _, b := range doc.Blocks {
-		parts = append(parts, strings.ReplaceAll(b.Text(), "\u2028", "\n"))
+		parts = append(parts, runsPlainText(b.Runs))
 	}
 	return strings.Join(parts, "\n\n")
 }
@@ -88,7 +208,7 @@ func exportCellRangePlainText(table *document.Block, cr document.CellRange) stri
 				cols = append(cols, "")
 				continue
 			}
-			cols = append(cols, strings.ReplaceAll(cell.Text(), "\u2028", "\n"))
+			cols = append(cols, runsPlainText(cell.Runs))
 		}
 		rows = append(rows, strings.Join(cols, "\t"))
 	}
@@ -98,8 +218,17 @@ func exportCellRangePlainText(table *document.Block, cr document.CellRange) stri
 func trimNewline(s string) string { return strings.TrimSuffix(s, "\n") }
 
 // writeClipboard offers a fragment, encoded as data, with its text,
-// Markdown and HTML.
+// Markdown and HTML. When CopyPlainText is enabled, Markdown and HTML are
+// omitted so external apps (including rich editors) paste plain text while
+// ArcMD itself still restores formatting via fragmentFormat.
 func (e *Editor) writeClipboard(fragment *document.Document, data, text string) {
+	if e.copyPlainText {
+		e.services.WriteClipboardData(transfer.New(transfer.NewItem(
+			transfer.Bytes(fragmentFormat, []byte(data)),
+			transfer.Bytes(transfer.Text, []byte(text)),
+		)))
+		return
+	}
 	e.services.WriteClipboardData(transfer.New(transfer.NewItem(
 		transfer.Bytes(fragmentFormat, []byte(data)),
 		transfer.Bytes(transfer.Text, []byte(text)),
@@ -129,7 +258,7 @@ func (e *Editor) pasteSelection(read func() string) {
 	if data, ok := readFormat(fragmentFormat); ok && len(data) < 16<<20 {
 		if doc, err := document.Decode(string(data)); err == nil {
 			if inLiteral {
-				e.Buffer.ReplaceText(nil, doc.PlainText())
+				e.Buffer.ReplaceText(nil, doc.VisiblePlainText())
 				return
 			}
 			e.UnmarkText()
@@ -299,10 +428,13 @@ func pastedMath(source string) *document.Document {
 // plain text, worth pasting as structure.
 func rich(doc *document.Document) bool {
 	for _, b := range doc.Blocks {
-		if b.Kind != "paragraph" || b.Align != "" || b.Indent != 0 || len(b.Comments) > 0 {
+		if b.Kind != "paragraph" || b.Align != "" || b.Indent != 0 || b.Background != "" || len(b.Comments) > 0 {
 			return true
 		}
 		for _, r := range b.Runs {
+			if r.IsImage() {
+				return true
+			}
 			s := r.Style
 			s.NoMath = false
 			if s != (document.Style{}) {

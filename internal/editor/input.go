@@ -123,8 +123,8 @@ func (e *Editor) input(ev ui.InputEvent, read func() string, write func(string),
 			return false
 		}
 		if ev.Mods&ui.Cmd != 0 {
-			if span, ok := e.linkAtPoint(ev.X, ev.Y, false); ok && open != nil {
-				open(span.url)
+			if span, ok := e.linkAtPoint(ev.X, ev.Y, false); ok && open != nil && safeLinkURL(span.url) {
+				open(strings.TrimSpace(span.url))
 				return true
 			}
 			if name := e.wikiAtPoint(ev.X, ev.Y); name != "" && e.openWiki != nil {
@@ -145,7 +145,7 @@ func (e *Editor) input(ev ui.InputEvent, read func() string, write func(string),
 		if e.clickNumberedMarker(ev.X, ev.Y) {
 			return true
 		}
-		if (!e.ReadOnly || e.directLinks) && ev.Mods == 0 && ev.Clicks < 2 {
+		if (!e.ReadOnly || e.directLinks || e.isLinkedInlineImagePoint(ev.X, ev.Y)) && ev.Mods == 0 && ev.Clicks < 2 {
 			if span, ok := e.linkAtPoint(ev.X, ev.Y, !e.directLinks); ok {
 				e.pendingLink = span
 				e.pendingLinkDown = ui.Point{X: ev.X, Y: ev.Y}
@@ -215,8 +215,8 @@ func (e *Editor) input(ev ui.InputEvent, read func() string, write func(string),
 			e.pendingLink = linkSpan{}
 			if e.Anchor == e.Caret {
 				if hit, ok := e.linkAtPoint(ev.X, ev.Y, !e.directLinks); ok && hit == span {
-					if e.ReadOnly && e.directLinks && open != nil {
-						open(span.url)
+					if e.ReadOnly && (e.directLinks || e.isLinkedInlineImagePoint(ev.X, ev.Y)) && open != nil && safeLinkURL(span.url) {
+						open(strings.TrimSpace(span.url))
 					} else if !e.ReadOnly {
 						e.openLinkSpan(span)
 					}
@@ -260,6 +260,16 @@ func (e *Editor) ClearFormatting() {
 	e.RequestFocus = true
 }
 
+// CopyPlainText copies the active text or block selection to the clipboard
+// as plain text with Markdown syntax and inline styling stripped.
+func (e *Editor) CopyPlainText() {
+	var write func(string)
+	if e.services != (ui.Services{}) {
+		write = e.services.WriteClipboard
+	}
+	e.command("copyPlain", nil, write)
+}
+
 func (e *Editor) command(command string, read func() string, write func(string)) bool {
 	// Copy leaves the page where the reader scrolled, even when the
 	// selected text is now offscreen.
@@ -275,6 +285,14 @@ func (e *Editor) command(command string, read func() string, write func(string))
 			}
 		}
 		e.copySelection(write)
+		return true
+	}
+	if command == "copyPlain" {
+		if len(e.blocks.ids) > 0 {
+			e.copyBlocksPlain(e.BlockSelection(), write)
+			return true
+		}
+		e.copyPlainSelection(write)
 		return true
 	}
 	if command == "cut" && len(e.blocks.ids) > 0 {
@@ -458,6 +476,8 @@ func (e *Editor) key(ev ui.InputEvent, read func() string, write func(string)) b
 	case "clear-format":
 		e.ClearFormatting()
 		return true
+	case "copy-plain":
+		return e.command("copyPlain", read, write)
 	case "newline":
 		e.Engine.Insert(document.NewBlock("paragraph", ""))
 		e.reveal = true

@@ -63,6 +63,8 @@ type StylePalette struct {
 	CodeText        string            `json:"codeText,omitempty"`
 	InlineCodeFill  string            `json:"inlineCodeFill,omitempty"`
 	InlineCodeText  string            `json:"inlineCodeText,omitempty"`
+	InlineTexFill   string            `json:"inlineTexFill,omitempty"`
+	TexBlockFill    string            `json:"texBlockFill,omitempty"`
 	QuoteBar        string            `json:"quoteBar,omitempty"`
 }
 
@@ -87,6 +89,8 @@ func (p StylePalette) IsZero() bool {
 		p.CodeText == "" &&
 		p.InlineCodeFill == "" &&
 		p.InlineCodeText == "" &&
+		p.InlineTexFill == "" &&
+		p.TexBlockFill == "" &&
 		p.QuoteBar == ""
 }
 
@@ -327,6 +331,8 @@ func validatePalette(prefix string, p StylePalette) error {
 		{"codeText", p.CodeText},
 		{"inlineCodeFill", p.InlineCodeFill},
 		{"inlineCodeText", p.InlineCodeText},
+		{"inlineTexFill", p.InlineTexFill},
+		{"texBlockFill", p.TexBlockFill},
 		{"quoteBar", p.QuoteBar},
 	}
 	for _, f := range fields {
@@ -426,7 +432,7 @@ func DefaultStyleTemplateJSON() []byte {
 			CodeText:        "#D5D7DB",
 			InlineCodeFill:  "#303136",
 			InlineCodeText:  "#D5D7DB",
-			QuoteBar:        "#5A5D63",
+			QuoteBar:        "#9A9FA8",
 		},
 	}
 	data, err := json.MarshalIndent(tpl, "", "  ")
@@ -474,7 +480,7 @@ func BuiltinPaperStyle(id string) *StyleConfig {
 				CodeText:       "#DFD8CD",
 				InlineCodeFill: "#332E28",
 				InlineCodeText: "#DFD8CD",
-				QuoteBar:       "#635B50",
+				QuoteBar:       "#A8A095",
 			},
 		}
 	case "sepia":
@@ -511,7 +517,7 @@ func BuiltinPaperStyle(id string) *StyleConfig {
 				CodeText:       "#DDD0BA",
 				InlineCodeFill: "#382F25",
 				InlineCodeText: "#DDD0BA",
-				QuoteBar:       "#695A47",
+				QuoteBar:       "#ACA08E",
 			},
 		}
 	case "sage":
@@ -548,7 +554,7 @@ func BuiltinPaperStyle(id string) *StyleConfig {
 				CodeText:       "#D4DFD8",
 				InlineCodeFill: "#29342E",
 				InlineCodeText: "#D4DFD8",
-				QuoteBar:       "#4F6357",
+				QuoteBar:       "#98AC9F",
 			},
 		}
 	case "slate":
@@ -585,7 +591,7 @@ func BuiltinPaperStyle(id string) *StyleConfig {
 				CodeText:       "#D5DCE8",
 				InlineCodeFill: "#29303D",
 				InlineCodeText: "#D5DCE8",
-				QuoteBar:       "#4F596E",
+				QuoteBar:       "#9AA4B8",
 			},
 		}
 	default:
@@ -680,6 +686,12 @@ func applyStylePalette(dst *StylePalette, src StylePalette) {
 	}
 	if src.InlineCodeText != "" {
 		dst.InlineCodeText = src.InlineCodeText
+	}
+	if src.InlineTexFill != "" {
+		dst.InlineTexFill = src.InlineTexFill
+	}
+	if src.TexBlockFill != "" {
+		dst.TexBlockFill = src.TexBlockFill
 	}
 	if src.QuoteBar != "" {
 		dst.QuoteBar = src.QuoteBar

@@ -1720,11 +1720,7 @@ func (d *document) thumbImageResource(url string) editor.ImageResource {
 	return res
 }
 
-func (d *document) rawImage(url string) image.Image {
-	full, err := d.localImage(url)
-	if err != nil {
-		return nil
-	}
+func decodeRawImageFile(full string) image.Image {
 	f, err := os.Open(full)
 	if err != nil {
 		return nil
@@ -1735,6 +1731,35 @@ func (d *document) rawImage(url string) image.Image {
 		return nil
 	}
 	return img
+}
+
+func (d *document) rawImage(url string) image.Image {
+	full, err := d.localImage(url)
+	if err != nil {
+		return nil
+	}
+	return decodeRawImageFile(full)
+}
+
+// invalidateImage clears cached image state across every editor owned by d
+// (rich editor, split source preview, and cached MDZip page editors).
+func (d *document) invalidateImage(url string) {
+	if d == nil {
+		return
+	}
+	if d.ed != nil {
+		d.ed.InvalidateImage(url)
+	}
+	if d.sourcePreviewEd != nil {
+		d.sourcePreviewEd.InvalidateImage(url)
+	}
+	if d.mdz != nil {
+		for _, ed := range d.mdz.editors {
+			if ed != nil {
+				ed.InvalidateImage(url)
+			}
+		}
+	}
 }
 
 func (d *document) imageResourceWith(url string, post func(func())) editor.ImageResource {
@@ -1813,7 +1838,7 @@ func (d *document) imageResourceFrom(full, url string, post func(func())) editor
 			if d.closed.Load() {
 				return
 			}
-			if decoded.Bitmap != nil {
+			if decoded.HasVisual() {
 				decoded.LoadedAt = time.Now()
 			}
 			if d.imgCache == nil {
@@ -1824,12 +1849,56 @@ func (d *document) imageResourceFrom(full, url string, post func(func())) editor
 				size:     size,
 				resource: decoded,
 			}
-			if d.ed != nil {
-				d.ed.InvalidateImage(url)
-			}
+			d.invalidateImage(url)
 		})
 	}()
 	return placeholder
+}
+
+func looksLikeSVG(data []byte) bool {
+	s := strings.TrimPrefix(string(data), "\xef\xbb\xbf")
+	for {
+		s = strings.TrimLeft(s, " \t\r\n")
+		switch {
+		case strings.HasPrefix(s, "<!--"):
+			end := strings.Index(s[4:], "-->")
+			if end < 0 {
+				return false
+			}
+			s = s[4+end+3:]
+		case strings.HasPrefix(s, "<?"):
+			end := strings.Index(s[2:], "?>")
+			if end < 0 {
+				return false
+			}
+			s = s[2+end+2:]
+		case len(s) >= 9 && strings.EqualFold(s[:9], "<!doctype"):
+			end := strings.IndexByte(s, '>')
+			if end < 0 {
+				return false
+			}
+			s = s[end+1:]
+		default:
+			return len(s) >= 4 && strings.EqualFold(s[:4], "<svg")
+		}
+	}
+}
+
+func decodeImageBytes(data []byte, local bool) editor.ImageResource {
+	if bmp, err := ui.DecodeBitmap(data); err == nil {
+		w, h := bmp.Size()
+		res := editor.ImageResource{Bitmap: bmp, Width: w, Height: h, Local: local}
+		if frames, delays, ok := gifFrames(data); ok {
+			res.Frames, res.Delays = frames, delays
+		}
+		return res
+	}
+	if looksLikeSVG(data) {
+		if svg, err := ui.ParseSVG(data); err == nil {
+			return editor.SVGImageResource(svg, local)
+		}
+	}
+	return editor.ImageResource{Problem: editor.ImageUnsupported, Local: local}
 }
 
 func decodeLocalImageThumb(full string) editor.ImageResource {
@@ -1843,6 +1912,11 @@ func decodeLocalImageThumb(full string) editor.ImageResource {
 	}
 	bmp, err := ui.DecodeBitmapScaled(data, 640)
 	if err != nil {
+		if looksLikeSVG(data) {
+			if svg, svgErr := ui.ParseSVG(data); svgErr == nil {
+				return editor.SVGImageResource(svg, true)
+			}
+		}
 		return editor.ImageResource{Problem: editor.ImageUnsupported, Local: true}
 	}
 	w, h := bmp.Size()
@@ -1858,16 +1932,7 @@ func decodeLocalImageSync(full string) editor.ImageResource {
 		}
 		return editor.ImageResource{Problem: problem, Local: true}
 	}
-	bmp, err := ui.DecodeBitmap(data)
-	if err != nil {
-		return editor.ImageResource{Problem: editor.ImageUnsupported, Local: true}
-	}
-	w, h := bmp.Size()
-	res := editor.ImageResource{Bitmap: bmp, Width: w, Height: h, Local: true}
-	if frames, delays, ok := gifFrames(data); ok {
-		res.Frames, res.Delays = frames, delays
-	}
-	return res
+	return decodeImageBytes(data, true)
 }
 
 // isMissingDocFile distinguishes a deleted document file from a non-directory
