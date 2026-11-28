@@ -2,7 +2,7 @@
 
 ## 0.5.2 (upstream, 官方 GitHub Release 尚未发布)
 
-本 fork 已将上游 main 同步至 `077c6d3634ee8673c2c40eaad7aca91aa86d8625`（git 标签 `v0.5.2`）。上游仓库已有该标签与「release: ArcMD v0.5.2」提交，但截至同步时官方 GitHub Release API 最新仍为 [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231），因此按既定规则只同步 main，不新增 fork 安装包。本 fork 正式安装包仍为 [arcmd-v0.2.15](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15)。
+本 fork 已将上游 main 同步至 `b15f078f799aeae6f58034bc588b06d33094f28d`（git 标签 `v0.5.2`；上游在原 `077c6d3634ee8673c2c40eaad7aca91aa86d8625` 之后将该标签前移至本提交）。上游仓库已有该标签与「release: ArcMD v0.5.2」提交，并另含设置页测试在跨平台字体度量下将点击目标滚入可视中心的修正，但截至同步时官方 GitHub Release API 最新仍为 [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231），因此按既定规则只同步 main，不新增 fork 安装包。本 fork 正式安装包仍为 [arcmd-v0.2.15](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15)。
 
 本版本正式推出 **浏览器剪藏宿主（Web Clipper Native Messaging Host）与全链路剪藏接入**（[#65](https://github.com/Ciao1019/ArcMD/issues/65)、[#95](https://github.com/Ciao1019/ArcMD/pull/95)，感谢 `@tajiaoyezi`），搭配官方扩展 [`Ciao1019/arcmd-clipper`](https://github.com/Ciao1019/arcmd-clipper) 即可将网页正文、4 色高亮批注与防盗链图片一键剪藏至本地空间或多维数据库；同时围绕个性化写作体验带来 **5 档内置浅/深纸面配色预设与 `style.json` 实时样式定制**、**可自定义文档右上角快捷工具栏**、**正文与 1–6 级标题快捷键自定义（含 Typora `⌘1–⌘6` 预设）** 以及 **首块原生 H2–H6 标题与默认一级标题开关**（[#92](https://github.com/Ciao1019/ArcMD/issues/92)）。
 
