@@ -1,5 +1,3 @@
-> This fork is iterating toward **versioned MDX 3.1.1 compatibility**: native prose plus isolated JSX/expression islands, without runtime Node. It is not full MDX support. See [scope and usage](#mdx-support).
-
 <div align="center">
 
 <img src="docs/images/readme/logo-horizontal.png" width="400" alt="ArcMD logo">
@@ -36,6 +34,8 @@
 [Writing Flow](#writing-in-flow) · [Spaces & Reading](#spaces--reading-highlights) · [Native Markdown](#native-markdown-yours-forever) · [Features](#features-at-a-glance) · [Shortcuts](#essential-shortcuts) · [Performance](#performance) · [Build from source](#build-from-source) · [Contributing](#contributing) · [Roadmap](https://github.com/Ciao1019/ArcMD/issues/80)
 
 </div>
+
+> This fork is iterating toward **versioned MDX 3.1.1 compatibility**: native prose plus isolated JSX/expression islands, without runtime Node. It is not full MDX support. See [scope and usage](#mdx-support).
 
 <br>
 

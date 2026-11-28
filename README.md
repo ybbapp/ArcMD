@@ -1,5 +1,3 @@
-> 本 fork 正在推进 **MDX 3.1.1 分阶段兼容**：原生正文 + 隔离 JSX/表达式岛屿，运行时无需 Node，仍非完整 MDX。见 [版本与使用边界](#mdx-support)。
-
 <div align="center">
 
 <img src="docs/images/readme/logo-horizontal.png" width="400" alt="ArcMD logo">
@@ -36,6 +34,8 @@
 [书写交互](#行云流水的书写交互) · [空间与阅读](#空间与阅读亮点) · [原生 Markdown](#原生-markdown不绑架你的文件) · [功能全景](#功能全景) · [常用快捷键](#常用快捷键) · [性能](#性能) · [从源码运行](#从源码运行) · [参与贡献](#参与贡献) · [路线图](https://github.com/Ciao1019/ArcMD/issues/80)
 
 </div>
+
+> 本 fork 正在推进 **MDX 3.1.1 分阶段兼容**：原生正文 + 隔离 JSX/表达式岛屿，运行时无需 Node，仍非完整 MDX。见 [版本与使用边界](#mdx-support)。
 
 <br>
 
