@@ -1,10 +1,20 @@
-# ArcMD 0.2.15 · ybbapp 主线版（上游官方 v0.5.1 + MDX 3.1.1 第一阶段）
+# ArcMD 0.2.16 · ybbapp 主线版（上游官方 v0.5.2 + MDX 3.1.1 第一阶段）
 
 这是 ybbapp/ArcMD:main 的正式 fork Release，真实 cmd/arcmd 主程序，macOS 13+ / Apple Silicon（arm64）。运行不需要 Node/npm/esbuild，没有内置 Node 或本地服务。
 
-本包对应上游官方 Release [v0.5.1](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.1)（ID 460661231，源码 `e62e05a30d8b58512a2b5a41973d38fb0637e8e0`）。本 fork 已发布过 0.2.1–0.2.14，因此本包版本为 0.2.15，避免版本号冲突。
+本包对应上游官方 Release [v0.5.2](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.2)（ID 461347808，源码 `b15f078f799aeae6f58034bc588b06d33094f28d`）。本 fork 已发布过 0.2.1–0.2.15，因此本包版本为 0.2.16，避免版本号冲突。
 
-## 上游 v0.5.1 能力（已纳入本包）
+## 上游 v0.5.2 能力（已纳入本包）
+
+- 浏览器剪藏宿主与全链路剪藏接入（Ciao1019/ArcMD#65、#95，感谢 `@tajiaoyezi`）：纯 Go 零常驻端口实现标准 Chrome Native Messaging 协议（宿主协议名 `com.cizai.arcmd.clipper`，这不是本 fork 的应用 identifier；本包 identifier 仍为 `org.ybbapp.arcmd`），可在「设置 › AI › 浏览器剪藏」或通过 `arcmd clipper [status|install|uninstall]` 为用户态 Chrome、Arc、Edge、Brave、Vivaldi 与 Chromium 注册连接，无需管理员权限。搭配官方扩展 [`Ciao1019/arcmd-clipper`](https://github.com/Ciao1019/arcmd-clipper)，可将网页正文、划选内容、4 色高亮批注与防盗链图片剪藏到本地空间或 `.db.md` 多维数据库。本 fork 未把上游指向 Ciao1019/ArcMD 的应用内更新源写入本包。
+- 5 档内置浅/深纸面配色预设与 `style.json` 实时样式定制（#92）：「设置 › 外观 › 纸面配色」与命令栏提供默认 / 暖米（`warm`）/ 宣纸（`sepia`）/ 竹青（`sage`）/ 雾灰（`slate`）浅色与深色成对预设；可在配置目录用 `style.json` 覆盖纸面色板、字重与表格默认对齐等，并按修改时间热重载。
+- 可自定义文档右上角快捷工具栏（#92）：可按自定义顺序放置常用写作按钮，窄窗自动折叠；可从右上角 `T` 菜单、工具栏右键、`⌘K` 命令栏或「设置 › 通用 › 写作」打开自定义弹窗并持久化。
+- 正文与 1–6 级标题快捷键自定义及 Typora `⌘1–⌘6` 预设（#92）：「设置 › 键盘快捷键」新增正文与标题 1–6 绑定，并提供一键 Typora 标题键预设。
+- 首块原生支持 H2–H6 标题与默认一级标题开关（#92）：文档首块可作为二级至六级标题正常渲染；「设置 › 通用 › 写作」可关闭「新建文档默认使用一级标题」。
+- 设置页测试在跨平台字体度量下将点击目标滚入可视中心的修正（`test(app): center settings targets before clicking across platform font metrics`）。该提交同时被上游用作 git 标签 `v0.5.2` 的最终指向（由 `077c6d3` 前移至 `b15f078`）。
+- 源码已于 2026-11-28 14:03 UTC+8 合入本 fork main（合并提交 `8ce65a0`；此前 10:19 的 `c374c62` 已纳入 #92 与原 v0.5.2 标签提交）。官方 GitHub Release 已于 14:16 UTC+8 发布（ID 461347808，标签 `b15f078f799aeae6f58034bc588b06d33094f28d`），本次据此打包。官方多平台安装包与签名自动更新仅适用于上游发行；本 fork Release 仍只提供 macOS Apple Silicon（arm64）。
+
+## 上游 v0.5.1 能力（仍纳入本包）
 
 - 冷启动提速与默认空间目录迁移（Ciao1019/ArcMD#82）：将默认空间从 `~/Documents/ArcMD` 迁至 `~/.arcmd/spaces`，避开 macOS 文稿目录权限检查与 iCloud 同步造成的冷启动卡顿（启动时自动迁移既有非外部空间并给出提示）；延迟初始化 WASM 插件宿主至首次调用、延迟恢复非活动空间的分屏会话、消除文件树与增量搜索中的重复 `os.Stat`、压缩内嵌动画 PNG，并在初始化应用前先获取单实例锁。本 fork 的 `--jsx-check` 仍在获取单实例锁和 `app.New()` 之前处理。
 - 原生 Mermaid 状态图（#89）：纯 Go 排版与绘制 `stateDiagram` / `stateDiagram-v2`，支持起止态、状态说明、嵌套复合状态、并发分区、分支/汇合/选择/备注节点及带标签转移边；已接入编辑器实时预览、转入白板、`/` 菜单、命令栏以及矢量 PDF 与 HTML 导出。
@@ -79,7 +89,7 @@
 - 本 fork 在文档退场路径上同时销毁 JSX WebView（`document.close()` 调用幂等 `closeJSX()`；丢弃未保存编辑时 `replaceReferences` 也会先关闭旧文档的 JSX），避免只回收位图而留下岛屿运行时。
 - 修复反复切换 Markdown 文档、侧栏悬停预览与空间时内存持续增长的问题（#33），以及已在 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 中打包的上游 v0.2.1–v0.2.4 能力（纯 Go 矢量 PDF、原生 Mermaid、手绘白板、`\boldsymbol`、拼音搜索、Obsidian 图片嵌入，macOS 未安装楷体时避免 CoreText MobileAsset 挂起，`wazero` 插件沙箱与云端同步、三栏合并等）。
 
-## 0.2.3 起已有的阶段兼容（仍适用于 0.2.15）
+## 0.2.3 起已有的阶段兼容（仍适用于 0.2.16）
 
 编译器精确锁定 @mdx-js/mdx 3.1.1，宿主 profile 为 arcmd-mdx3-phase1，不宣称完整 MDX 3 兼容。
 
@@ -90,7 +100,7 @@
 
 ## 验收来源
 
-用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.15 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 / 0.2.11 / 0.2.12 / 0.2.13 / 0.2.14 包当作本包已实机验收。
+用户反馈 [PR #3](https://github.com/ybbapp/ArcMD/pull/3) 的 [2283afd 测试包](https://github.com/ybbapp/ArcMD/releases/tag/mdx3-phase1-2283afd) 效果可接受，并已合入 0.2.3。该测试源码为 2283afdbfe3321a5630c48e2f085fec4d5a69310。**新生成的 0.2.16 主线 ZIP 未在真实 Mac/Finder/WKWebView 验收**，不能把先前测试包验收或 0.2.3 / 0.2.4 / 0.2.5 / 0.2.6 / 0.2.7 / 0.2.8 / 0.2.9 / 0.2.10 / 0.2.11 / 0.2.12 / 0.2.13 / 0.2.14 / 0.2.15 包当作本包已实机验收。
 
 ## 安装与使用
 
@@ -99,7 +109,7 @@
 3. 可从 Finder 启动，打开本地 .mdx（空间/侧栏/系统打开均可）。先试同包 demo.mdx，再让agent改一个新文件验证动态编译。普通正文仍原生。
 4. JSX/受提升段落仍建议让 agent 或外部编辑器改原文件，再回应用重载，以便走内嵌编译器动态编译。本包已纳入上游可编辑 Markdown 源码模式（⇧⌘M /「⋯」菜单 / 命令栏）：进入源码时在 ExportMarkdown 之后经 RestoreSource 还原 JSX/MDX 原文再编辑；从源码写回前会 closeJSX 并 projectJSX，再 ReplaceDocument。源码模式支持语法高亮、查找替换、Tab 缩进与可拖拽分栏实时预览，并可将原始 Markdown 文本直接保存（避免不兼容语法被富文本重排改写）。保存还原岛屿原文，不写回 HTML；岛屿外 Markdown 在非源码保存路径上仍可能被原生序列化规范化。源码 fallback 不是 JSX 运行通过。
 5. 切主题不重载组件；重新打开/重载可重置状态。非活动Tab面板卸载，不承诺状态跨切换保留。编译/WebView/未知组件失败应显示诊断和源码，可重试；源码fallback不是成功。故意错误文件 intentional-error-unknown-component.mdx 用于检查渲染诊断。
-6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.14 ，不需要删除数据。
+6. 不同目录副本和macOS旧登记可能造成“打开方式”重复条目，不能仅凭菜单确定本机副本数量。本包不主动清理用户Mac。需要恢复上一正式版可退出后重装 https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.15 ，不需要删除数据。若已从 0.2.14 或更早版本升级并完成默认空间迁移，回退到更早版本前请确认数据位于 `~/.arcmd/spaces`。本包未在真实 Mac 上再次验证该迁移。
 
 ## 范围与安全
 
