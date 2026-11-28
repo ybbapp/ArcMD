@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (fork main)
+
+已合入上游尚未发布为新官方 GitHub Release 的提交，尚未打包新的 fork Release。当前已发布包仍为 [0.2.16](https://github.com/ybbapp/ArcMD/releases/tag/arcmd-v0.2.16)，对应官方 [v0.5.2](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.2)。
+
+- 缩短顶栏地址胶囊，为原生窗口拖动保留空白（Ciao1019/ArcMD#100，`4946d862ea6610023a8c09c4c509471195e05910`，2026-11-28 20:59 UTC+8）。本 fork 已将该提交合入 main（合并提交 `d8bbf9b1c7dae2660de0138a303b65f59d6daff7`）。保留既有 JSX/MDX 岛屿集成；未改应用身份，未写入 Ciao1019/ArcMD 应用内更新源，未发布新的 fork Release。
+
 ## 0.2.16
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.5.2](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.2)（ID 461347808）。本 fork 自身已发布过 0.2.1–0.2.15，因此本包版本为 0.2.16，避免与既有 fork Release 冲突。官方 Release 标签指向 `b15f078f799aeae6f58034bc588b06d33094f28d`。
