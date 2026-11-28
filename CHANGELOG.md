@@ -6,6 +6,8 @@
 
 - 缩短顶栏地址胶囊，为原生窗口拖动保留空白（Ciao1019/ArcMD#100，`4946d862ea6610023a8c09c4c509471195e05910`，2026-11-28 20:59 UTC+8）。本 fork 已将该提交合入 main（合并提交 `d8bbf9b1c7dae2660de0138a303b65f59d6daff7`）。保留既有 JSX/MDX 岛屿集成；未改应用身份，未写入 Ciao1019/ArcMD 应用内更新源，未发布新的 fork Release。
 
+- 合入上游尚未发行的 #96–#99 及加固提交（`d0c0284ad09ffec7adf5f900924cc3ccab26e7f4`，2026-11-28 22:16 UTC+8）：行内 HTML 图片 / `<picture>` 回退与原生 SVG（#96）、复制为纯文本及默认可选项（#97）、可随包的 portable `style.json`、公式背景与像素对齐的 `\boxed`（#98）、块背景色在编辑 / Markdown / HTML / PDF 间往返（#99），以及跨 PR 的安全、布局与往返加固。本 fork 已将其合入 main（合并提交 `5bcc1c038a135c42aa06cdf7c2aa2e7eefb362a4`）。`app.go` / `document.go` / `focus.go` / `editor/view.go` / `virtualize.go` / `en.go` 两侧都有改动，已核对后同时保留既有 JSX 主题、内容测高、安全隔离与原始 MDX 保存语义。未改应用身份与版本号，未写入 Ciao1019/ArcMD 应用内更新源，未发布新的 fork Release。
+
 ## 0.2.16
 
 ybbapp fork 正式版：在已合入的 MDX 3.1.1 第一阶段 / JSX 岛屿能力之上，打包上游官方 Release [v0.5.2](https://github.com/Ciao1019/ArcMD/releases/tag/v0.5.2)（ID 461347808）。本 fork 自身已发布过 0.2.1–0.2.15，因此本包版本为 0.2.16，避免与既有 fork Release 冲突。官方 Release 标签指向 `b15f078f799aeae6f58034bc588b06d33094f28d`。
